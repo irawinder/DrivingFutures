@@ -33,6 +33,10 @@ Pathfinder finder;
 ArrayList<Path> paths;
 PGraphics pathsImg;
 
+//  Object to define parking facilities
+ArrayList<Parking> parking;
+PGraphics parkingImg;
+
 //  Objects to define agents that navigate our environment
 ArrayList<Agent> people;
 
@@ -54,7 +58,7 @@ void setup() {
   initPopulation();
   
   // Initialize the Camera
-  cam = new Camera(b, -295, 410, 0.7, 0.1, 2.0, 0.31);
+  cam = new Camera(b, -150, 200, 0.7, 0.1, 2.0, 0.4);
 }
 
 void draw() {
@@ -69,6 +73,7 @@ void draw() {
   image(network.img, 0, 0, b.x, b.y);
   tint(255, 255);
   image(pathsImg, 0, 0, b.x, b.y);
+  image(parkingImg, 0, 0, b.x, b.y);
   
   //  Displays the path last calculated in Pathfinder.
   //  The results are overridden everytime findPath() is run.
@@ -123,6 +128,37 @@ void initEnvironment() {
   int graphWidth = int(b.x);   // pixels
   int graphHeight = int(b.y); // pixels
   network = new Graph(graphWidth, graphHeight, nodeResolution, rNetwork);
+  
+  //  A list of parking structures
+  //
+  Table parkingCSV = loadTable("data/parking.csv", "header");
+  parking = new ArrayList<Parking>();
+  Parking park;
+  float x, y, canvasX, canvasY, area;
+  String type;
+  int capacity;
+  for (int i=0; i<parkingCSV.getRowCount(); i++) {
+    x = parkingCSV.getFloat(i, 0);
+    y = parkingCSV.getFloat(i, 1);
+    canvasX  = b.x * (x - lonMin) / (2*tol);
+    canvasY  = b.y - b.y * (y - latMin) / (2*tol);
+    area = parkingCSV.getFloat(i, 7);
+    type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
+    capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
+    park = new Parking(canvasX, canvasY, area, type, capacity);
+    parking.add(park);
+  }
+  println("Parking Structures Loaded: " + parking.size());
+  
+  parkingImg = createGraphics(int(b.x), int(b.y));
+  parkingImg.beginDraw();
+  parkingImg.clear();
+  for (Parking p: parking) {
+    parkingImg.fill(#0000FF, 200);
+    parkingImg.noStroke();
+    parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
+  }
+  parkingImg.endDraw();
 }
 
 void initPaths() {
