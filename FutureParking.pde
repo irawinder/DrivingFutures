@@ -71,7 +71,7 @@ void draw() {
   //
   tint(255, 75); // overlaid as an image
   image(network.img, 0, 0, b.x, b.y);
-  tint(255, 255);
+  tint(255, 175);
   image(pathsImg, 0, 0, b.x, b.y);
   image(parkingImg, 0, 0, b.x, b.y);
   
@@ -89,19 +89,37 @@ void draw() {
   boolean collisionDetection = true;
   for (Agent p: people) {
     p.update(personLocations(people), collisionDetection);
-    p.display(#FFFF00, 200);
+    if (p.type.equals("SOV")) {
+      p.display(#0066FF, 255);
+    } else {
+      p.display(#FF00FF, 255);
+    }
   }
   
   cam.drawControls();
   
   textAlign(CENTER, CENTER);
-  fill(255);
+  fill(255, 200);
   textAlign(LEFT, TOP);
   String fRate = "";
   if (showFrameRate) fRate = "\nFramerate: " + frameRate;
-  text("Press ' g ' to regenerate OD matrix\n" +
+  text("Gensler Future of Parking, Beta\n" +
+       "Diana Vasquez, Kevin Kusina, Andrew Starr, JF Finn, Ira Winder\n\n" +
+       "Press ' g ' to regenerate OD matrix\n" +
        "Press ' f ' to show/hide framerate\n" +
-       fRate, 20, 20);
+       fRate, cam.MARGIN*width, cam.MARGIN*height);
+  fill(#CC33CC);
+  text("Share Ride Vehicle", cam.MARGIN*width, 150);
+  fill(#3366CC);
+  text("Single Occupancy Vehicle", cam.MARGIN*width, 150 + 1*16);
+  fill(#CC3333);
+  text("Below Ground Parking", cam.MARGIN*width, 150 + 3*16);
+  fill(#CCCC33);
+  text("Surface Parking", cam.MARGIN*width, 150 + 4*16);
+  fill(#33CC33);
+  text("Parking Structure", cam.MARGIN*width, 150 + 5*16);
+  
+  fill(255);
 }
 
 void initEnvironment() {
@@ -155,13 +173,21 @@ void initEnvironment() {
   parkingImg.clear();
   for (Parking p: parking) {
     if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-      // Custom
+      parkingImg.fill(#FF0000, 150);
+      parkingImg.stroke(#FF0000, 255);
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+      parkingImg.fill(#FFFF00, 150);
+      parkingImg.stroke(#FFFF00, 255);
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+      parkingImg.fill(#00FF00, 150);
+      parkingImg.stroke(#00FF00, 255);
     } else {
-      
-    } 
-    parkingImg.stroke(#0000FF, 255);
+      parkingImg.fill(255, 150);
+      parkingImg.stroke(255, 255);
+    }
+    
     parkingImg.strokeWeight(5);
-    parkingImg.fill(#0000FF, 150);
+    
       
     parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
     parkingImg.fill(255);
@@ -203,7 +229,7 @@ void initPaths() {
     //
     pathsImg.noFill();
     pathsImg.strokeWeight(5);
-    pathsImg.stroke(#006600, 200); // Green
+    pathsImg.stroke(255, 200); // Green
     PVector n1, n2;
     for (int i=1; i<p.waypoints.size(); i++) {
       n1 = p.waypoints.get(i-1);
@@ -214,10 +240,12 @@ void initPaths() {
   for (Path p: paths) {
     // Draw Origin (Red) and Destination (Blue)
     //
-    pathsImg.fill(#FF0000, 200); // Red
+    pathsImg.fill(255, 200); // Green
+    pathsImg.stroke(255, 255);
+    pathsImg.strokeWeight(4);
     pathsImg.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
     //pathsImg.ellipse(p.destination.x, p.destination.y, p.diameter, p.diameter);
-    pathsImg.strokeWeight(1);
+    
   }
   pathsImg.endDraw();
 }

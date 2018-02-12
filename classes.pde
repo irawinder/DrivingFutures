@@ -1059,6 +1059,8 @@ class Agent {
   int pathIndex, pathLength; // Index and Amount of Nodes in a Path
   int pathDirection; // -1 or +1 to specific directionality
   
+  String type;
+  
   Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path) {
     r = rad;
     tolerance *= r;
@@ -1077,6 +1079,12 @@ class Agent {
     acceleration = new PVector(0, 0);
     velocity = new PVector(0, 0);
     pathIndex = getClosestWaypoint(location);
+    
+    if (random(1.0) < 0.1) {
+      type = "SHARE";
+    } else {
+      type = "SOV";
+    }
   }
   
   PVector seek(PVector target){
@@ -1182,7 +1190,7 @@ class Agent {
     pushMatrix();
     translate(location.x, location.y);
     rotate(velocity.heading());
-    box(4*r, 2*r, 2*r);
+    box(6*r, 3*r, 3*r);
     //ellipse(location.x, location.y, r, r);
     popMatrix();
   }
