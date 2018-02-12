@@ -37,31 +37,101 @@ ArrayList<Path> paths;
 //
 ArrayList<Agent> people;
 
-String roadFile = "data/roads";
+//  Geometric Parameters:
+//
+float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
 
-//float latCtr = +42.350;
-//float lonCtr = -71.066;
-//float tol    =  0.035;
-//float latMin = latCtr - tol;
-//float latMax = latCtr + tol;
-//float lonMin = lonCtr - tol;
-//float lonMax = lonCtr + tol;
+//  3D Environment and UI
+//
+Camera cam;
+PVector b = new PVector(4000, 4000, 0); //Bounding Box for Environment (px)
 
 boolean showFrameRate = false;
 
+void setup() {
+  size(1280, 800, P3D);
+  //fullScreen(P3D);
+  initEnvironment();
+  initPaths();
+  initPopulation();
+  
+  // Initialize the Camera
+  cam = new Camera(b, -295, 410, 0.4, 0.1, 2.0, 0.31);
+}
+
+void draw() {
+  background(0);
+  
+  // Draw 3D Graphics
+  cam.orient();
+  
+  //  Displays the Graph in grayscale.
+  //
+  tint(255, 75); // overlaid as an image
+  image(network.img, 0, 0, b.x, b.y);
+  
+  //  Displays the path last calculated in Pathfinder.
+  //  The results are overridden everytime findPath() is run.
+  //  FORMAT: display(color, alpha)
+  //
+  //boolean showVisited = false;
+  //finder.display(100, 150, showVisited);
+  
+  //  Displays the path properties.
+  //  FORMAT: display(color, alpha)
+  //
+  //for (Path p: paths) {
+  //  p.display(100, 20);
+  //}
+  //for (int i=0; i<paths.size(); i+=5) {
+  //  paths.get(i).display(100, 20);
+  //}
+  
+  //  Update and Display the population of agents
+  //  FORMAT: display(color, alpha)
+  //
+  translate(0,0,1);
+  boolean collisionDetection = true;
+  for (Agent p: people) {
+    p.update(personLocations(people), collisionDetection);
+    p.display(#FFFF00, 200);
+  }
+  
+  cam.drawControls();
+  
+  textAlign(CENTER, CENTER);
+  fill(255);
+  textAlign(LEFT, TOP);
+  String fRate = "";
+  if (showFrameRate) fRate = "\nFramerate: " + frameRate;
+  text("Press 'r' to regenerate OD matrix\n" +
+       "Press 'f' to show/hide framerate\n" +
+       fRate, 20, 20);
+}
+
 void initEnvironment() {
+  //  Parameter Space for Geometric Area
+  //
+  latCtr = +42.350;
+  lonCtr = -71.066;
+  tol    =  0.035;
+  latMin = latCtr - tol;
+  latMax = latCtr + tol;
+  lonMin = lonCtr - tol;
+  lonMax = lonCtr + tol;
+  
   //  A Road Network Created from a QGIS File
   //
   // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
   //rNetwork = new RoadNetwork(roadFile + ".csv", latMin, latMax, lonMin, lonMax); 
   //
-  rNetwork = new RoadNetwork(roadFile + ".csv");
+  rNetwork = new RoadNetwork("data/roads.csv");
   
   //  An example gridded network of width x height (pixels) and node resolution (pixels)
   //
   int nodeResolution = 5;  // pixels
-  int graphWidth = width;   // pixels
-  int graphHeight = height; // pixels
+  int graphWidth = int(b.x);   // pixels
+  int graphHeight = int(b.y); // pixels
   network = new Graph(graphWidth, graphHeight, nodeResolution, rNetwork);
 }
 
@@ -123,59 +193,6 @@ void initPopulation() {
   }
 }
 
-void setup() {
-  size(1000, 1000);
-  //fullScreen();
-  initEnvironment();
-  initPaths();
-  initPopulation();
-}
-
-void draw() {
-  background(0);
-  
-  //  Displays the Graph in grayscale.
-  //
-  tint(255, 75); // overlaid as an image
-  image(network.img, 0, 0);
-  
-  //  Displays the path last calculated in Pathfinder.
-  //  The results are overridden everytime findPath() is run.
-  //  FORMAT: display(color, alpha)
-  //
-  //boolean showVisited = false;
-  //finder.display(100, 150, showVisited);
-  
-  //  Displays the path properties.
-  //  FORMAT: display(color, alpha)
-  //
-  //for (Path p: paths) {
-  //  p.display(100, 20);
-  //}
-  //for (int i=0; i<paths.size(); i+=5) {
-  //  paths.get(i).display(100, 20);
-  //}
-  
-  //  Update and Display the population of agents
-  //  FORMAT: display(color, alpha)
-  //
-  boolean collisionDetection = true;
-  for (Agent p: people) {
-    p.update(personLocations(people), collisionDetection);
-    p.display(#FFFF00, 200);
-  }
-  
-  textAlign(CENTER, CENTER);
-  fill(255);
-  textAlign(LEFT, TOP);
-  String fRate = "";
-  if (showFrameRate) fRate = "\nFramerate: " + frameRate;
-  text("Press 'r' to regenerate OD matrix\n" +
-       "Press 'f' to show/hide framerate\n" +
-       fRate, 20, 20);
-  
-}
-
 ArrayList<PVector> personLocations(ArrayList<Agent> people) {
   ArrayList<PVector> l = new ArrayList<PVector>();
   for (Agent a: people) {
@@ -186,12 +203,26 @@ ArrayList<PVector> personLocations(ArrayList<Agent> people) {
 
 void keyPressed() {
   switch(key) {
-    case 'r':
+    case 'g':
       initPaths();
       initPopulation();
       break;
     case 'f':
       showFrameRate = !showFrameRate;
       break;
+    case 'r':
+      cam.reset();
+      break;
+    case 'p':
+      println(cam.zoom, cam.offset.x, cam.offset.y);
+      break;
   }
+}
+
+void mousePressed() {
+  cam.pressed();
+}
+
+void mouseMoved() {
+  cam.moved();
 }

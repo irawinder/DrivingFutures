@@ -105,7 +105,7 @@ class Graph {
       x        = r.networkT.getFloat(i, 0);
       y        = r.networkT.getFloat(i, 1);
       canvasX  = w * (x - r.x_min) / r.x_w;
-      canvasY  = height - h * (y - r.y_min) / r.y_w;
+      canvasY  = b.y - h * (y - r.y_min) / r.y_w;
       n = new Node(canvasX, canvasY, SCALE);
       n.clearNeighbors();
       nodes.add(n);
@@ -352,7 +352,7 @@ class Graph {
     //
     img.noFill();
     img.stroke(col, alpha);
-    img.strokeWeight(1);
+    img.strokeWeight(5);
     
     // Draws Tangent Circles Centered at pathfinding nodes
     //
@@ -1051,7 +1051,7 @@ class Agent {
   float r;
   float maxforce;
   float maxspeed;
-  float tolerance = 1;
+  float tolerance = 0;
   ArrayList<PVector> path;
   int pathIndex, pathLength; // Index and Amount of Nodes in a Path
   int pathDirection; // -1 or +1 to specific directionality
@@ -1176,7 +1176,12 @@ class Agent {
   void display(color col, int alpha) {
     fill(col, alpha);
     noStroke();
-    ellipse(location.x, location.y, r, r);
+    pushMatrix();
+    translate(location.x, location.y);
+    rotate(velocity.heading());
+    box(4*r, 2*r, 2*r);
+    //ellipse(location.x, location.y, r, r);
+    popMatrix();
   }
 }
 
