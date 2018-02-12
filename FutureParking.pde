@@ -46,13 +46,13 @@ float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
 //  3D Environment and UI
 //
 Camera cam;
-PVector b = new PVector(4000, 4000, 0); //Bounding Box for Environment (px)
+PVector b = new PVector(6000, 6000, 0); //Bounding Box for Environment (px)
 
 boolean showFrameRate = false;
 
 void setup() {
-  size(1280, 800, P3D);
-  //fullScreen(P3D);
+  //size(1280, 800, P3D);
+  fullScreen(P3D);
   initEnvironment();
   initPaths();
   initPopulation();
@@ -62,7 +62,7 @@ void setup() {
 }
 
 void draw() {
-  background(0);
+  background(20);
   
   // Draw 3D Graphics
   cam.orient();
@@ -154,9 +154,20 @@ void initEnvironment() {
   parkingImg.beginDraw();
   parkingImg.clear();
   for (Parking p: parking) {
-    parkingImg.fill(#0000FF, 200);
-    parkingImg.noStroke();
+    println(p.type);
+    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+      // Custom
+    } else {
+      
+    } 
+    parkingImg.stroke(#0000FF, 255);
+    parkingImg.strokeWeight(5);
+    parkingImg.fill(#0000FF, 150);
+      
     parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
+    parkingImg.fill(255);
+    parkingImg.textAlign(CENTER, CENTER);
+    parkingImg.text(p.capacity, p.location.x, p.location.y);
   }
   parkingImg.endDraw();
 }
@@ -174,13 +185,12 @@ void initPaths() {
   paths = new ArrayList<Path>();
   Path path;
   PVector origin, destination;
-  for (int i=0; i<500; i++) {
+  for (Parking p: parking) {
     //  An example Origin and Desination between which we want to know the shortest path
     //
     int rand1 = int( random(network.nodes.size()));
-    int rand2 = int( random(network.nodes.size()));
     origin      = network.nodes.get(rand1).loc;
-    destination = network.nodes.get(rand2).loc;
+    destination = p.location;
     path = new Path(origin, destination);
     path.solve(finder);
     paths.add(path);
@@ -194,7 +204,7 @@ void initPaths() {
     //
     pathsImg.noFill();
     pathsImg.strokeWeight(3);
-    pathsImg.stroke(#007700, 100); // Green
+    pathsImg.stroke(#00CC00); // Green
     PVector n1, n2;
     for (int i=1; i<p.waypoints.size(); i++) {
       n1 = p.waypoints.get(i-1);
@@ -207,7 +217,7 @@ void initPaths() {
     //
     pathsImg.fill(#FF0000, 200); // Red
     pathsImg.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
-    pathsImg.ellipse(p.destination.x, p.destination.y, p.diameter, p.diameter);
+    //pathsImg.ellipse(p.destination.x, p.destination.y, p.diameter, p.diameter);
     pathsImg.strokeWeight(1);
   }
   pathsImg.endDraw();
