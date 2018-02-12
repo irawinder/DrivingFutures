@@ -154,7 +154,6 @@ void initEnvironment() {
   parkingImg.beginDraw();
   parkingImg.clear();
   for (Parking p: parking) {
-    println(p.type);
     if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
       // Custom
     } else {
@@ -203,8 +202,8 @@ void initPaths() {
     // Draw Shortest Path
     //
     pathsImg.noFill();
-    pathsImg.strokeWeight(3);
-    pathsImg.stroke(#00CC00); // Green
+    pathsImg.strokeWeight(5);
+    pathsImg.stroke(#006600, 200); // Green
     PVector n1, n2;
     for (int i=1; i<p.waypoints.size(); i++) {
       n1 = p.waypoints.get(i-1);
