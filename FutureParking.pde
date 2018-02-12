@@ -30,15 +30,13 @@ Graph network;
 Pathfinder finder;
 
 //  Object to define and capture a specific origin, destiantion, and path
-//
 ArrayList<Path> paths;
+PGraphics pathsImg;
 
 //  Objects to define agents that navigate our environment
-//
 ArrayList<Agent> people;
 
 //  Geometric Parameters:
-//
 float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
 
 //  3D Environment and UI
@@ -56,7 +54,7 @@ void setup() {
   initPopulation();
   
   // Initialize the Camera
-  cam = new Camera(b, -295, 410, 0.4, 0.1, 2.0, 0.31);
+  cam = new Camera(b, -295, 410, 0.7, 0.1, 2.0, 0.31);
 }
 
 void draw() {
@@ -69,6 +67,8 @@ void draw() {
   //
   tint(255, 75); // overlaid as an image
   image(network.img, 0, 0, b.x, b.y);
+  tint(255, 255);
+  image(pathsImg, 0, 0, b.x, b.y);
   
   //  Displays the path last calculated in Pathfinder.
   //  The results are overridden everytime findPath() is run.
@@ -76,16 +76,6 @@ void draw() {
   //
   //boolean showVisited = false;
   //finder.display(100, 150, showVisited);
-  
-  //  Displays the path properties.
-  //  FORMAT: display(color, alpha)
-  //
-  //for (Path p: paths) {
-  //  p.display(100, 20);
-  //}
-  //for (int i=0; i<paths.size(); i+=5) {
-  //  paths.get(i).display(100, 20);
-  //}
   
   //  Update and Display the population of agents
   //  FORMAT: display(color, alpha)
@@ -104,8 +94,8 @@ void draw() {
   textAlign(LEFT, TOP);
   String fRate = "";
   if (showFrameRate) fRate = "\nFramerate: " + frameRate;
-  text("Press 'r' to regenerate OD matrix\n" +
-       "Press 'f' to show/hide framerate\n" +
+  text("Press ' g ' to regenerate OD matrix\n" +
+       "Press ' f ' to show/hide framerate\n" +
        fRate, 20, 20);
 }
 
@@ -146,29 +136,45 @@ void initPaths() {
   //  FORMAT 2: Path(PVector o, PVector d)
   //
   paths = new ArrayList<Path>();
-  Path p;
+  Path path;
   PVector origin, destination;
-  for (int i=0; i<100; i++) {
+  for (int i=0; i<500; i++) {
     //  An example Origin and Desination between which we want to know the shortest path
     //
     int rand1 = int( random(network.nodes.size()));
     int rand2 = int( random(network.nodes.size()));
     origin      = network.nodes.get(rand1).loc;
     destination = network.nodes.get(rand2).loc;
-    p = new Path(origin, destination);
-    p.solve(finder);
-    paths.add(p);
+    path = new Path(origin, destination);
+    path.solve(finder);
+    paths.add(path);
   }
-}
-
-void findPaths() {
-  finder = new Pathfinder(network);
   
+  pathsImg = createGraphics(int(b.x), int(b.y));
+  pathsImg.beginDraw();
+  pathsImg.clear();
   for (Path p: paths) {
-    p.solve(finder);
+    // Draw Shortest Path
+    //
+    pathsImg.noFill();
+    pathsImg.strokeWeight(3);
+    pathsImg.stroke(#007700, 100); // Green
+    PVector n1, n2;
+    for (int i=1; i<p.waypoints.size(); i++) {
+      n1 = p.waypoints.get(i-1);
+      n2 = p.waypoints.get(i);
+      pathsImg.line(n1.x, n1.y, n2.x, n2.y);
+    }
   }
-  
-  initPopulation();
+  for (Path p: paths) {
+    // Draw Origin (Red) and Destination (Blue)
+    //
+    pathsImg.fill(#FF0000, 200); // Red
+    pathsImg.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
+    pathsImg.ellipse(p.destination.x, p.destination.y, p.diameter, p.diameter);
+    pathsImg.strokeWeight(1);
+  }
+  pathsImg.endDraw();
 }
 
 void initPopulation() {

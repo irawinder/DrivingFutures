@@ -386,6 +386,7 @@ class Path {
   ArrayList<PVector> waypoints;
   boolean enableFinder = true;
   float diameter = 10;
+  PGraphics img;
   
   Path(float x, float y, float l, float w) {
     origin = new PVector( random(x, x+l), random(y, y+w) );
@@ -403,7 +404,7 @@ class Path {
   
   void solve(Pathfinder finder) {
     waypoints = finder.findPath(origin, destination, enableFinder);
-    diameter = finder.network.SCALE;
+    diameter = 2*finder.network.SCALE;
   }
   
   void straightPath() {
@@ -427,11 +428,13 @@ class Path {
     
     // Draw Origin (Red) and Destination (Blue)
     //
+    pushMatrix();
+    translate(0,0,1);
     fill(#FF0000); // Red
     ellipse(origin.x, origin.y, diameter, diameter);
     fill(#0000FF); // Blue
     ellipse(destination.x, destination.y, diameter, diameter);
-    
+    popMatrix();
     strokeWeight(1);
   }
 }
