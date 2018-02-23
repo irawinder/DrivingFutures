@@ -75,6 +75,22 @@ void draw() {
   image(pathsImg, 0, 0, b.x, b.y);
   image(parkingImg, 0, 0, b.x, b.y);
   
+  for (Parking p: parking) {
+    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+      pushMatrix();
+      translate(p.location.x, p.location.y);
+      fill(#339933, 150);
+      box(0.05*sqrt(p.area), 0.05*sqrt(p.area), 0.05*sqrt(p.area));
+      popMatrix();
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+      pushMatrix();
+      translate(p.location.x, p.location.y, -0.05*sqrt(p.area));
+      fill(#993333, 150);
+      box(0.05*sqrt(p.area), 0.05*sqrt(p.area), 0.05*sqrt(p.area));
+      popMatrix();
+    }
+  }
+      
   //  Displays the path last calculated in Pathfinder.
   //  The results are overridden everytime findPath() is run.
   //  FORMAT: display(color, alpha)
@@ -104,7 +120,7 @@ void draw() {
   String fRate = "";
   if (showFrameRate) fRate = "\nFramerate: " + frameRate;
   text("Gensler Future of Parking, Beta\n" +
-       "Diana Vasquez, Kevin Kusina, Andrew Starr, JF Finn, Ira Winder\n\n" +
+       "Diana Vasquez, Kevin Kusina, Andrew Starr, Karina Silvestor, JF Finn, Ira Winder\n\n" +
        "Press ' g ' to regenerate OD matrix\n" +
        "Press ' f ' to show/hide framerate\n" +
        fRate, cam.MARGIN*width, cam.MARGIN*height);
@@ -118,8 +134,13 @@ void draw() {
   text("Surface Parking", cam.MARGIN*width, 150 + 4*16);
   fill(#33CC33);
   text("Parking Structure", cam.MARGIN*width, 150 + 5*16);
+  fill(255);
+  text("Uncategorized Parking", cam.MARGIN*width, 150 + 6*16);
   
   fill(255);
+  text("Total Parking Features: " + parking.size() + "\n" +
+       "Total Vehicles: " + people.size(), cam.MARGIN*width, 150 + 8*16);
+  
 }
 
 void initEnvironment() {
@@ -181,14 +202,16 @@ void initEnvironment() {
     } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
       parkingImg.fill(#00FF00, 150);
       parkingImg.stroke(#00FF00, 255);
+      pushMatrix();
+      translate(p.location.x, p.location.y);
+      fill(#00FF00, 150);
+      box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
+      popMatrix();
     } else {
       parkingImg.fill(255, 150);
       parkingImg.stroke(255, 255);
     }
-    
     parkingImg.strokeWeight(5);
-    
-      
     parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
     parkingImg.fill(255);
     parkingImg.textAlign(CENTER, CENTER);
@@ -228,19 +251,23 @@ void initPaths() {
     // Draw Shortest Path
     //
     pathsImg.noFill();
-    pathsImg.strokeWeight(5);
-    pathsImg.stroke(255, 200); // Green
     PVector n1, n2;
     for (int i=1; i<p.waypoints.size(); i++) {
       n1 = p.waypoints.get(i-1);
       n2 = p.waypoints.get(i);
+      pathsImg.stroke(150, 200);
+      //pathsImg.strokeWeight(7);
+      //pathsImg.line(n1.x, n1.y, n2.x, n2.y);
+      //pathsImg.stroke(#000066, 200);
+      pathsImg.stroke(255, 255);
+      pathsImg.strokeWeight(3);
       pathsImg.line(n1.x, n1.y, n2.x, n2.y);
     }
   }
   for (Path p: paths) {
     // Draw Origin (Red) and Destination (Blue)
     //
-    pathsImg.fill(255, 200); // Green
+    pathsImg.fill(0, 255); // Green
     pathsImg.stroke(255, 255);
     pathsImg.strokeWeight(4);
     pathsImg.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);

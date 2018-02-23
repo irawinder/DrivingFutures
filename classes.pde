@@ -352,7 +352,7 @@ class Graph {
     //
     img.noFill();
     img.stroke(col, alpha);
-    img.strokeWeight(5);
+    img.strokeWeight(7);
     
     // Draws Tangent Circles Centered at pathfinding nodes
     //
