@@ -274,15 +274,29 @@ void initPaths() {
   for (Path p: paths) {
     // Draw Shortest Path
     //
+    PVector n;
     pathsImg.noFill();
-    PVector n1, n2;
-    for (int i=1; i<p.waypoints.size(); i++) {
-      n1 = p.waypoints.get(i-1);
-      n2 = p.waypoints.get(i);
-      pathsImg.stroke(#00FF00, 20);
-      pathsImg.strokeWeight(3);
-      pathsImg.line(n1.x, n1.y, n2.x, n2.y);
+    pathsImg.stroke(255, 20);
+    pathsImg.strokeWeight(3);
+    pathsImg.strokeCap(ROUND);
+    pathsImg.beginShape();
+    for (int i=0; i<p.waypoints.size(); i++) {
+      n = p.waypoints.get(i);
+      pathsImg.vertex(n.x, n.y);
     }
+    pathsImg.endShape();
+    
+    //PVector n1, n2;
+    //pathsImg.noFill();
+    //for (int i=1; i<p.waypoints.size(); i++) {
+    //  n1 = p.waypoints.get(i-1);
+    //  n2 = p.waypoints.get(i);
+    //  pathsImg.stroke(255, 20);
+    //  pathsImg.strokeWeight(7);
+    //  pathsImg.strokeCap(SQUARE);
+    //  pathsImg.line(n1.x, n1.y, n2.x, n2.y);
+    //}
+    
   }
   for (Path p: paths) {
     // Draw Origin (Red) and Destination (Blue)
@@ -311,7 +325,7 @@ void initPopulation() {
     random = paths.get( int(random(paths.size())) );
     if (random.waypoints.size() > 1) {
       random_waypoint = int(random(random.waypoints.size()));
-      random_speed = 1.0*random(0.1, 0.3);
+      random_speed = 10.0*random(0.1, 0.3);
       loc = random.waypoints.get(random_waypoint);
       person = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints);
       people.add(person);

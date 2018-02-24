@@ -1171,7 +1171,7 @@ class Agent {
     float jitterY = random(-tolerance, tolerance);
     PVector direction = new PVector(waypoint.x + jitterX, waypoint.y + jitterY);
     PVector seekForce = seek(direction);
-    seekForce.mult(1);
+    seekForce.mult(10);
     acceleration.add(seekForce);
     
     // Update velocity
