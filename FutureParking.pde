@@ -195,31 +195,31 @@ void initEnvironment() {
   parkingImg = createGraphics(int(b.x), int(b.y));
   parkingImg.beginDraw();
   parkingImg.clear();
-  //for (Parking p: parking) {
-  //  if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-  //    parkingImg.fill(#FF0000, 150);
-  //    parkingImg.stroke(#FF0000, 255);
-  //  } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
-  //    parkingImg.fill(#FFFF00, 150);
-  //    parkingImg.stroke(#FFFF00, 255);
-  //  } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-  //    parkingImg.fill(#00FF00, 150);
-  //    parkingImg.stroke(#00FF00, 255);
-  //    pushMatrix();
-  //    translate(p.location.x, p.location.y);
-  //    fill(#00FF00, 150);
-  //    box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
-  //    popMatrix();
-  //  } else {
-  //    parkingImg.fill(255, 150);
-  //    parkingImg.stroke(255, 255);
-  //  }
-  //  parkingImg.strokeWeight(5);
-  //  parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
-  //  parkingImg.fill(255);
-  //  parkingImg.textAlign(CENTER, CENTER);
-  //  parkingImg.text(p.capacity, p.location.x, p.location.y);
-  //}
+  for (Parking p: parking) {
+    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+      parkingImg.fill(#FF0000, 150);
+      parkingImg.stroke(#FF0000, 255);
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+      parkingImg.fill(#FFFF00, 150);
+      parkingImg.stroke(#FFFF00, 255);
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+      parkingImg.fill(#00FF00, 150);
+      parkingImg.stroke(#00FF00, 255);
+      pushMatrix();
+      translate(p.location.x, p.location.y);
+      fill(#00FF00, 150);
+      box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
+      popMatrix();
+    } else {
+      parkingImg.fill(255, 150);
+      parkingImg.stroke(255, 255);
+    }
+    parkingImg.strokeWeight(5);
+    parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
+    parkingImg.fill(255);
+    parkingImg.textAlign(CENTER, CENTER);
+    parkingImg.text(p.capacity, p.location.x, p.location.y);
+  }
   parkingImg.endDraw();
 }
 
@@ -237,27 +237,35 @@ void initPaths() {
   Path path;
   PVector origin, destination;
   
-  //for (int i=0; i<5; i++) {
-  //  //  An example Origin and Desination between which we want to know the shortest path
-  //  //
-  //  int rand1 = int( random(network.nodes.size()));
-  //  int rand2 = int( random(parking.size()));
-  //  origin      = network.nodes.get(rand1).loc;
-  //  destination = parking.get(rand2).location;
-  //  path = new Path(origin, destination);
-  //  path.solve(finder);
-  //  paths.add(path);
-  //}
+  boolean debug = false;
+  
+  if (debug) {
+    
+    for (int i=0; i<5; i++) {
+      //  An example Origin and Desination between which we want to know the shortest path
+      //
+      int rand1 = int( random(network.nodes.size()));
+      int rand2 = int( random(parking.size()));
+      origin      = network.nodes.get(rand1).loc;
+      destination = parking.get(rand2).location;
+      path = new Path(origin, destination);
+      path.solve(finder);
+      paths.add(path);
+    }
+    
+  } else {
 
-  for (Parking p: parking) {
-    //  An example Origin and Desination between which we want to know the shortest path
-    //
-    int rand1 = int( random(network.nodes.size()));
-    origin      = network.nodes.get(rand1).loc;
-    destination = p.location;
-    path = new Path(origin, destination);
-    path.solve(finder);
-    paths.add(path);
+    for (Parking p: parking) {
+      //  An example Origin and Desination between which we want to know the shortest path
+      //
+      int rand1 = int( random(network.nodes.size()));
+      origin      = network.nodes.get(rand1).loc;
+      destination = p.location;
+      path = new Path(origin, destination);
+      path.solve(finder);
+      paths.add(path);
+    }
+    
   }
   
   pathsImg = createGraphics(int(b.x), int(b.y));
