@@ -124,6 +124,7 @@ void draw() {
   if (showFrameRate) fRate = "\nFramerate: " + frameRate;
   text("Gensler Future of Parking, Beta\n" +
        "Diana Vasquez, Kevin Kusina, Andrew Starr, Karina Silvestor, JF Finn, Ira Winder\n\n" +
+       "Press ' p ' to regenerate vehicles\n" +
        "Press ' g ' to regenerate OD matrix\n" +
        "Press ' f ' to show/hide framerate\n" +
        fRate, cam.MARGIN*width, cam.MARGIN*height);
@@ -354,7 +355,7 @@ void keyPressed() {
       cam.reset();
       break;
     case 'p':
-      println(cam.zoom, cam.offset.x, cam.offset.y);
+      initPopulation();
       break;
   }
 }
