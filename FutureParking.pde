@@ -51,11 +51,14 @@ PVector b = new PVector(6000, 6000, 0); //Bounding Box for Environment (px)
 boolean showFrameRate = false;
 
 void setup() {
-  //size(1280, 800, P3D);
-  fullScreen(P3D);
+  size(1280, 800, P3D);
+  //fullScreen(P3D);
   initEnvironment();
+  println("Environment Initiatlized");
   initPaths();
+  println("Paths Initiatlized");
   initPopulation();
+  println("Population Initiatlized");
   
   // Initialize the Camera
   cam = new Camera(b, -150, 200, 0.7, 0.1, 2.0, 0.4);
@@ -69,7 +72,7 @@ void draw() {
   
   //  Displays the Graph in grayscale.
   //
-  tint(255, 75); // overlaid as an image
+  tint(255, 25); // overlaid as an image
   image(network.img, 0, 0, b.x, b.y);
   tint(255, 175);
   image(pathsImg, 0, 0, b.x, b.y);
@@ -157,7 +160,7 @@ void initEnvironment() {
   //  A Road Network Created from a QGIS File
   //
   // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
-  //rNetwork = new RoadNetwork(roadFile + ".csv", latMin, latMax, lonMin, lonMax); 
+  //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax); 
   //
   rNetwork = new RoadNetwork("data/roads.csv");
   
@@ -192,31 +195,31 @@ void initEnvironment() {
   parkingImg = createGraphics(int(b.x), int(b.y));
   parkingImg.beginDraw();
   parkingImg.clear();
-  for (Parking p: parking) {
-    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-      parkingImg.fill(#FF0000, 150);
-      parkingImg.stroke(#FF0000, 255);
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
-      parkingImg.fill(#FFFF00, 150);
-      parkingImg.stroke(#FFFF00, 255);
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-      parkingImg.fill(#00FF00, 150);
-      parkingImg.stroke(#00FF00, 255);
-      pushMatrix();
-      translate(p.location.x, p.location.y);
-      fill(#00FF00, 150);
-      box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
-      popMatrix();
-    } else {
-      parkingImg.fill(255, 150);
-      parkingImg.stroke(255, 255);
-    }
-    parkingImg.strokeWeight(5);
-    parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
-    parkingImg.fill(255);
-    parkingImg.textAlign(CENTER, CENTER);
-    parkingImg.text(p.capacity, p.location.x, p.location.y);
-  }
+  //for (Parking p: parking) {
+  //  if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+  //    parkingImg.fill(#FF0000, 150);
+  //    parkingImg.stroke(#FF0000, 255);
+  //  } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+  //    parkingImg.fill(#FFFF00, 150);
+  //    parkingImg.stroke(#FFFF00, 255);
+  //  } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+  //    parkingImg.fill(#00FF00, 150);
+  //    parkingImg.stroke(#00FF00, 255);
+  //    pushMatrix();
+  //    translate(p.location.x, p.location.y);
+  //    fill(#00FF00, 150);
+  //    box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
+  //    popMatrix();
+  //  } else {
+  //    parkingImg.fill(255, 150);
+  //    parkingImg.stroke(255, 255);
+  //  }
+  //  parkingImg.strokeWeight(5);
+  //  parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
+  //  parkingImg.fill(255);
+  //  parkingImg.textAlign(CENTER, CENTER);
+  //  parkingImg.text(p.capacity, p.location.x, p.location.y);
+  //}
   parkingImg.endDraw();
 }
 
@@ -233,6 +236,19 @@ void initPaths() {
   paths = new ArrayList<Path>();
   Path path;
   PVector origin, destination;
+  
+  //for (int i=0; i<5; i++) {
+  //  //  An example Origin and Desination between which we want to know the shortest path
+  //  //
+  //  int rand1 = int( random(network.nodes.size()));
+  //  int rand2 = int( random(parking.size()));
+  //  origin      = network.nodes.get(rand1).loc;
+  //  destination = parking.get(rand2).location;
+  //  path = new Path(origin, destination);
+  //  path.solve(finder);
+  //  paths.add(path);
+  //}
+
   for (Parking p: parking) {
     //  An example Origin and Desination between which we want to know the shortest path
     //
@@ -255,11 +271,7 @@ void initPaths() {
     for (int i=1; i<p.waypoints.size(); i++) {
       n1 = p.waypoints.get(i-1);
       n2 = p.waypoints.get(i);
-      pathsImg.stroke(150, 200);
-      //pathsImg.strokeWeight(7);
-      //pathsImg.line(n1.x, n1.y, n2.x, n2.y);
-      //pathsImg.stroke(#000066, 200);
-      pathsImg.stroke(255, 255);
+      pathsImg.stroke(#00FF00, 20);
       pathsImg.strokeWeight(3);
       pathsImg.line(n1.x, n1.y, n2.x, n2.y);
     }

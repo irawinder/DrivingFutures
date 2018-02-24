@@ -87,6 +87,9 @@ class Graph {
     generateEdges();
   }
   
+  // Using the canvas width and height in pixels, a graph 
+  // is generated using a roadfile CSV/Table
+  //
   Graph(int w, int h, float scale, RoadNetwork r) {
     SCALE = scale;
     U = int(w / SCALE);
@@ -109,12 +112,12 @@ class Graph {
       n = new Node(canvasX, canvasY, SCALE);
       n.clearNeighbors();
       nodes.add(n);
-      
     }
     
     // Connect per Object ID
     int objectID, lastID = -1;
     float dist, speed;
+    String oneway;
     for (int i=0; i<numNodes; i++) {
       //if (i%1000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
       if (i != 0) {
@@ -122,11 +125,15 @@ class Graph {
       }
       objectID = r.networkT.getInt(i, 2);
       if (lastID == objectID) {
+        oneway = r.networkT.getString(i, 16);
         speed = r.networkT.getFloat(i, 15);
         dist = sqrt(sq(nodes.get(i).loc.x - nodes.get(i-1).loc.x) + sq(nodes.get(i).loc.y - nodes.get(i-1).loc.y));
         dist /= speed;
-        nodes.get(i).addNeighbor(i-1, dist);
-        nodes.get(i-1).addNeighbor(i, dist);
+        //Key: FT = From-To; TF = To-From; N = No Travel Either Way; null = both directions okay
+        if (!oneway.equals("N")) { // No Travel Permitted
+          if (!oneway.equals("FT")) nodes.get(i).addNeighbor(i-1, dist);
+          if (!oneway.equals("TF")) nodes.get(i-1).addNeighbor(i, dist);
+        }
       }
     }
     
@@ -152,7 +159,8 @@ class Graph {
       ArrayList<Node> nearby = bucket[u][v];
       for (int j=0; j<nearby.size(); j++) {
         dist = abs(nodes.get(i).loc.x - nearby.get(j).loc.x) + abs(nodes.get(i).loc.y - nearby.get(j).loc.y);
-        if (dist < 0.00000002) { // distance in decimal degrees
+        //if (dist < 0.00000002) { // distance in decimal degrees
+        if (dist == 0) { // distance in decimal degrees
           speed = r.networkT.getFloat(i, 15);
           dist /= speed;
           nodes.get(i).addNeighbor(nearby.get(j).ID, dist);
@@ -1061,6 +1069,8 @@ class Agent {
   
   String type;
   
+  boolean debug = true;
+  
   Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path) {
     r = rad;
     tolerance *= r;
@@ -1072,6 +1082,10 @@ class Agent {
       pathDirection = -1;
     } else {
       pathDirection = +1;
+    }
+    if (debug) {
+      println("Debug: agent travels one direction only");
+      pathDirection = +1; // Override opposite direction
     }
     float jitterX = random(-tolerance, tolerance);
     float jitterY = random(-tolerance, tolerance);
@@ -1180,7 +1194,13 @@ class Agent {
       if (pathDirection == 1 && pathIndex == pathLength-1 || pathDirection == -1 && pathIndex == 0) {
         pathDirection *= -1;
       }
-      pathIndex += pathDirection;
+      if (debug) {
+        println("Debug: agent doesn't reverse direction");
+        if (pathDirection == 1) pathIndex += pathDirection; // Debugging Override Direction
+      } else {
+        pathIndex += pathDirection;
+      }
+      
     }
   }
   
@@ -1309,10 +1329,16 @@ class RoadNetwork {
         networkT.removeRow(i);  
         println(i);
       }
+      
+      boolean noway = networkT.getString(i, 16).equals("N");
+      if (noway) {
+        networkT.removeRow(i);  
+        println(i);
+      }
     }
     
     printExtents();
-    saveTable(networkT, "data/city/roads_smaller.csv");
+    saveTable(networkT, "data/roads_smaller.csv");
   }
   
   void printExtents() {
