@@ -235,7 +235,7 @@ void initPaths() {
   //  FORMAT 2: Path(PVector o, PVector d)
   //
   paths = new ArrayList<Path>();
-  Path path;
+  Path path, pathReturn;
   PVector origin, destination;
   
   boolean debug = false;
@@ -247,10 +247,17 @@ void initPaths() {
       //
       int rand1 = int( random(network.nodes.size()));
       int rand2 = int( random(parking.size()));
+      boolean closedLoop = true;
       origin      = network.nodes.get(rand1).loc;
       destination = parking.get(rand2).location;
       path = new Path(origin, destination);
       path.solve(finder);
+      if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+        path.waypoints.clear();
+      }
+      pathReturn = new Path(destination, origin); 
+      pathReturn.solve(finder);
+      path.joinPath(pathReturn, closedLoop);
       paths.add(path);
     }
     
@@ -277,7 +284,7 @@ void initPaths() {
     //
     PVector n;
     pathsImg.noFill();
-    pathsImg.stroke(255, 20);
+    pathsImg.stroke(#00FF00, 255);
     pathsImg.strokeWeight(3);
     pathsImg.strokeCap(ROUND);
     pathsImg.beginShape();
@@ -322,13 +329,15 @@ void initPopulation() {
   float random_speed;
   people = new ArrayList<Agent>();
   Path random;
+  boolean loop = true;
+  boolean teleport = true;
   for (int i=0; i<1000; i++) {
     random = paths.get( int(random(paths.size())) );
     if (random.waypoints.size() > 1) {
       random_waypoint = int(random(random.waypoints.size()));
       random_speed = 10.0*random(0.1, 0.3);
       loc = random.waypoints.get(random_waypoint);
-      person = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints);
+      person = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT");
       people.add(person);
     }
   }

@@ -159,8 +159,8 @@ class Graph {
       ArrayList<Node> nearby = bucket[u][v];
       for (int j=0; j<nearby.size(); j++) {
         dist = abs(nodes.get(i).loc.x - nearby.get(j).loc.x) + abs(nodes.get(i).loc.y - nearby.get(j).loc.y);
-        //if (dist < 0.00000002) { // distance in decimal degrees
-        if (dist == 0) { // distance in decimal degrees
+        if (dist < 1) { // distance in canvas pixels
+        //if (dist == 0) { // distance in cnvas pixels
           speed = r.networkT.getFloat(i, 15);
           dist /= speed;
           nodes.get(i).addNeighbor(nearby.get(j).ID, dist);
@@ -395,6 +395,7 @@ class Path {
   boolean enableFinder = true;
   float diameter = 10;
   PGraphics img;
+  boolean closed;
   
   Path(float x, float y, float l, float w) {
     origin = new PVector( random(x, x+l), random(y, y+w) );
@@ -415,10 +416,18 @@ class Path {
     diameter = 2*finder.network.SCALE;
   }
   
+  void joinPath(Path p, boolean closed) {
+    for(PVector v: p.waypoints) {
+      waypoints.add(v);
+    }
+    this.closed = closed;
+  }
+  
   void straightPath() {
     waypoints.clear();
     waypoints.add(origin);
     waypoints.add(destination);
+    closed = false;
   }
   
   void display(int col, int alpha) {
@@ -1058,6 +1067,7 @@ class ObstacleCourse {
 class Agent {
   PVector location;
   PVector velocity;
+  PVector smoothVelocity;
   PVector acceleration;
   float r;
   float maxforce;
@@ -1066,32 +1076,47 @@ class Agent {
   ArrayList<PVector> path;
   int pathIndex, pathLength; // Index and Amount of Nodes in a Path
   int pathDirection; // -1 or +1 to specific directionality
+  boolean loop, teleport;
+  String laneSide;
   
   String type;
   
-  boolean debug = true;
-  
-  Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path) {
+  Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide) {
     r = rad;
     tolerance *= r;
     maxspeed = maxS;
     maxforce = 0.2;
     this.path = path;
     pathLength = path.size();
-    if (random(-1, 1) <= 0 ) {
-      pathDirection = -1;
-    } else {
+    
+    // If loop = true, agent will immediately seek to origin if destination is reached
+    // If loop = false, agent will retrace its path back and forth along a path
+    this.loop = loop;
+    
+    // If teleport and loop = true; agent will teleport to origin when destination is reached
+    // If teleport = false; agent will seek origin without teleporting when destination is reached; may ignore path when returning
+    this.teleport = teleport;
+    
+    // If laneSide = "RIGHT"; cars will be offset to the right
+    // If laneSide = "LEFT"; cars will be offset to the left
+    this.laneSide = laneSide;
+    
+    if (loop) {
       pathDirection = +1;
+    } else {
+      if (random(-1, 1) <= 0 ) {
+        pathDirection = -1;
+      } else {
+        pathDirection = +1;
+      }
     }
-    if (debug) {
-      println("Debug: agent travels one direction only");
-      pathDirection = +1; // Override opposite direction
-    }
+    
     float jitterX = random(-tolerance, tolerance);
     float jitterY = random(-tolerance, tolerance);
     location = new PVector(x + jitterX, y + jitterY);
     acceleration = new PVector(0, 0);
     velocity = new PVector(0, 0);
+    smoothVelocity = new PVector(0, 0);
     pathIndex = getClosestWaypoint(location);
     
     if (random(1.0) < 0.1) {
@@ -1171,7 +1196,7 @@ class Agent {
     float jitterY = random(-tolerance, tolerance);
     PVector direction = new PVector(waypoint.x + jitterX, waypoint.y + jitterY);
     PVector seekForce = seek(direction);
-    seekForce.mult(10);
+    seekForce.mult(1);
     acceleration.add(seekForce);
     
     // Update velocity
@@ -1191,16 +1216,26 @@ class Agent {
     //
     float prox = sqrt( sq(location.x - waypoint.x) + sq(location.y - waypoint.y) );
     if (prox < 3 && path.size() > 1 ) {
-      if (pathDirection == 1 && pathIndex == pathLength-1 || pathDirection == -1 && pathIndex == 0) {
-        pathDirection *= -1;
-      }
-      if (debug) {
-        println("Debug: agent doesn't reverse direction");
-        if (pathDirection == 1) pathIndex += pathDirection; // Debugging Override Direction
+      
+      // If return to origin
+      if (loop) {
+        if (pathDirection == 1 && pathIndex == pathLength-1) {
+          pathIndex = 0;
+          if (teleport) {
+            location.x = path.get(0).x;
+            location.y = path.get(0).y;
+          }
+        } else {
+          pathIndex += pathDirection;
+        }
+        
+      // If retrace path backward
       } else {
+        if (pathDirection == 1 && pathIndex == pathLength-1 || pathDirection == -1 && pathIndex == 0) {
+          pathDirection *= -1;
+        }
         pathIndex += pathDirection;
       }
-      
     }
   }
   
@@ -1209,7 +1244,13 @@ class Agent {
     noStroke();
     pushMatrix();
     translate(location.x, location.y);
-    rotate(velocity.heading());
+    
+    // Adjust vehicle's orientation and lane (right or left)
+    float orientation = velocity.heading();
+    if(laneSide.equals("RIGHT")) translate(3*r*cos(orientation+PI/2), 3*r*sin(orientation+PI/2));
+    if(laneSide.equals("LEFT")) translate(3*r*cos(orientation-PI/2), 3*r*sin(orientation-PI/2));
+    rotate(orientation);
+    
     box(6*r, 3*r, 3*r);
     //ellipse(location.x, location.y, r, r);
     popMatrix();
@@ -1330,11 +1371,12 @@ class RoadNetwork {
         println(i);
       }
       
-      boolean noway = networkT.getString(i, 16).equals("N");
-      if (noway) {
-        networkT.removeRow(i);  
-        println(i);
-      }
+      //Relevant for Boston Road Segments Datafile ... deprecated when using OSM format
+      //boolean noway = networkT.getString(i, 16).equals("N");
+      //if (noway) {
+      //  networkT.removeRow(i);  
+      //  println(i);
+      //}
     }
     
     printExtents();
