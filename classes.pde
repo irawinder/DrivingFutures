@@ -363,7 +363,7 @@ class Graph {
     //
     img.noFill();
     img.stroke(col, alpha);
-    img.strokeWeight(7);
+    img.strokeWeight(10);
     
     // Draws Tangent Circles Centered at pathfinding nodes
     //
@@ -1199,11 +1199,12 @@ class Agent {
     float jitterY = random(-tolerance, tolerance);
     PVector direction = new PVector(waypoint.x + jitterX, waypoint.y + jitterY);
     PVector seekForce = seek(direction);
-    seekForce.mult(10);
+    seekForce.mult(1);
     acceleration.add(seekForce);
     
     // Update velocity
     velocity.add(acceleration);
+    smoothVelocity.add(velocity);
     
     // Update Location
     location.add(new PVector(velocity.x, velocity.y));
@@ -1244,17 +1245,18 @@ class Agent {
   
   void display(color col, int alpha) {
     fill(col, alpha);
+    float scaler = 3.0;
     noStroke();
     pushMatrix();
     translate(location.x, location.y);
     
     // Adjust vehicle's orientation and lane (right or left)
     float orientation = velocity.heading();
-    if(laneSide.equals("RIGHT")) translate(3*r*cos(orientation+PI/2), 3*r*sin(orientation+PI/2));
-    if(laneSide.equals("LEFT")) translate(3*r*cos(orientation-PI/2), 3*r*sin(orientation-PI/2));
+    if(laneSide.equals("RIGHT")) translate(0.6*scaler*r*cos(orientation+PI/2), 0.6*scaler*r*sin(orientation+PI/2));
+    if(laneSide.equals("LEFT")) translate(0.6*scaler*r*cos(orientation-PI/2), 0.6*scaler*r*sin(orientation-PI/2));
     rotate(orientation);
     
-    box(6*r, 3*r, 3*r);
+    box(2*scaler*r, scaler*r, 0.75*scaler*r);
     //ellipse(location.x, location.y, r, r);
     popMatrix();
   }

@@ -144,8 +144,8 @@ class TravelRoutes {
       //
       PVector pt;
       img.noFill();
-      img.stroke(#00FF00, 255);
-      img.strokeWeight(3);
+      img.stroke(255, 20);
+      img.strokeWeight(10);
       img.strokeCap(ROUND);
       img.beginShape();
       for (int i=0; i<p.waypoints.size(); i++) {
@@ -153,17 +153,6 @@ class TravelRoutes {
         img.vertex(pt.x, pt.y);
       }
       img.endShape();
-      
-      //PVector n1, n2;
-      //img.noFill();
-      //for (int i=1; i<p.waypoints.size(); i++) {
-      //  n1 = p.waypoints.get(i-1);
-      //  n2 = p.waypoints.get(i);
-      //  img.stroke(255, 20);
-      //  img.strokeWeight(7);
-      //  img.strokeCap(SQUARE);
-      //  img.line(n1.x, n1.y, n2.x, n2.y);
-      //}
       
     }
     for (Path p: paths) {
