@@ -161,7 +161,7 @@ void initEnvironment() {
   //  A Road Network Created from a QGIS File
   //
   // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
-  //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax); 
+  //rNetwork = new RoadNetwork("data/roadsOSM.csv", latMin, latMax, lonMin, lonMax); 
   //
   rNetwork = new RoadNetwork("data/roads.csv");
   
@@ -170,7 +170,7 @@ void initEnvironment() {
   int nodeResolution = 5;  // pixels
   int graphWidth = int(b.x);   // pixels
   int graphHeight = int(b.y); // pixels
-  network = new Graph(graphWidth, graphHeight, nodeResolution, rNetwork);
+  network = new Graph(graphWidth, graphHeight, nodeResolution, rNetwork, latMin, latMax, lonMin, lonMax, tol);
   
   //  A list of parking structures
   //

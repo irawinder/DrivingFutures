@@ -90,7 +90,7 @@ class Graph {
   // Using the canvas width and height in pixels, a graph 
   // is generated using a roadfile CSV/Table
   //
-  Graph(int w, int h, float scale, RoadNetwork r) {
+  Graph(int w, int h, float scale, RoadNetwork r, float latMin, float latMax, float lonMin, float lonMax, float tol) {
     SCALE = scale;
     U = int(w / SCALE);
     V = int(h / SCALE);
@@ -117,23 +117,22 @@ class Graph {
     // Connect per Object ID
     int objectID, lastID = -1;
     float dist, speed;
-    String oneway;
+    String oneway, type;
     for (int i=0; i<numNodes; i++) {
-      //if (i%1000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%1000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
       if (i != 0) {
       lastID   = r.networkT.getInt(i-1, 2);
       }
       objectID = r.networkT.getInt(i, 2);
       if (lastID == objectID) {
-        oneway = r.networkT.getString(i, 16);
-        speed = r.networkT.getFloat(i, 15);
+        oneway = r.networkT.getString(i, 7);
+        type = r.networkT.getString(i, 4);
+        speed = 30; // need to eventually map speed to node type
         dist = sqrt(sq(nodes.get(i).loc.x - nodes.get(i-1).loc.x) + sq(nodes.get(i).loc.y - nodes.get(i-1).loc.y));
         dist /= speed;
-        //Key: FT = From-To; TF = To-From; N = No Travel Either Way; null = both directions okay
-        if (!oneway.equals("N")) { // No Travel Permitted
-          if (!oneway.equals("FT")) nodes.get(i).addNeighbor(i-1, dist);
-          if (!oneway.equals("TF")) nodes.get(i-1).addNeighbor(i, dist);
-        }
+        //Key: F = From-To; T = To-From; B = both directions okay
+        if (!oneway.equals("F")) nodes.get(i).addNeighbor(i-1, dist);
+        if (!oneway.equals("T")) nodes.get(i-1).addNeighbor(i, dist);
       }
     }
     
@@ -153,15 +152,15 @@ class Graph {
     }
     for (int i=0; i<numNodes; i++) {
       // Status Output
-      //if (i%1000 == 0) println("Connecting Segments: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%1000 == 0) println("Connecting Segments: " + int(100*float(i)/nodes.size()) + "% complete");
       u = min(U-1, nodes.get(i).gridX);
       v = min(V-1, nodes.get(i).gridY);
       ArrayList<Node> nearby = bucket[u][v];
       for (int j=0; j<nearby.size(); j++) {
         dist = abs(nodes.get(i).loc.x - nearby.get(j).loc.x) + abs(nodes.get(i).loc.y - nearby.get(j).loc.y);
         if (dist < 1) { // distance in canvas pixels
-        //if (dist == 0) { // distance in cnvas pixels
-          speed = r.networkT.getFloat(i, 15);
+        //if (dist == 0) { // distance in canvas pixels
+          speed = 30; // need to eventually map speed to node type
           dist /= speed;
           nodes.get(i).addNeighbor(nearby.get(j).ID, dist);
           nodes.get(nearby.get(j).ID).addNeighbor(i, dist);
