@@ -23,23 +23,22 @@
  *      X (Lat), Y (Lon), Structure_ID, Structure_Type, Area [sqft], Num_Spaces
  */
  
-// Objects to define our Network
+//  Geometric Parameters:
+float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
+
+// Objects to define our Network:
 //
 RoadNetwork rNetwork;
 Graph network;
 
-//  Object to define and capture a specific origin, destiantion, and path
+//  Object to define and capture paths to collection of origins, destinations:
 TravelRoutes routes;
 
-//  Object to define parking facilities
+//  Object to define parking facilities:
 ParkingStructures structures;
 
-
-//  Objects to define agents that navigate our environment
-ArrayList<Agent> people;
-
-//  Geometric Parameters:
-float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
+//  Objects to define agents that navigate our environment:
+ArrayList<Agent> vehicles;
 
 //  3D Environment and UI
 //
@@ -52,99 +51,6 @@ void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
   
-  // Initialize Simulation Components
-  initEnvironment(); println("Environment Initialized");
-  initPaths();       println("Paths Initialized");
-  initPopulation();  println("Population Initialized");
-  
-  // Initialize the Camera
-  cam = new Camera(b, -150, 200, 0.7, 0.1, 2.0, 0.4);
-}
-
-void draw() {
-  background(20);
-  
-  // Draw 3D Graphics
-  cam.orient();
-  
-  //  Displays the Graph in grayscale.
-  //
-  tint(255, 25); // overlaid as an image
-  image(network.img, 0, 0, b.x, b.y);
-  tint(255, 175);
-  image(routes.img, 0, 0, b.x, b.y);
-  image(structures.img, 0, 0, b.x, b.y);
-  
-  for (Parking p: structures.parking) {
-    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-      pushMatrix();
-      translate(p.location.x, p.location.y);
-      fill(#339933, 150);
-      box(0.05*sqrt(p.area), 0.05*sqrt(p.area), 0.05*sqrt(p.area));
-      popMatrix();
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-      pushMatrix();
-      translate(p.location.x, p.location.y, -0.05*sqrt(p.area));
-      fill(#993333, 150);
-      box(0.05*sqrt(p.area), 0.05*sqrt(p.area), 0.05*sqrt(p.area));
-      popMatrix();
-    }
-  }
-      
-  //  Displays the path last calculated in Pathfinder.
-  //  The results are overridden everytime findPath() is run.
-  //  FORMAT: display(color, alpha)
-  //
-  //boolean showVisited = false;
-  //finder.display(100, 150, showVisited);
-  
-  //  Update and Display the population of agents
-  //  FORMAT: display(color, alpha)
-  //
-  translate(0,0,1);
-  boolean collisionDetection = true;
-  for (Agent p: people) {
-    p.update(personLocations(people), collisionDetection);
-    if (p.type.equals("SOV")) {
-      p.display(#0066FF, 255);
-    } else {
-      p.display(#FF00FF, 255);
-    }
-  }
-  
-  cam.drawControls();
-  
-  textAlign(CENTER, CENTER);
-  fill(255, 200);
-  textAlign(LEFT, TOP);
-  String fRate = "";
-  if (showFrameRate) fRate = "\nFramerate: " + frameRate;
-  text("Gensler Future of Parking, Beta\n" +
-       "Diana Vasquez, Kevin Kusina, Andrew Starr, Karina Silvestor, JF Finn, Ira Winder\n\n" +
-       "Press ' p ' to regenerate vehicles\n" +
-       "Press ' g ' to regenerate OD matrix\n" +
-       "Press ' f ' to show/hide framerate\n" +
-       fRate, cam.MARGIN*width, cam.MARGIN*height);
-  fill(#CC33CC);
-  text("Share Ride Vehicle", cam.MARGIN*width, 150);
-  fill(#3366CC);
-  text("Single Occupancy Vehicle", cam.MARGIN*width, 150 + 1*16);
-  fill(#CC3333);
-  text("Below Ground Parking", cam.MARGIN*width, 150 + 3*16);
-  fill(#CCCC33);
-  text("Surface Parking", cam.MARGIN*width, 150 + 4*16);
-  fill(#33CC33);
-  text("Parking Structure", cam.MARGIN*width, 150 + 5*16);
-  fill(255);
-  text("Uncategorized Parking", cam.MARGIN*width, 150 + 6*16);
-  
-  fill(255);
-  text("Total Parking Features: " + structures.parking.size() + "\n" +
-       "Total Vehicles: " + people.size(), cam.MARGIN*width, 150 + 8*16);
-  
-}
-
-void initEnvironment() {
   //  Parameter Space for Geometric Area
   //
   latCtr = +42.350;
@@ -154,6 +60,17 @@ void initEnvironment() {
   latMax = latCtr + tol;
   lonMin = lonCtr - tol;
   lonMax = lonCtr + tol;
+  
+  // Initialize Simulation Components
+  initEnvironment(); println("Environment Initialized");
+  initPaths();       println("Paths Initialized");
+  initPopulation();  println("Population Initialized");
+  
+  // Initialize the Camera
+  cam = new Camera(b, -150, 200, 0.7, 0.1, 2.0, 0.4);
+}
+
+void initEnvironment() {
   
   //  A Road Network Created from a QGIS OSM File
   //
@@ -183,11 +100,11 @@ void initPopulation() {
   //  An example population that traverses along shortest path calculation
   //  FORMAT: Agent(x, y, radius, speed, path);
   //
-  Agent person;
+  Agent vehicle;
   PVector loc;
   int random_waypoint;
   float random_speed;
-  people = new ArrayList<Agent>();
+  vehicles = new ArrayList<Agent>();
   Path random;
   boolean loop = true;
   boolean teleport = true;
@@ -197,18 +114,10 @@ void initPopulation() {
       random_waypoint = int(random(random.waypoints.size()));
       random_speed = 10.0*random(0.1, 0.3);
       loc = random.waypoints.get(random_waypoint);
-      person = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT");
-      people.add(person);
+      vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT");
+      vehicles.add(vehicle);
     }
   }
-}
-
-ArrayList<PVector> personLocations(ArrayList<Agent> people) {
-  ArrayList<PVector> l = new ArrayList<PVector>();
-  for (Agent a: people) {
-    l.add(a.location);
-  }
-  return l;
 }
 
 void keyPressed() {
