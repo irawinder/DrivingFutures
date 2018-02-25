@@ -27,15 +27,13 @@
 //
 RoadNetwork rNetwork;
 Graph network;
-Pathfinder finder;
 
 //  Object to define and capture a specific origin, destiantion, and path
-ArrayList<Path> paths;
-PGraphics pathsImg;
+TravelRoutes routes;
 
 //  Object to define parking facilities
-ArrayList<Parking> parking;
-PGraphics parkingImg;
+ParkingStructures structures;
+
 
 //  Objects to define agents that navigate our environment
 ArrayList<Agent> people;
@@ -53,12 +51,11 @@ boolean showFrameRate = false;
 void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
-  initEnvironment();
-  println("Environment Initiatlized");
-  initPaths();
-  println("Paths Initiatlized");
-  initPopulation();
-  println("Population Initiatlized");
+  
+  // Initialize Simulation Components
+  initEnvironment(); println("Environment Initialized");
+  initPaths();       println("Paths Initialized");
+  initPopulation();  println("Population Initialized");
   
   // Initialize the Camera
   cam = new Camera(b, -150, 200, 0.7, 0.1, 2.0, 0.4);
@@ -75,10 +72,10 @@ void draw() {
   tint(255, 25); // overlaid as an image
   image(network.img, 0, 0, b.x, b.y);
   tint(255, 175);
-  image(pathsImg, 0, 0, b.x, b.y);
-  image(parkingImg, 0, 0, b.x, b.y);
+  image(routes.img, 0, 0, b.x, b.y);
+  image(structures.img, 0, 0, b.x, b.y);
   
-  for (Parking p: parking) {
+  for (Parking p: structures.parking) {
     if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
       pushMatrix();
       translate(p.location.x, p.location.y);
@@ -142,7 +139,7 @@ void draw() {
   text("Uncategorized Parking", cam.MARGIN*width, 150 + 6*16);
   
   fill(255);
-  text("Total Parking Features: " + parking.size() + "\n" +
+  text("Total Parking Features: " + structures.parking.size() + "\n" +
        "Total Vehicles: " + people.size(), cam.MARGIN*width, 150 + 8*16);
   
 }
@@ -158,165 +155,28 @@ void initEnvironment() {
   lonMin = lonCtr - tol;
   lonMax = lonCtr + tol;
   
-  //  A Road Network Created from a QGIS File
+  //  A Road Network Created from a QGIS OSM File
   //
   // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
-  //rNetwork = new RoadNetwork("data/roadsOSM.csv", latMin, latMax, lonMin, lonMax); 
+  //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax);
   //
   rNetwork = new RoadNetwork("data/roads.csv");
   
   //  An example gridded network of width x height (pixels) and node resolution (pixels)
   //
-  int nodeResolution = 5;  // pixels
-  int graphWidth = int(b.x);   // pixels
+  int nodeResolution = 5;     // pixels
+  int graphWidth = int(b.x);  // pixels
   int graphHeight = int(b.y); // pixels
-  network = new Graph(graphWidth, graphHeight, nodeResolution, rNetwork, latMin, latMax, lonMin, lonMax, tol);
+  network = new Graph(graphWidth, graphHeight, latMin, latMax, lonMin, lonMax, nodeResolution, rNetwork);
   
   //  A list of parking structures
   //
-  Table parkingCSV = loadTable("data/parking.csv", "header");
-  parking = new ArrayList<Parking>();
-  Parking park;
-  float x, y, canvasX, canvasY, area;
-  String type;
-  int capacity;
-  for (int i=0; i<parkingCSV.getRowCount(); i++) {
-    x = parkingCSV.getFloat(i, 0);
-    y = parkingCSV.getFloat(i, 1);
-    canvasX  = b.x * (x - lonMin) / (2*tol);
-    canvasY  = b.y - b.y * (y - latMin) / (2*tol);
-    area = parkingCSV.getFloat(i, 7);
-    type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
-    capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
-    park = new Parking(canvasX, canvasY, area, type, capacity);
-    parking.add(park);
-  }
-  println("Parking Structures Loaded: " + parking.size());
-  
-  parkingImg = createGraphics(int(b.x), int(b.y));
-  parkingImg.beginDraw();
-  parkingImg.clear();
-  for (Parking p: parking) {
-    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-      parkingImg.fill(#FF0000, 150);
-      parkingImg.stroke(#FF0000, 255);
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
-      parkingImg.fill(#FFFF00, 150);
-      parkingImg.stroke(#FFFF00, 255);
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-      parkingImg.fill(#00FF00, 150);
-      parkingImg.stroke(#00FF00, 255);
-      pushMatrix();
-      translate(p.location.x, p.location.y);
-      fill(#00FF00, 150);
-      box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
-      popMatrix();
-    } else {
-      parkingImg.fill(255, 150);
-      parkingImg.stroke(255, 255);
-    }
-    parkingImg.strokeWeight(5);
-    parkingImg.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
-    parkingImg.fill(255);
-    parkingImg.textAlign(CENTER, CENTER);
-    parkingImg.text(p.capacity, p.location.x, p.location.y);
-  }
-  parkingImg.endDraw();
+  structures = new ParkingStructures(int(b.x), int(b.y), latMin, latMax, lonMin, lonMax);
 }
 
 void initPaths() {
-  //  An example pathfinder object used to derive the shortest path
-  //  setting enableFinder to "false" will bypass the A* algorithm
-  //  and return a result akin to "as the bird flies"
-  //
-  finder = new Pathfinder(network);
-  
-  //  FORMAT 1: Path(float x, float y, float l, float w)
-  //  FORMAT 2: Path(PVector o, PVector d)
-  //
-  paths = new ArrayList<Path>();
-  Path path, pathReturn;
-  PVector origin, destination;
-  
-  boolean debug = false;
-  
-  if (debug) {
-    
-    for (int i=0; i<5; i++) {
-      //  An example Origin and Desination between which we want to know the shortest path
-      //
-      int rand1 = int( random(network.nodes.size()));
-      int rand2 = int( random(parking.size()));
-      boolean closedLoop = true;
-      origin      = network.nodes.get(rand1).loc;
-      destination = parking.get(rand2).location;
-      path = new Path(origin, destination);
-      path.solve(finder);
-      if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
-        path.waypoints.clear();
-      }
-      pathReturn = new Path(destination, origin); 
-      pathReturn.solve(finder);
-      path.joinPath(pathReturn, closedLoop);
-      paths.add(path);
-    }
-    
-  } else {
-
-    for (Parking p: parking) {
-      //  An example Origin and Desination between which we want to know the shortest path
-      //
-      int rand1 = int( random(network.nodes.size()));
-      origin      = network.nodes.get(rand1).loc;
-      destination = p.location;
-      path = new Path(origin, destination);
-      path.solve(finder);
-      paths.add(path);
-    }
-    
-  }
-  
-  pathsImg = createGraphics(int(b.x), int(b.y));
-  pathsImg.beginDraw();
-  pathsImg.clear();
-  for (Path p: paths) {
-    // Draw Shortest Path
-    //
-    PVector n;
-    pathsImg.noFill();
-    pathsImg.stroke(#00FF00, 255);
-    pathsImg.strokeWeight(3);
-    pathsImg.strokeCap(ROUND);
-    pathsImg.beginShape();
-    for (int i=0; i<p.waypoints.size(); i++) {
-      n = p.waypoints.get(i);
-      pathsImg.vertex(n.x, n.y);
-    }
-    pathsImg.endShape();
-    
-    //PVector n1, n2;
-    //pathsImg.noFill();
-    //for (int i=1; i<p.waypoints.size(); i++) {
-    //  n1 = p.waypoints.get(i-1);
-    //  n2 = p.waypoints.get(i);
-    //  pathsImg.stroke(255, 20);
-    //  pathsImg.strokeWeight(7);
-    //  pathsImg.strokeCap(SQUARE);
-    //  pathsImg.line(n1.x, n1.y, n2.x, n2.y);
-    //}
-    
-  }
-  for (Path p: paths) {
-    // Draw Origin (Red) and Destination (Blue)
-    //
-    pathsImg.fill(0, 255); // Green
-    pathsImg.stroke(255, 255);
-    pathsImg.strokeWeight(4);
-    pathsImg.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
-    //pathsImg.ellipse(p.destination.x, p.destination.y, p.diameter, p.diameter);
-    
-  }
-  pathsImg.endDraw();
+  // Collection of routes to and from home, work, and parking ammentities
+  routes = new TravelRoutes(int(b.x), int(b.y), network, structures);
 }
 
 void initPopulation() {
@@ -332,7 +192,7 @@ void initPopulation() {
   boolean loop = true;
   boolean teleport = true;
   for (int i=0; i<1000; i++) {
-    random = paths.get( int(random(paths.size())) );
+    random = routes.paths.get( int(random(routes.paths.size())) );
     if (random.waypoints.size() > 1) {
       random_waypoint = int(random(random.waypoints.size()));
       random_speed = 10.0*random(0.1, 0.3);

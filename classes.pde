@@ -90,7 +90,7 @@ class Graph {
   // Using the canvas width and height in pixels, a graph 
   // is generated using a roadfile CSV/Table
   //
-  Graph(int w, int h, float scale, RoadNetwork r, float latMin, float latMax, float lonMin, float lonMax, float tol) {
+  Graph(int w, int h, float latMin, float latMax, float lonMin, float lonMax, float scale, RoadNetwork r) {
     SCALE = scale;
     U = int(w / SCALE);
     V = int(h / SCALE);
@@ -104,11 +104,11 @@ class Graph {
     float canvasX, canvasY;
     for (int i=0; i<numNodes; i++) {
       // Status Output
-      //if (i%1000 == 0) println("Loading Nodes: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%1000 == 0) println("Loading Nodes: " + int(100*float(i)/nodes.size()) + "% complete");
       x        = r.networkT.getFloat(i, 0);
       y        = r.networkT.getFloat(i, 1);
-      canvasX  = w * (x - r.x_min) / r.x_w;
-      canvasY  = b.y - h * (y - r.y_min) / r.y_w;
+      canvasX  = w * (x - lonMin) / abs(lonMax - lonMin);
+      canvasY  = h - h * (y - latMin) / abs(latMax - latMin);
       n = new Node(canvasX, canvasY, SCALE);
       n.clearNeighbors();
       nodes.add(n);
@@ -119,7 +119,7 @@ class Graph {
     float dist, speed;
     String oneway, type;
     for (int i=0; i<numNodes; i++) {
-      if (i%1000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%5000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
       if (i != 0) {
       lastID   = r.networkT.getInt(i-1, 2);
       }
@@ -147,19 +147,23 @@ class Graph {
     for (int i=0; i<numNodes; i++) {
       nodes.get(i).ID = i;
       u = min(U-1, nodes.get(i).gridX);
+      u = max(0,   u);
       v = min(V-1, nodes.get(i).gridY);
+      v = max(0,   v);
       bucket[u][v].add(nodes.get(i));
     }
     for (int i=0; i<numNodes; i++) {
       // Status Output
-      if (i%1000 == 0) println("Connecting Segments: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%5000 == 0) println("Connecting Segments: " + int(100*float(i)/nodes.size()) + "% complete");
       u = min(U-1, nodes.get(i).gridX);
+      u = max(0,   u);
       v = min(V-1, nodes.get(i).gridY);
+      v = max(0,   v);
       ArrayList<Node> nearby = bucket[u][v];
       for (int j=0; j<nearby.size(); j++) {
         dist = abs(nodes.get(i).loc.x - nearby.get(j).loc.x) + abs(nodes.get(i).loc.y - nearby.get(j).loc.y);
-        if (dist < 1) { // distance in canvas pixels
-        //if (dist == 0) { // distance in canvas pixels
+        //if (dist < 20) { // distance in canvas pixels
+        if (dist == 0) { // distance in canvas pixels
           speed = 30; // need to eventually map speed to node type
           dist /= speed;
           nodes.get(i).addNeighbor(nearby.get(j).ID, dist);
@@ -1195,7 +1199,7 @@ class Agent {
     float jitterY = random(-tolerance, tolerance);
     PVector direction = new PVector(waypoint.x + jitterX, waypoint.y + jitterY);
     PVector seekForce = seek(direction);
-    seekForce.mult(1);
+    seekForce.mult(10);
     acceleration.add(seekForce);
     
     // Update velocity
