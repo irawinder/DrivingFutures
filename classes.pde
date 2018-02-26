@@ -88,7 +88,7 @@ class Graph {
   }
   
   // Using the canvas width and height in pixels, a graph 
-  // is generated using a roadfile CSV/Table
+  // is generated using an OSM-standard roadfile CSV/Table 
   //
   Graph(int w, int h, float latMin, float latMax, float lonMin, float lonMax, float scale, RoadNetwork r) {
     SCALE = scale;
@@ -118,6 +118,7 @@ class Graph {
     int objectID, lastID = -1;
     float dist, speed;
     String oneway, type;
+
     for (int i=0; i<numNodes; i++) {
       if (i%5000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
       if (i != 0) {
@@ -127,7 +128,7 @@ class Graph {
       if (lastID == objectID) {
         oneway = r.networkT.getString(i, 7);
         type = r.networkT.getString(i, 4);
-        speed = 30; // need to eventually map speed to node type
+        speed = r.getSpeed(type); // need to eventually map speed to node type
         dist = sqrt(sq(nodes.get(i).loc.x - nodes.get(i-1).loc.x) + sq(nodes.get(i).loc.y - nodes.get(i-1).loc.y));
         dist /= speed;
         //Key: F = From-To; T = To-From; B = both directions okay
@@ -164,7 +165,8 @@ class Graph {
         dist = abs(nodes.get(i).loc.x - nearby.get(j).loc.x) + abs(nodes.get(i).loc.y - nearby.get(j).loc.y);
         //if (dist < 20) { // distance in canvas pixels
         if (dist == 0) { // distance in canvas pixels
-          speed = 30; // need to eventually map speed to node type
+          type = r.networkT.getString(i, 4);
+          speed = r.getSpeed(type); // need to eventually map speed to node type
           dist /= speed;
           nodes.get(i).addNeighbor(nearby.get(j).ID, dist);
           nodes.get(nearby.get(j).ID).addNeighbor(i, dist);
@@ -1335,6 +1337,9 @@ class RoadNetwork {
   float y_min, y_max;
   float x_w,   y_w;
   
+  float[] speedCategories;
+  ArrayList<ArrayList<String>> classNames = new ArrayList<ArrayList<String>>();
+  
   RoadNetwork(String fileName) {
     networkT = loadTable(fileName, "header"); // formatted as QGIS Export of Extracted Nodes
     float x, y;
@@ -1357,6 +1362,8 @@ class RoadNetwork {
     y_w = y_max - y_min;
     
     printExtents();
+    
+    initSpeedCategories();
   }
   
   RoadNetwork(String fileName, float latMin, float latMax, float lonMin, float lonMax) {
@@ -1386,11 +1393,85 @@ class RoadNetwork {
     
     printExtents();
     saveTable(networkT, "data/roads_smaller.csv");
+    
+    initSpeedCategories();
+  }
+  
+  void initSpeedCategories() {
+    
+    /*  MA Speed Limits 
+        https://en.wikipedia.org/wiki/Speed_limits_in_the_United_States_by_jurisdiction#Massachusetts
+      
+          20 mph (32 km/h) in the area of a vehicle (for example, an ice cream truck) that is selling merchandise and is displaying flashing amber lights
+          20 mph (32 km/h) in a school zone when children are present
+          30 mph (48 km/h) on a road in a "thickly settled" or business district for at least 1⁄8 mile (200 m)
+          40 mph (64 km/h) on a road outside of a "thickly settled" or business district for at least 1⁄4 mile (400 m)
+          50 mph (80 km/h) on a divided highway outside of a "thickly settled" or business district for at least 1⁄4 mile (400 m)
+        
+        Best-Guess OSM Standard Vehicle-Road Classifications:
+    */
+    
+    speedCategories = new float[4];
+    speedCategories[0] = 20.0; 
+    speedCategories[1] = 30.0; 
+    speedCategories[2] = 40.0; 
+    speedCategories[3] = 50.0; 
+    
+    ArrayList<String> names;
+    
+    names = new ArrayList<String>();
+    names.add("living_street");
+    names.add("service");
+    names.add("track");
+    names.add("track_grade1");
+    names.add("track_grade2");
+    names.add("track_grade3");
+    names.add("track_grade4");
+    names.add("track_grade5");
+    names.add("unclassified");
+    names.add("unknown");
+    classNames.add(names);
+    
+    names = new ArrayList<String>();
+    names.add("trunk_link");
+    names.add("primary_link");
+    names.add("secondary_link");
+    names.add("tertiary_link");
+    names.add("residential");
+    classNames.add(names);
+    
+    names = new ArrayList<String>();
+    names.add("motorway_link");
+    names.add("trunk");
+    names.add("primary");
+    names.add("secondary");
+    names.add("tertiary");
+    classNames.add(names);
+    
+    names = new ArrayList<String>();
+    names.add("motorway");
+    classNames.add(names);
   }
   
   void printExtents() {
     println("Road Network Lon Range: " + x_min + " , " + x_max + "\n" + 
             "Road Network Lat Range: " + y_min + " , " + y_max
             );
+  }
+  
+  float getSpeed(String roadType) {
+    
+    float speed = 0.0;
+
+    for (int i=0; i<speedCategories.length; i++) {
+      for (String t: classNames.get(i)) {
+        if (roadType.equals(t)) {
+          speed = speedCategories[i];
+          break;
+        }
+      }
+    }
+    return speed;
+    
   }
 }
