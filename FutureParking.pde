@@ -121,6 +121,13 @@ void initPopulation() {
   }
 }
 
+void resetParking() {
+  for (Parking p: structures.parking) {
+    p.utilization = int(random(0, p.capacity));
+    p.ratio = float(p.utilization) / p.capacity;
+  }
+}
+
 void keyPressed() {
   switch(key) {
     case 'g':
@@ -135,6 +142,7 @@ void keyPressed() {
       break;
     case 'p':
       initPopulation();
+      resetParking();
       break;
   }
 }

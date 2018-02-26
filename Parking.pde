@@ -1,20 +1,31 @@
 class Parking {
   PVector location;
   String type;
-  int capacity;
-  float area;
+  int capacity, utilization;
+  float area, ratio;
   
   Parking(float x, float y, float area, String type, int capacity) {
     this.location = new PVector(x, y);
     this.type = type;
     this.capacity = capacity;
     this.area = area;
+    //utilization = int( random(0, capacity) );
+    utilization = 0;
+    ratio = float(utilization) / capacity;
   }
 }
 
 class ParkingStructures {
   ArrayList<Parking> parking;
   PGraphics img;
+  
+  //int belowColor = #7A51A4;
+  //int surfaceColor = #3FB6CB;
+  //int aboveColor = #94D05C;
+  
+  int belowColor = #FF0000;
+  int surfaceColor = #FFFF00;
+  int aboveColor = #00FF00;
   
   ParkingStructures(int w, int h, float latMin, float latMax, float lonMin, float lonMax) {
     
@@ -33,7 +44,7 @@ class ParkingStructures {
       type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
       capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
       park = new Parking(canvasX, canvasY, area, type, capacity);
-      parking.add(park);
+      if (capacity > 0) parking.add(park);
     }
     println("Parking Structures Loaded: " + parking.size());
     
@@ -42,28 +53,21 @@ class ParkingStructures {
     img.clear();
     for (Parking p: parking) {
       if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-        img.fill(#FF0000, 150);
-        img.stroke(#FF0000, 255);
+        img.stroke(belowColor, 200);
+        img.fill(belowColor, 20);
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
-        img.fill(#FFFF00, 150);
-        img.stroke(#FFFF00, 255);
+        img.stroke(surfaceColor, 255);
+        img.fill(surfaceColor, 20);
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-        img.fill(#00FF00, 150);
-        img.stroke(#00FF00, 255);
-        pushMatrix();
-        translate(p.location.x, p.location.y);
-        fill(#00FF00, 150);
-        box(0.1*sqrt(p.area), 0.1*sqrt(p.area), 0.05*sqrt(p.area));
-        popMatrix();
+        img.stroke(aboveColor, 255);
+        img.fill(aboveColor, 20);
       } else {
-        img.fill(255, 150);
         img.stroke(255, 255);
+        img.fill(255, 20);
       }
       img.strokeWeight(5);
-      img.ellipse(p.location.x, p.location.y, 0.1*sqrt(p.area), 0.1*sqrt(p.area));
-      img.fill(255);
-      img.textAlign(CENTER, CENTER);
-      img.text(p.capacity, p.location.x, p.location.y);
+      img.ellipse(p.location.x, p.location.y, 2.0*sqrt( max(75, p.capacity) ), 2.0*sqrt( max(75, p.capacity) ));
+
     }
     img.endDraw();
     
