@@ -19,11 +19,12 @@ void draw() {
     if (p.utilization > 0 ) {
       
       // Draw Parking Utilization
+      int minCap = 200;
       translate(0,0,5);
       noStroke();
       fill(255, 150);
       //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
-      arc(p.location.x, p.location.y, 2.5*sqrt( max(75, p.capacity) ), 2.5*sqrt( max(75, p.capacity) ), 0, p.ratio*2*PI);
+      arc(p.location.x, p.location.y, 2.5*sqrt( max(structures.minCap, p.capacity) ), 2.5*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
       noFill();
       
       // Draw Fill / ID Dot
@@ -40,7 +41,7 @@ void draw() {
       } else {
         fill(255, alpha);
       }
-      ellipse(p.location.x, p.location.y, 2.0*sqrt( max(75, p.capacity) ), 2.0*sqrt( max(75, p.capacity) ));
+      ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
       
       // Draw Capacity Text
       //

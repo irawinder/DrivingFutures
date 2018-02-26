@@ -26,6 +26,7 @@ class ParkingStructures {
   int belowColor = #FF0000;
   int surfaceColor = #FFFF00;
   int aboveColor = #00FF00;
+  int minCap = 200;
   
   ParkingStructures(int w, int h, float latMin, float latMax, float lonMin, float lonMax) {
     
@@ -66,7 +67,7 @@ class ParkingStructures {
         img.fill(255, 20);
       }
       img.strokeWeight(5);
-      img.ellipse(p.location.x, p.location.y, 2.0*sqrt( max(75, p.capacity) ), 2.0*sqrt( max(75, p.capacity) ));
+      img.ellipse(p.location.x, p.location.y, 2.0*sqrt( max(minCap, p.capacity) ), 2.0*sqrt( max(minCap, p.capacity) ));
 
     }
     img.endDraw();
