@@ -112,8 +112,8 @@ void initPopulation() {
     random = routes.paths.get( int(random(routes.paths.size())) );
     if (random.waypoints.size() > 1) {
       random_waypoint = int(random(random.waypoints.size()));
-      //random_speed = 3.0*random(0.3, 0.4);
-      random_speed = 1.5;
+      random_speed = 3.0*random(0.3, 0.4);
+      //random_speed = 1.5;
       loc = random.waypoints.get(random_waypoint);
       vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT");
       vehicles.add(vehicle);

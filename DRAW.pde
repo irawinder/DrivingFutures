@@ -32,13 +32,13 @@ void draw() {
   //  FORMAT: display(color, alpha)
   //
   translate(0,0,1);
-  boolean collisionDetection = true;
+  boolean collisionDetection = false;
   for (Agent p: vehicles) {
     p.update(vehicleLocations(vehicles), collisionDetection);
     if (p.type.equals("SOV")) {
-      p.display(#0066FF, 255);
+      p.display(#0066FF, 200);
     } else {
-      p.display(#FF00FF, 255);
+      p.display(#FF00FF, 200);
     }
   }
   

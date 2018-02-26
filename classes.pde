@@ -1145,12 +1145,12 @@ class Agent {
     PVector sum = new PVector();
     int count = 0;
     
-    for(PVector location : others) {
-      float d = PVector.dist(location, location);
+    for(PVector loc : others) {
+      float d = PVector.dist(loc, location);
       
       if ((d > 0 ) && (d < desiredseparation)){
         
-        PVector diff = PVector.sub(location, location);
+        PVector diff = PVector.sub(loc, location);
         diff.normalize();
         diff.div(d);
         sum.add(diff);
@@ -1189,9 +1189,10 @@ class Agent {
   void update(ArrayList<PVector> others, boolean collisionDetection) {
     
     // Apply Repelling Force
-    PVector separateForce = separate(others);
+    PVector separateForce;
     if (collisionDetection) {
-      separateForce.mult(3);
+      separateForce = separate(others);
+      separateForce.mult(1);
       acceleration.add(separateForce);
     }
     
@@ -1247,7 +1248,7 @@ class Agent {
   
   void display(color col, int alpha) {
     fill(col, alpha);
-    float scaler = 3.0;
+    float scaler = 4.0;
     noStroke();
     pushMatrix();
     translate(location.x, location.y);
