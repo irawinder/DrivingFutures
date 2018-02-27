@@ -86,8 +86,8 @@ class AV_System {
        
        tripDemand[i] = int(tripDemand_0 * pow(1 + demand_growth, i));
        numCar1[i] = int( tripDemand[i] * (1 - av_s) * (1 - rs_s) );
-       numCar2[i] = int( tripDemand[i] * (1 - av_s) * (0 + rs_s) );
-       numCar3[i] = int( tripDemand[i] * (0 + av_s) * (1 - rs_s) );
+       numCar2[i] = int( tripDemand[i] * (0 + av_s) * (1 - rs_s) );
+       numCar3[i] = int( tripDemand[i] * (1 - av_s) * (0 + rs_s) );
        numCar4[i] = int( tripDemand[i] * (0 + av_s) * (0 + rs_s) );
        
        numCar1[i] /= TRIPS_PER_CAR1;
