@@ -1086,12 +1086,13 @@ class Agent {
   
   String type;
   
-  Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide) {
+  Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide, String type) {
     r = rad;
     tolerance *= r;
     maxspeed = maxS;
     maxforce = 0.2;
     this.path = path;
+    this.type = type;
     pathLength = path.size();
     
     // If loop = true, agent will immediately seek to origin if destination is reached
@@ -1123,12 +1124,6 @@ class Agent {
     velocity = new PVector(0, 0);
     smoothVelocity = new PVector(0, 0);
     pathIndex = getClosestWaypoint(location);
-    
-    if (random(1.0) < 0.1) {
-      type = "SHARE";
-    } else {
-      type = "SOV";
-    }
   }
   
   PVector seek(PVector target){
