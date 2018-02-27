@@ -85,9 +85,9 @@ void setup() {
   sys = new AV_System(1000, 2010, 2030);
   sys.av_growth = 1.0;
   sys.rideShare_growth = 1.0;
-  sys.totBelow = 500;
-  sys.totSurface = 100;
-  sys.totAbove = 200;
+  sys.totBelow = structures.totBelow / 100;
+  sys.totSurface = structures.totSurface / 100;
+  sys.totAbove = structures.totAbove / 100;
   setSliders();
   sys.update();
 }

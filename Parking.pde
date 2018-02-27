@@ -30,7 +30,7 @@ class Parking {
 class ParkingStructures {
   ArrayList<Parking> parking;
   PGraphics img;
-  
+  int totBelow, totSurface, totAbove;
   int minCap = 200;
   
   ParkingStructures(int w, int h, float latMin, float latMax, float lonMin, float lonMax) {
@@ -54,6 +54,9 @@ class ParkingStructures {
     }
     println("Parking Structures Loaded: " + parking.size());
     
+    totBelow = 0;
+    totSurface = 0;
+    totAbove = 0;
     img = createGraphics(w, h);
     img.beginDraw();
     img.clear();
@@ -61,12 +64,15 @@ class ParkingStructures {
       if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
         img.stroke(belowColor, 200);
         img.fill(belowColor, 20);
+        totBelow += p.capacity;
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
         img.stroke(surfaceColor, 255);
         img.fill(surfaceColor, 20);
+        totSurface += p.capacity;
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
         img.stroke(aboveColor, 255);
         img.fill(aboveColor, 20);
+        totAbove += p.capacity;
       } else {
         img.stroke(255, 255);
         img.fill(255, 20);
@@ -283,14 +289,14 @@ class AV_System {
       numCar4[i] = int( tripDemand[i] * (0 + av_s) * (0 + rs_s) / TRIPS_PER_CAR4 );
        
       // Update Parking Space Demand
-      numPark1[i]  = int( numCar1[i] * SPACES_PER_CAR1 );
-      numPark2[i]  = int( numCar2[i] * SPACES_PER_CAR2 );
-      numPark3[i]  = int( numCar3[i] * SPACES_PER_CAR3 );
-      numPark4[i]  = int( numCar4[i] * SPACES_PER_CAR4 );
+      numPark1[i]  = int( numCar1[i] * SPACES_PER_CAR1 ) * (totBelow +  totSurface + totAbove) / tripDemand_0;
+      numPark2[i]  = int( numCar2[i] * SPACES_PER_CAR2 ) * (totBelow +  totSurface + totAbove) / tripDemand_0;
+      numPark3[i]  = int( numCar3[i] * SPACES_PER_CAR3 ) * (totBelow +  totSurface + totAbove) / tripDemand_0;
+      numPark4[i]  = int( numCar4[i] * SPACES_PER_CAR4 ) * (totBelow +  totSurface + totAbove) / tripDemand_0;
       totalPark[i] = numPark1[i] + numPark2[i] + numPark3[i] + numPark4[i];
        
       // Update Unutilized Parking Capacity
-      totalFree[i]   = int( (1 - float(totalPark[i]) / tripDemand_0) * (totBelow +  totSurface + totAbove) );
+      totalFree[i]   = totBelow +  totSurface + totAbove - totalPark[i];
       belowFree[i]   = 0;
       surfaceFree[i] = 0;
       aboveFree[i]   = 0;
