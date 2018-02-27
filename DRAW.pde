@@ -1,3 +1,11 @@
+boolean showCar1 = true;
+boolean showCar2 = true;
+boolean showCar3 = true;
+boolean showCar4 = true;
+boolean showBelow = true;
+boolean showSurface = true;
+boolean showAbove = true;
+
 void draw() {
   background(20);
   
@@ -18,30 +26,36 @@ void draw() {
     
     if (p.utilization > 0 ) {
       
-      // Draw Parking Utilization
-      int minCap = 200;
-      translate(0,0,5);
-      noStroke();
-      fill(255, 150);
-      //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
-      arc(p.location.x, p.location.y, 2.5*sqrt( max(structures.minCap, p.capacity) ), 2.5*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
-      noFill();
-      
       // Draw Fill / ID Dot
       //
       translate(0,0,5);
       int alpha = 200;
       noStroke();
-      if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+      boolean show = false;
+      if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel") && showBelow) {
         fill(belowColor, alpha);
-      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+        show = true;
+      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur") && showSurface) {
         fill(surfaceColor, alpha);
-      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+        show = true;
+      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta") && showAbove) {
         fill(aboveColor, alpha);
+        show = true;
       } else {
         fill(255, alpha);
       }
-      ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
+      if (show) {
+        // Draw Parking Button/Icon
+        ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
+        
+        // Draw Parking Utilization
+        translate(0,0,5);
+        noStroke();
+        fill(255, 150);
+        //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
+        arc(p.location.x, p.location.y, 1.5*sqrt( max(structures.minCap, p.capacity) ), 1.5*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
+        noFill();
+      }
       
       // Draw Capacity Text
       //
@@ -67,14 +81,17 @@ void draw() {
   translate(0,0,1);
   boolean collisionDetection = false;
   for (Agent p: vehicles) {
-    p.update(vehicleLocations(vehicles), collisionDetection);
-    if (p.type.equals("1")) {
+    if (p.type.equals("1") && showCar1) {
+      p.update(vehicleLocations(vehicles), collisionDetection);
       p.display(car1Color, 200);
-    } else if (p.type.equals("2")) {
+    } else if (p.type.equals("2") && showCar2) {
+      p.update(vehicleLocations(vehicles), collisionDetection);
       p.display(car2Color, 200);
-    } else if (p.type.equals("3")) {
+    } else if (p.type.equals("3") && showCar3) {
+      p.update(vehicleLocations(vehicles), collisionDetection);
       p.display(car3Color, 200);
-    } else {
+    } else if (p.type.equals("4") && showCar4) {
+      p.update(vehicleLocations(vehicles), collisionDetection);
       p.display(car4Color, 200);
     }
   }

@@ -7,7 +7,7 @@ int car4Color = #FFFF00;
 // Parking Colors
 int overColor = #FF0000;
 int belowColor = #9900FF;
-int surfaceColor = #CCCCCC;
+int surfaceColor = #FFFFFF;
 int aboveColor = #0000FF;
 
 class Parking {
