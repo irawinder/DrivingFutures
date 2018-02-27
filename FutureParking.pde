@@ -41,7 +41,10 @@ ParkingStructures structures;
 AV_System sys;
 
 //  Objects to define agents that navigate our environment:
-ArrayList<Agent> vehicles;
+ArrayList<Agent> type1;
+ArrayList<Agent> type2;
+ArrayList<Agent> type3;
+ArrayList<Agent> type4;
 
 //  3D Environment and UI
 Camera cam;
@@ -69,7 +72,6 @@ void setup() {
   // Initialize Simulation Components
   initEnvironment(); println("Environment Initialized");
   initPaths();       println("Paths Initialized");
-  initPopulation();  println("Population Initialized");
   
   // Initialize the Camera
   cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
@@ -77,9 +79,9 @@ void setup() {
   // Setup Toolbar
   //
   bar = new Toolbar(toolbar_width, int(cam.MARGIN*height));
-  bar.title = "Shared AV Futures";
-  bar.credit = "Ira Winder, 2018";
-  bar.explanation = "Adjust the sliders to explore a hypothetical future of shared, autonomous vehicles.";
+  bar.title = "Shared Autonomous Future, v1.0\n";
+  bar.credit = "Ira Winder, Diana Vasquez, \nKevin Kusina, Andrew Starr, \nKarina Silvestor, JF Finn";
+  bar.explanation = "Explore a hypothetical future of shared and autonomous vehicles";
   
   // Setup System Simulation
   sys = new AV_System(1000, 2010, 2030);
@@ -91,6 +93,9 @@ void setup() {
   setSliders();
   sys.update();
   setParking();
+  
+  // Initialize Vehicle Agents
+  initPopulation();  println("Population Initialized");
 }
 
 // Set System Parameters According to Slider Values
@@ -158,6 +163,35 @@ void initPaths() {
 }
 
 void initPopulation() {
+  int yr = sys.year_now - sys.year_0;
+  
+  type1 = new ArrayList<Agent>();
+  type2 = new ArrayList<Agent>();
+  type3 = new ArrayList<Agent>();
+  type4 = new ArrayList<Agent>();
+  
+  for (int i=0; i<sys.numCar1[yr]; i++) addVehicle(type1, "1");
+  for (int i=0; i<sys.numCar2[yr]; i++) addVehicle(type2, "2");
+  for (int i=0; i<sys.numCar3[yr]; i++) addVehicle(type3, "3");
+  for (int i=0; i<sys.numCar4[yr]; i++) addVehicle(type4, "4");
+}
+
+void updatePopulation() {
+  int yr = sys.year_now - sys.year_0;
+  
+  while (type1.size() > sys.numCar1[yr]) type1.remove(0);
+  while (type2.size() > sys.numCar2[yr]) type2.remove(0);
+  while (type3.size() > sys.numCar3[yr]) type3.remove(0);
+  while (type4.size() > sys.numCar4[yr]) type4.remove(0);
+  
+  while (type1.size() < sys.numCar1[yr]) addVehicle(type1, "1");
+  while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
+  while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
+  while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
+  
+}
+
+void addVehicle(ArrayList<Agent> array, String type) {
   //  An example population that traverses along shortest path calculation
   //  FORMAT: Agent(x, y, radius, speed, path);
   //
@@ -165,45 +199,32 @@ void initPopulation() {
   PVector loc;
   int random_waypoint;
   float random_speed;
-  vehicles = new ArrayList<Agent>();
+  
   Path random;
   boolean loop = true;
   boolean teleport = true;
-  for (int i=0; i<1000; i++) {
+  
+  random = routes.paths.get( int(random(routes.paths.size())) );
+  int wpts = random.waypoints.size();
+  while (wpts < 2) {
     random = routes.paths.get( int(random(routes.paths.size())) );
-    if (random.waypoints.size() > 1) {
-      random_waypoint = int(random(random.waypoints.size()));
-      random_speed = 3.0*random(0.3, 0.4);
-      //random_speed = 1.5;
-      loc = random.waypoints.get(random_waypoint);
-      
-      // Select A Random Type Placeholder
-      float r = random(0, 1);
-      String type;
-      if (r<0.5) {
-        type = "1";
-      } else if(r<0.7) {
-        type = "2";
-      } else if(r<0.9) {
-        type = "3";
-      } else {
-        type = "4";
-      }
-      
-      vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
-      vehicles.add(vehicle);
-    }
+    wpts = random.waypoints.size();
   }
+  random_waypoint = int(random(random.waypoints.size()));
+  random_speed = 3.0*random(0.3, 0.4);
+  loc = random.waypoints.get(random_waypoint);
+  vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  array.add(vehicle);
 }
 
 void keyPressed() {
   cam.moved();
   
   switch(key) {
-    case 'g':
-      initPaths();
-      initPopulation();
-      break;
+    //case 'g':
+    //  initPaths();
+    //  initPopulation();
+    //  break;
     case 'f':
       showFrameRate = !showFrameRate;
       break;
@@ -214,13 +235,14 @@ void keyPressed() {
       setParking();
       sys.update();
       setParking();
+      updatePopulation();
       break;
-    case 'p':
-      initPopulation();
-      break;
-    case 't':
-      println(cam.zoom, cam.offset.x, cam.offset.y);
-      break;
+    //case 'p':
+    //  initPopulation();
+    //  break;
+    //case 't':
+    //  println(cam.zoom, cam.offset.x, cam.offset.y);
+    //  break;
   }
 }
 
@@ -228,6 +250,7 @@ void mousePressed() {
   cam.pressed();
   bar.pressed();
   sys.update();
+  updatePopulation();
 }
 
 void mouseMoved() {
@@ -237,8 +260,10 @@ void mouseMoved() {
 void mouseReleased() {
   bar.released();
   sys.update();
+  updatePopulation();
 }
 
 void mouseDragged() {
   sys.update();
+  updatePopulation();
 }

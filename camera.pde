@@ -482,6 +482,7 @@
     fill(LINE_COLOR, 255-BASE_ALPHA);
     textAlign(CENTER, TOP);
     text("Press 'r' to reset simulation", 0, 0);
+    if (showFrameRate) text("(F)ramerate: " + int(frameRate*10)/10.0, 0, 16);
     translate(0, height - 2*MARGIN*height);
     textAlign(CENTER, BOTTOM);
     fill(LINE_COLOR, 2*BASE_ALPHA);

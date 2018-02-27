@@ -1,4 +1,4 @@
-int s_vOffset = 175;
+int s_vOffset = 180;
   
 class Toolbar {
   int barWidth;
@@ -41,7 +41,7 @@ class Toolbar {
     s1.keyPlus = 'w';
     s1.keyMinus = 'q';
     s1.xpos = GAP + U_OFFSET;
-    s1.ypos = s_vOffset + int(0.0*V_OFFSET);
+    s1.ypos = s_vOffset + int(0.5*V_OFFSET);
     s1.len = u_width;
     s1.valMin = 2010;
     s1.valMax = 2030;
@@ -53,7 +53,7 @@ class Toolbar {
     //s2.keyPlus = 'q';
     //s2.keyMinus = 'w';
     s2.xpos = GAP + U_OFFSET;
-    s2.ypos = s_vOffset + int(0.5*V_OFFSET);
+    s2.ypos = s_vOffset + int(1.0*V_OFFSET);
     s2.len = u_width;
     s2.valMin = -2;
     s2.valMax = 5;
@@ -65,7 +65,7 @@ class Toolbar {
     //s3.keyPlus = 'q';
     //s3.keyMinus = 'w';
     s3.xpos = GAP + U_OFFSET;
-    s3.ypos = s_vOffset + int(1.5*V_OFFSET);
+    s3.ypos = s_vOffset + int(1.75*V_OFFSET);
     s3.len = u_width;
     s3.valMin = 0;
     s3.valMax = 100;
@@ -77,7 +77,7 @@ class Toolbar {
     //s4.keyPlus = 'q';
     //s4.keyMinus = 'w';
     s4.xpos = GAP + U_OFFSET;
-    s4.ypos = s_vOffset + int(2.0*V_OFFSET);
+    s4.ypos = s_vOffset + int(2.25*V_OFFSET);
     s4.len = u_width;
     s4.valMin = 2010;
     s4.valMax = 2030;
@@ -281,8 +281,8 @@ class Toolbar {
     textAlign(LEFT, TOP);
     fill(255);
     text(title + "\n" + credit + "\n\n" + explanation, 0, 0, barWidth - 2*U_OFFSET, height - 2*GAP - 2*U_OFFSET);
-    text("Parking:" , 0                       , 535);
-    text("Vehicles:", barWidth/2 - b1.diameter, 535);
+    text("Parking:" , 0                       , 540);
+    text("Vehicles:", barWidth/2 - b1.diameter, 540);
     
     popMatrix();
     

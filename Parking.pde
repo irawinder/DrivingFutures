@@ -236,7 +236,7 @@ class AV_System {
    
   // Number of parking Spaces needed per vehicle of each type
   float SPACES_PER_CAR1 = 1.00;
-  float SPACES_PER_CAR2 = 0.05;
+  float SPACES_PER_CAR2 = 0.10;
   float SPACES_PER_CAR3 = 0.75;
   float SPACES_PER_CAR4 = 0.15;
    
