@@ -85,11 +85,11 @@
     rotation = 0; // (0 - 2*PI)
   
     // Initialize Horizontal Scrollbar // - int(0.3*height)
-    hs = new HScrollbar(width - 300 - int(height*MARGIN), int((1-1.5*MARGIN)*height), 250, int(MARGIN*height), 5);
+    hs = new HScrollbar(width - int(MARGIN*height) - 250, int((1-1.5*MARGIN)*height), 250, int(MARGIN*height), 5);
     rotation = hs.getPosPI(); // (0 - 2*PI)
     
     // Initialize Vertical Scrollbar
-    vs = new VScrollbar(width - int(1.5*MARGIN*height), int(MARGIN*height), int(MARGIN*height), int(0.3*height), 5);
+    vs = new VScrollbar(width - 300 - 1.0*int(height*MARGIN), int(MARGIN*height), int(MARGIN*height), int(0.3*height), 5);
     
     // Initialize Drag Funciton
     drag = new XYDrag(1.0, 7, 5 + toolbarWidth, 5, width - 10 - toolbarWidth, int(0.85*height) - 5);

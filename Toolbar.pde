@@ -266,14 +266,22 @@ class Toolbar {
     translate(3, 3);
     noStroke();
     fill(0, 220);
-    rect(0, 0, barWidth, height - 2*GAP, GAP);
+    if (height > 800) {
+      rect(0, 0, barWidth, 800 - GAP, GAP);
+    } else {
+      rect(0, 0, barWidth, height - 2*GAP, GAP);
+    }
     popMatrix();
     
     // Canvas
     //
     fill(255, 20);
     noStroke();
-    rect(0, 0, barWidth, height - 2*GAP, GAP);
+    if (height > 800) {
+      rect(0, 0, barWidth, 800 - GAP, GAP);
+    } else {
+      rect(0, 0, barWidth, height - 2*GAP, GAP);
+    }
     
     // Title and Info
     //

@@ -122,7 +122,7 @@ void draw() {
   //
   hint(DISABLE_DEPTH_TEST);
   pushMatrix();
-  translate(width - 300 - bar.GAP, bar.GAP);
+  translate(width - bar.GAP - 200 - 2*bar.U_OFFSET, bar.GAP);
   
   // Shadow of Canvas
   //
@@ -130,22 +130,30 @@ void draw() {
   translate(3, 3);
   noStroke();
   fill(0, 220);
-  rect(0, 0, 200 + 2*bar.U_OFFSET, height - 5*bar.GAP, bar.GAP);
+  if (height > 800) {
+    rect(0, 0, 200 + 2*bar.U_OFFSET, 800 - bar.GAP, bar.GAP);
+  } else {
+    rect(0, 0, 200 + 2*bar.U_OFFSET, height - 5*bar.GAP, bar.GAP);
+  }
   popMatrix();
   
   // Canvas
   //
   fill(255, 20);
   noStroke();
-  rect(0, 0, 200 + 2*bar.U_OFFSET, height - 5*bar.GAP, bar.GAP);
+  if (height > 800) {
+    rect(0, 0, 200 + 2*bar.U_OFFSET, 800 - bar.GAP, bar.GAP);
+  } else {
+    rect(0, 0, 200 + 2*bar.U_OFFSET, height - 5*bar.GAP, bar.GAP);
+  }
   popMatrix();
   
   pushMatrix();
   translate(0, bar.U_OFFSET);
-  sys.plot4("Vehicle Counts [100's]",  sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  width - 300, bar.GAP+000, 210, 125, 0.04);
-  sys.plot4("Trips by Vehicle Type [100's]",     sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  width - 300, bar.GAP+170, 210, 125, 0.04);
-  sys.plot4("Parking Space Demand [100's]",    sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  width - 300, bar.GAP+340, 210, 125, 0.08);
-  sys.plot4("Parking Space Vacancy [100's]",   sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, overColor,  belowColor, surfaceColor, aboveColor, width - 300, bar.GAP+510, 210, 125, 0.08);
+  sys.plot4("Vehicle Counts [100's]",          sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+000, 200 + bar.U_OFFSET, 125, 0.04);
+  sys.plot4("Trips by Vehicle Type [100's]",   sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+165, 200 + bar.U_OFFSET, 125, 0.04);
+  sys.plot4("Parking Space Demand [100's]",    sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+330, 200 + bar.U_OFFSET, 125, 0.08);
+  sys.plot4("Parking Space Vacancy [100's]",   sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, overColor,  belowColor, surfaceColor, aboveColor, width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+495, 200 + bar.U_OFFSET, 125, 0.08);
   
   hint(ENABLE_DEPTH_TEST);
   popMatrix();
