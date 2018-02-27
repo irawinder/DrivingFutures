@@ -211,6 +211,7 @@ void keyPressed() {
       cam.reset();
       bar.restoreDefault();
       setSliders();
+      setParking();
       sys.update();
       setParking();
       break;

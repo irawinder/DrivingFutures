@@ -246,6 +246,7 @@ class Toolbar {
     float avgX = (t1.corner1.x+t1.corner2.x+t1.corner3.x)/3.0;
     float avgY = (             t1.corner2.y+t1.corner3.y)/2.0;
     t1.pt = new PVector(avgX, avgY);
+    t1.update();
   }
   
   // Draw Margin Elements
@@ -488,17 +489,17 @@ class TriangleMap {
   void update() {
     
     // Update Mouse Condition
-    if(isDragged) {
+    if(isDragged || keyPressed) {
       PVector mouse = new PVector(mouseX, mouseY);
-      if (mouse.dist(avg) < r) {
+      if (mouse.dist(avg) < r && isDragged) {
         pt.x = mouseX;
         pt.y = mouseY;
       }
       
       // Update Values
-      float dist1 = 1 / sq(pt.dist(corner1));
-      float dist2 = 1 / sq(pt.dist(corner2));
-      float dist3 = 1 / sq(pt.dist(corner3));
+      float dist1 = 1 / pow(pt.dist(corner1), 4);
+      float dist2 = 1 / pow(pt.dist(corner2), 4);
+      float dist3 = 1 / pow(pt.dist(corner3), 4);
       float sum = dist1 + dist2 + dist3;
       dist1 /= sum;
       dist2 /= sum;
@@ -507,19 +508,19 @@ class TriangleMap {
       value2 = dist2;
       value3 = dist3;
       
-      if (value1 > 0.65) {
+      if (value1 > 0.8) {
         value1 = 0.98;
         value2 = 0.01;
         value3 = 0.01;
       }
       
-      if (value2 > 0.65) {
+      if (value2 > 0.8) {
         value1 = 0.01;
         value2 = 0.98;
         value3 = 0.01;
       }
       
-      if (value3 > 0.65) {
+      if (value3 > 0.8) {
         value1 = 0.01;
         value2 = 0.01;
         value3 = 0.98;

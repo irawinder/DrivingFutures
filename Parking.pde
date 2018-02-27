@@ -307,83 +307,96 @@ class AV_System {
         otherFree[i] = 0;
       }
       
-      //// Allocation Parking Vacancy Based Upon priority triangle
-      //float priorityBelow*totalFree[i];
-      
-      
-      
       // Allocation Parking Vacancy Based Upon priority triangle
-      float rand;
+      int pB = int( priorityBelow*10 );
+      int pS = int( prioritySurface*10 );
+      int pA = int( priorityAbove*10 );
+      int tot = pB + pS + pA;
+      int counter = 0;
       int k = totalFree[i];
       while (k > 0) {
-        rand = random(0, 1);
-         
-        // Check Below Parking
-        if ( rand < priorityBelow ) {
-           
-          if (belowFree[i] < totBelow) {
-            belowFree[i]++;
+        if (counter < pB) {
+          belowFree[i]++;
             k--;
+        } else if (counter < pB+pS) {
+          surfaceFree[i]++;
+            k--;
+        } else if (counter < pB+pS+pA) {
+          aboveFree[i]++;
+            k--;
+        }
+        counter++;
+        if (counter == tot) counter = 0;
+      }
+      if (belowFree[i] > totBelow) {
+        int remaining = belowFree[i] - totBelow;
+        belowFree[i] -= remaining;
+        while (remaining > 0) {
+          if (pS > pA) {
+            if (surfaceFree[i] < totSurface) {
+              surfaceFree[i]++;
+              remaining--;
+            } else {
+              aboveFree[i]++;
+              remaining--;
+            }
           } else {
-            rand = random(0, prioritySurface + priorityAbove);
-            if (rand < prioritySurface) {
-              if (surfaceFree[i] < totSurface) {
-                surfaceFree[i]++;
-                k--;
-              } else {
-                if (aboveFree[i] < totAbove) {
-                  aboveFree[i]++;
-                  k--;
-                }
-              }
+            if (aboveFree[i] < totAbove) {
+              aboveFree[i]++;
+              remaining--;
+            } else {
+              surfaceFree[i]++;
+              remaining--;
             }
           }
-         
-        // Check Surface Parking
-        } else if( rand >= priorityBelow && rand < prioritySurface+priorityBelow ) {
-           
-          if (surfaceFree[i] < totSurface) {
-            surfaceFree[i]++;
-            k--;
-          } else {
-            rand = random(0, priorityBelow + priorityAbove);
-            if (rand < priorityBelow) {
-              if (belowFree[i] < totBelow) {
-                belowFree[i]++;
-                k--;
-              } else {
-                if (aboveFree[i] < totAbove) {
-                  aboveFree[i]++;
-                  k--;
-                }
-              }
-            }
-          }
-         
-        // Check Above Parking 
-        } else {
-         
-          if (aboveFree[i] < totAbove) {
-            aboveFree[i]++;
-            k--;
-          } else {
-            rand = random(0, priorityBelow + prioritySurface);
-            if (rand < priorityBelow) {
-              if (belowFree[i] < totBelow) {
-                belowFree[i]++;
-                k--;
-              } else {
-                if (surfaceFree[i] < totSurface) {
-                  surfaceFree[i]++;
-                  k--;
-                }
-              }
-            }
-          }
-           
         }
       }
-      
+      if (surfaceFree[i] > totSurface) {
+        int remaining = surfaceFree[i] - totSurface;
+        surfaceFree[i] -= remaining;
+        while (remaining > 0) {
+          if (pB > pA) {
+            if (belowFree[i] < totBelow) {
+              belowFree[i]++;
+              remaining--;
+            } else {
+              aboveFree[i]++;
+              remaining--;
+            }
+          } else {
+            if (aboveFree[i] < totAbove) {
+              aboveFree[i]++;
+              remaining--;
+            } else {
+              belowFree[i]++;
+              remaining--;
+            }
+          }
+        }
+      }
+      if (aboveFree[i] > totAbove) {
+        int remaining = aboveFree[i] - totAbove;
+        aboveFree[i] -= remaining;
+        while (remaining > 0) {
+          if (pB > pS) {
+            if (belowFree[i] < totBelow) {
+              belowFree[i]++;
+              remaining--;
+            } else {
+              surfaceFree[i]++;
+              remaining--;
+            }
+          } else {
+            if (surfaceFree[i] < totSurface) {
+              surfaceFree[i]++;
+              remaining--;
+            } else {
+              belowFree[i]++;
+              remaining--;
+            }
+          }
+        }
+      }
       
       // Update Relative number of Trips 
       numTrip1[i]  = int( numCar1[i] * TRIPS_PER_CAR1 );
