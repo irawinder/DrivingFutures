@@ -33,11 +33,11 @@ void draw() {
       int alpha = 200;
       noStroke();
       if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-        fill(structures.belowColor, alpha);
+        fill(belowColor, alpha);
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
-        fill(structures.surfaceColor, alpha);
+        fill(surfaceColor, alpha);
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-        fill(structures.aboveColor, alpha);
+        fill(aboveColor, alpha);
       } else {
         fill(255, alpha);
       }
@@ -68,10 +68,14 @@ void draw() {
   boolean collisionDetection = false;
   for (Agent p: vehicles) {
     p.update(vehicleLocations(vehicles), collisionDetection);
-    if (p.type.equals("SOV")) {
-      p.display(255, 200);
+    if (p.type.equals("1")) {
+      p.display(car1Color, 200);
+    } else if (p.type.equals("2")) {
+      p.display(car2Color, 200);
+    } else if (p.type.equals("3")) {
+      p.display(car3Color, 200);
     } else {
-      p.display(#FF00FF, 200);
+      p.display(car4Color, 200);
     }
   }
   

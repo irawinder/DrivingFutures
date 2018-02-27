@@ -31,13 +31,6 @@ class ParkingStructures {
   ArrayList<Parking> parking;
   PGraphics img;
   
-  //int belowColor = #7A51A4;
-  //int surfaceColor = #3FB6CB;
-  //int aboveColor = #94D05C;
-  
-  int belowColor = #FF0000;
-  int surfaceColor = #FFFF00;
-  int aboveColor = #00FF00;
   int minCap = 200;
   
   ParkingStructures(int w, int h, float latMin, float latMax, float lonMin, float lonMax) {

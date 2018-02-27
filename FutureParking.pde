@@ -151,7 +151,21 @@ void initPopulation() {
       random_speed = 3.0*random(0.3, 0.4);
       //random_speed = 1.5;
       loc = random.waypoints.get(random_waypoint);
-      vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT");
+      
+      // Select A Random Type Placeholder
+      float r = random(0, 1);
+      String type;
+      if (r<0.5) {
+        type = "1";
+      } else if(r<0.7) {
+        type = "2";
+      } else if(r<0.9) {
+        type = "3";
+      } else {
+        type = "4";
+      }
+      
+      vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
       vehicles.add(vehicle);
     }
   }
