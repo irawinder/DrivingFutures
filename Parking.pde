@@ -307,6 +307,11 @@ class AV_System {
         otherFree[i] = 0;
       }
       
+      //// Allocation Parking Vacancy Based Upon priority triangle
+      //float priorityBelow*totalFree[i];
+      
+      
+      
       // Allocation Parking Vacancy Based Upon priority triangle
       float rand;
       int k = totalFree[i];
@@ -335,7 +340,7 @@ class AV_System {
           }
          
         // Check Surface Parking
-        } else if( rand >= priorityBelow && rand < prioritySurface ) {
+        } else if( rand >= priorityBelow && rand < prioritySurface+priorityBelow ) {
            
           if (surfaceFree[i] < totSurface) {
             surfaceFree[i]++;
@@ -378,6 +383,7 @@ class AV_System {
            
         }
       }
+      
       
       // Update Relative number of Trips 
       numTrip1[i]  = int( numCar1[i] * TRIPS_PER_CAR1 );

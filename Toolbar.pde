@@ -496,9 +496,9 @@ class TriangleMap {
       }
       
       // Update Values
-      float dist1 = 1 / pt.dist(corner1);
-      float dist2 = 1 / pt.dist(corner2);
-      float dist3 = 1 / pt.dist(corner3);
+      float dist1 = 1 / sq(pt.dist(corner1));
+      float dist2 = 1 / sq(pt.dist(corner2));
+      float dist3 = 1 / sq(pt.dist(corner3));
       float sum = dist1 + dist2 + dist3;
       dist1 /= sum;
       dist2 /= sum;
@@ -506,6 +506,24 @@ class TriangleMap {
       value1 = dist1;
       value2 = dist2;
       value3 = dist3;
+      
+      if (value1 > 0.65) {
+        value1 = 0.98;
+        value2 = 0.01;
+        value3 = 0.01;
+      }
+      
+      if (value2 > 0.65) {
+        value1 = 0.01;
+        value2 = 0.98;
+        value3 = 0.01;
+      }
+      
+      if (value3 > 0.65) {
+        value1 = 0.01;
+        value2 = 0.01;
+        value3 = 0.98;
+      }
     }
   }
   

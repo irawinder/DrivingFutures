@@ -105,6 +105,10 @@ void draw() {
   //
   setSliders();
   
+  // Synchronized Systems Model to Parking
+  //
+  setParking();
+  
   // Draw System Output
   //
   hint(DISABLE_DEPTH_TEST);

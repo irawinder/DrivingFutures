@@ -90,6 +90,7 @@ void setup() {
   sys.totAbove = structures.totAbove / 100;
   setSliders();
   sys.update();
+  setParking();
 }
 
 // Set System Parameters According to Slider Values
@@ -111,7 +112,23 @@ void setSliders() {
   showCar2                      = bar.b5.value;
   showCar3                      = bar.b6.value;
   showCar4                      = bar.b7.value;
+}
 
+void setParking() {
+  int yr = sys.year_now - sys.year_0;
+  float belowRatio   = 1 - float(sys.belowFree[yr])   / sys.totBelow;
+  float surfaceRatio = 1 - float(sys.surfaceFree[yr]) / sys.totSurface;
+  float aboveRatio   = 1 - float(sys.aboveFree[yr])   / sys.totAbove;
+  for (Parking p: structures.parking) {
+    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+      p.ratio = belowRatio;
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+      p.ratio = surfaceRatio;
+    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+      p.ratio = aboveRatio;
+    }
+    p.utilization = int(p.ratio*p.capacity);
+  }
 }
 
 void initEnvironment() {
@@ -179,13 +196,6 @@ void initPopulation() {
   }
 }
 
-void resetParking() {
-  for (Parking p: structures.parking) {
-    p.utilization = int(random(0, p.capacity));
-    p.ratio = float(p.utilization) / p.capacity;
-  }
-}
-
 void keyPressed() {
   cam.moved();
   
@@ -202,10 +212,10 @@ void keyPressed() {
       bar.restoreDefault();
       setSliders();
       sys.update();
+      setParking();
       break;
     case 'p':
       initPopulation();
-      resetParking();
       break;
     case 't':
       println(cam.zoom, cam.offset.x, cam.offset.y);
