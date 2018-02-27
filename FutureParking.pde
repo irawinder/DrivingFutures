@@ -37,13 +37,18 @@ TravelRoutes routes;
 //  Object to define parking facilities:
 ParkingStructures structures;
 
+//  Object to Define Systems Model
+AV_System sys;
+
 //  Objects to define agents that navigate our environment:
 ArrayList<Agent> vehicles;
 
 //  3D Environment and UI
-//
 Camera cam;
 PVector b = new PVector(6000, 6000, 0); //Bounding Box for Environment (px)
+
+Toolbar bar;
+int toolbar_width = 250;
 
 boolean showFrameRate = false;
 
@@ -67,7 +72,38 @@ void setup() {
   initPopulation();  println("Population Initialized");
   
   // Initialize the Camera
-  cam = new Camera(b, -150, 200, 0.7, 0.1, 2.0, 0.4);
+  cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
+  
+  // Setup Toolbar
+  //
+  bar = new Toolbar(toolbar_width, int(cam.MARGIN*height));
+  bar.title = "Shared AV Futures";
+  bar.credit = "Ira Winder, 2018";
+  bar.explanation = "Adjust the sliders to explore a hypothetical future of shared, autonomous vehicles.";
+  
+  // Setup System Simulation
+  sys = new AV_System(1000, 2010, 2030);
+  sys.av_growth = 1.0;
+  sys.rideShare_growth = 1.0;
+  sys.totBelow = 500;
+  sys.totSurface = 100;
+  sys.totAbove = 200;
+  setSliders();
+  sys.update();
+}
+
+// Set System Parameters According to Slider Values
+//
+void setSliders() {
+  sys.year_now                  = int(bar.s1.value);
+  sys.demand_growth             = bar.s2.value/100.0;
+  sys.av_share                  = bar.s3.value/100.0;
+  sys.av_peak_hype_year         = int(bar.s4.value);
+  sys.rideShare_share           = bar.s5.value/100.0;
+  sys.rideShare_peak_hype_year  = int(bar.s6.value);
+  sys.priorityBelow             = bar.t1.value1;
+  sys.prioritySurface           = bar.t1.value2;
+  sys.priorityAbove             = bar.t1.value3;
 }
 
 void initEnvironment() {
@@ -129,6 +165,8 @@ void resetParking() {
 }
 
 void keyPressed() {
+  cam.moved();
+  
   switch(key) {
     case 'g':
       initPaths();
@@ -139,18 +177,35 @@ void keyPressed() {
       break;
     case 'r':
       cam.reset();
+      bar.restoreDefault();
+      setSliders();
+      sys.update();
       break;
     case 'p':
       initPopulation();
       resetParking();
+      break;
+    case 't':
+      println(cam.zoom, cam.offset.x, cam.offset.y);
       break;
   }
 }
 
 void mousePressed() {
   cam.pressed();
+  bar.pressed();
+  sys.update();
 }
 
 void mouseMoved() {
   cam.moved();
+}
+
+void mouseReleased() {
+  bar.released();
+  sys.update();
+}
+
+void mouseDragged() {
+  sys.update();
 }

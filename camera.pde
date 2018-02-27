@@ -17,6 +17,7 @@
   float Y_DEFAULT;
   float zoom;
   PVector offset;
+  int toolbarWidth;
   
   // UI: Scrollbars (horizontal and vertical)
   //
@@ -62,8 +63,9 @@
     reset();
   }
   
-  Camera(PVector boundary, float X_DEFAULT, float Y_DEFAULT, float ZOOM_MIN, float ZOOM_MAX, float ZOOM_POW, float ZOOM_DEFAULT) {
+  Camera(int toolbarWidth, PVector boundary, float X_DEFAULT, float Y_DEFAULT, float ZOOM_MIN, float ZOOM_MAX, float ZOOM_POW, float ZOOM_DEFAULT) {
     this.boundary = boundary;
+    this.toolbarWidth = toolbarWidth;
     
     // Initialize the Camera
     this.X_DEFAULT = X_DEFAULT;
@@ -82,15 +84,15 @@
     offset = new PVector(X_DEFAULT, Y_DEFAULT);
     rotation = 0; // (0 - 2*PI)
   
-    // Initialize Horizontal Scrollbar
-    hs = new HScrollbar(width - int(height*MARGIN) - int(0.3*height), int((1-1.5*MARGIN)*height), int(0.3*height), int(MARGIN*height), 5);
+    // Initialize Horizontal Scrollbar // - int(0.3*height)
+    hs = new HScrollbar(width - 300 - int(height*MARGIN), int((1-1.5*MARGIN)*height), 250, int(MARGIN*height), 5);
     rotation = hs.getPosPI(); // (0 - 2*PI)
     
     // Initialize Vertical Scrollbar
     vs = new VScrollbar(width - int(1.5*MARGIN*height), int(MARGIN*height), int(MARGIN*height), int(0.3*height), 5);
     
     // Initialize Drag Funciton
-    drag = new XYDrag(1.0, 7, 5, 5, width - 10, int(0.85*height) - 5);
+    drag = new XYDrag(1.0, 7, 5 + toolbarWidth, 5, width - 10 - toolbarWidth, int(0.85*height) - 5);
   }
   
   // Set Camera Position based upon current parameters
@@ -479,7 +481,7 @@
     translate(width/2, MARGIN*height);
     fill(LINE_COLOR, 255-BASE_ALPHA);
     textAlign(CENTER, TOP);
-    text("Press 'r' to reset camera position", 0, 0);
+    text("Press 'r' to reset simulation", 0, 0);
     translate(0, height - 2*MARGIN*height);
     textAlign(CENTER, BOTTOM);
     fill(LINE_COLOR, 2*BASE_ALPHA);
