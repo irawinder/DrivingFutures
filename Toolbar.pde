@@ -491,9 +491,7 @@ class TriangleMap {
   
   void listen() {
     PVector mouse = new PVector(mouseX, mouseY);
-    if(mouse.dist(avg) < r) {
-      isDragged = true;
-    }
+    isDragged = true;
   }
   
   void update() {
@@ -501,15 +499,21 @@ class TriangleMap {
     // Update Mouse Condition
     if(isDragged || keyPressed) {
       PVector mouse = new PVector(mouseX, mouseY);
-      if (mouse.dist(avg) < r && isDragged) {
-        pt.x = mouseX;
-        pt.y = mouseY;
+      if(mouse.dist(avg) > r && isDragged) {
+        PVector ray = new PVector(mouse.x - avg.x, mouse.y - avg.y);
+        ray.setMag(r);
+        mouse = new PVector(avg.x, avg.y);
+        mouse.add(ray);
+      }
+      if (isDragged) {
+        pt.x = mouse.x;
+        pt.y = mouse.y;
       }
       
       // Update Values
-      float dist1 = 1 / pow(pt.dist(corner1), 4);
-      float dist2 = 1 / pow(pt.dist(corner2), 4);
-      float dist3 = 1 / pow(pt.dist(corner3), 4);
+      float dist1 = 1 / pow(pt.dist(corner1) + 0.001, 4);
+      float dist2 = 1 / pow(pt.dist(corner2) + 0.001, 4);
+      float dist3 = 1 / pow(pt.dist(corner3) + 0.001, 4);
       float sum = dist1 + dist2 + dist3;
       dist1 /= sum;
       dist2 /= sum;
