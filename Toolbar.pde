@@ -491,7 +491,7 @@ class TriangleMap {
   
   void listen() {
     PVector mouse = new PVector(mouseX, mouseY);
-    isDragged = true;
+    if (mouse.dist(avg) < r) isDragged = true;
   }
   
   void update() {
