@@ -358,7 +358,7 @@ class ControlSlider {
     xpos = 0;
     ypos = 0;
     len = 200;
-    diameter = 10;
+    diameter = 15;
     keyMinus = '-';
     keyPlus = '+';
     isDragged = false;
@@ -399,7 +399,7 @@ class ControlSlider {
     // Slider Bar
     fill(100);
     noStroke();
-    rect(xpos,ypos-0.3*diameter,len,0.6*diameter,diameter);
+    rect(xpos,ypos-0.15*diameter,len,0.3*diameter,diameter);
     
     // Slider Circle
     noStroke();
@@ -422,7 +422,7 @@ class RadioButton {
   RadioButton() {
     xpos = 0;
     ypos = 0;
-    diameter = 25;
+    diameter = 20;
     keyToggle = ' ';
     value = false;
     col = #FFFFFF;
@@ -475,7 +475,7 @@ class TriangleMap {
   PVector avg;
   
   TriangleMap() {
-    diameter = 10;
+    diameter = 15;
     corner1 = new PVector(0, 0);
     corner2 = new PVector(0, 0);
     corner3 = new PVector(0, 0);
