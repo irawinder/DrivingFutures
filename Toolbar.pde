@@ -69,7 +69,7 @@ class Toolbar {
     s3.len = u_width;
     s3.valMin = 0;
     s3.valMax = 100;
-    s3.value = 80;
+    s3.value = 50;
     
     s4 = new ControlSlider();
     s4.name = "RideShare: Peak Hype";
@@ -81,7 +81,7 @@ class Toolbar {
     s4.len = u_width;
     s4.valMin = 2010;
     s4.valMax = 2030;
-    s4.value = 2018;
+    s4.value = 2017;
     
     s5 = new ControlSlider();
     s5.name = "AV: System Equilibrium";
@@ -105,7 +105,7 @@ class Toolbar {
     s6.len = u_width;
     s6.valMin = 2010;
     s6.valMax = 2030;
-    s6.value = 2022;
+    s6.value = 2024;
     
     b1 = new RadioButton();
     b1.name = "Below\nGround";
@@ -132,8 +132,8 @@ class Toolbar {
     b3.value = true;
     
     b8 = new RadioButton();
-    b8.name = "Over\nCapacity";
-    b8.col = overColor;
+    b8.name = "Reserved";
+    b8.col = reservedColor;
     b8.keyToggle = '8';
     b8.xpos = GAP + U_OFFSET;
     b8.ypos = s_vOffset + int(8.0*V_OFFSET);
@@ -192,7 +192,7 @@ class Toolbar {
     t1.avg = new PVector(t1.avgX, t1.avgY);
     t1.r = t1.avg.dist(t1.corner1);
     float avgX = (t1.corner1.x+t1.corner2.x+t1.corner3.x)/3.0;
-    float avgY = (             t1.corner2.y+t1.corner3.y)/2.0;
+    float avgY = (t1.corner1.y+t1.corner2.y+t1.corner3.y)/3.0;
     t1.pt = new PVector(avgX, avgY);
   }
   
@@ -212,6 +212,7 @@ class Toolbar {
     b5.listen(); 
     b6.listen();
     b7.listen();
+    b8.listen();
     
     t1.listen();
   }
@@ -230,10 +231,10 @@ class Toolbar {
   void restoreDefault() {
     s1.value = 2018;
     s2.value = 3;
-    s3.value = 80;
-    s4.value = 2018;
+    s3.value = 50;
+    s4.value = 2017;
     s5.value = 90;
-    s6.value = 2022;
+    s6.value = 2024;
     
     b1.value = true;
     b2.value = true;
@@ -242,9 +243,10 @@ class Toolbar {
     b5.value = true;
     b6.value = true;
     b7.value = true;
+    b8.value = true;
     
     float avgX = (t1.corner1.x+t1.corner2.x+t1.corner3.x)/3.0;
-    float avgY = (             t1.corner2.y+t1.corner3.y)/2.0;
+    float avgY = (t1.corner1.y+t1.corner2.y+t1.corner3.y)/3.0;
     t1.pt = new PVector(avgX, avgY);
     t1.update();
   }

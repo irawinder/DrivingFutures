@@ -5,6 +5,7 @@ boolean showCar4 = true;
 boolean showBelow = true;
 boolean showSurface = true;
 boolean showAbove = true;
+boolean showReserved = true;
 
 void draw() {
   background(20);
@@ -18,42 +19,49 @@ void draw() {
   image(network.img, 0, 0, b.x, b.y);
   tint(255, 175);
   image(routes.img, 0, 0, b.x, b.y);
-  tint(255, 255);
-  image(structures.img, 0, 0, b.x, b.y);
+  //tint(255, 255);
+  //image(structures.img, 0, 0, b.x, b.y);
   
   for (Parking p: structures.parking) {
     pushMatrix();
     
-    if (p.utilization > 0 ) {
+    boolean overRide = false;
+    if (p.capacity > 0 || overRide) {
       
       // Draw Fill / ID Dot
       //
-      translate(0,0,5);
       int alpha = 200;
       noStroke();
       boolean show = false;
-      if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel") && showBelow) {
+      String sub = "";
+      if (p.type.length() >= 3) sub = p.type.substring(0,3);
+      if (sub.equals("Bel") && showBelow) {
         fill(belowColor, alpha);
         show = true;
-      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur") && showSurface) {
+      } else if (sub.equals("Sur") && showSurface) {
         fill(surfaceColor, alpha);
         show = true;
-      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta") && showAbove) {
+      } else if (sub.equals("Sta") && showAbove) {
         fill(aboveColor, alpha);
         show = true;
-      } else {
-        fill(255, alpha);
-      }
+      } else if (showReserved && !sub.equals("Bel") && !sub.equals("Sur") && !sub.equals("Sta")) {
+        fill(reservedColor, alpha);
+        show = true;
+      } 
+      
       if (show) {
         // Draw Parking Button/Icon
+        translate(0,0,1);
         ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
         
         // Draw Parking Utilization
-        translate(0,0,5);
+        translate(0,0,1);
         noStroke();
-        fill(255, 150);
+        fill(255, 200);
         //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
-        arc(p.location.x, p.location.y, 1.5*sqrt( max(structures.minCap, p.capacity) ), 1.5*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
+        if (p.utilization > 0 && p.capacity > 0) {
+          arc(p.location.x, p.location.y, 1.75*sqrt( max(structures.minCap, p.capacity) ), 1.75*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
+        }
         noFill();
       }
       
@@ -62,14 +70,14 @@ void draw() {
       translate(0,0,1);
       fill(0, 255);
       textAlign(CENTER, CENTER);
-      text(p.capacity, p.location.x, p.location.y);
+      text(p.capacity - p.utilization, p.location.x, p.location.y);
     } else {
       // Draw Capacity Text
       //
       translate(0,0,1);
       fill(255, 255);
       textAlign(CENTER, CENTER);
-      text(p.capacity, p.location.x, p.location.y);
+      text(p.capacity - p.utilization, p.location.x, p.location.y);
     }
     popMatrix();
   }
@@ -151,9 +159,9 @@ void draw() {
   pushMatrix();
   translate(0, bar.U_OFFSET);
   sys.plot4("Vehicle Counts [100's]",          sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+000, 200 + bar.U_OFFSET, 125, 0.04);
-  sys.plot4("Trips by Vehicle Type [100's]",   sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+165, 200 + bar.U_OFFSET, 125, 0.04);
+  sys.plot4("Trips by Vehicle Type [100's]",   sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+165, 200 + bar.U_OFFSET, 125, 0.03);
   sys.plot4("Parking Space Demand [100's]",    sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+330, 200 + bar.U_OFFSET, 125, 0.08);
-  sys.plot4("Parking Space Vacancy [100's]",   sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, overColor,  belowColor, surfaceColor, aboveColor, width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+495, 200 + bar.U_OFFSET, 125, 0.08);
+  sys.plot4("Parking Space Vacancy [100's]",   sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+495, 200 + bar.U_OFFSET, 125, 0.08);
   
   hint(ENABLE_DEPTH_TEST);
   popMatrix();

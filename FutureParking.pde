@@ -113,6 +113,7 @@ void setSliders() {
   showBelow                     = bar.b1.value;
   showSurface                   = bar.b2.value;
   showAbove                     = bar.b3.value;
+  showReserved                  = bar.b8.value;
   showCar1                      = bar.b4.value;
   showCar2                      = bar.b5.value;
   showCar3                      = bar.b6.value;

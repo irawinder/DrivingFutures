@@ -5,9 +5,9 @@ int car3Color = #00FFFF;
 int car4Color = #FFFF00;
  
 // Parking Colors
-int overColor = #FF0000;
+int reservedColor = #999999;
 int belowColor = #9900FF;
-int surfaceColor = #FFFFFF;
+int surfaceColor = #FF9900;
 int aboveColor = #0000FF;
 
 class Parking {
@@ -50,7 +50,8 @@ class ParkingStructures {
       type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
       capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
       park = new Parking(canvasX, canvasY, area, type, capacity);
-      if (capacity > 0) parking.add(park);
+      //if (capacity > 0) parking.add(park);
+      parking.add(park);
     }
     println("Parking Structures Loaded: " + parking.size());
     
@@ -62,7 +63,7 @@ class ParkingStructures {
     img.clear();
     for (Parking p: parking) {
       if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-        img.stroke(belowColor, 200);
+        img.stroke(belowColor, 255);
         img.fill(belowColor, 20);
         totBelow += p.capacity;
       } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
