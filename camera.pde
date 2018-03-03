@@ -48,6 +48,10 @@
   int fadeTimer = 300;
   float uiFade = 1.0;  // 0.0 - 1.0
   
+  // UI: Show Frame Rate
+  //
+  boolean showFrameRate;
+  
   Camera(PVector boundary) {
     this.boundary = boundary;
     
@@ -93,6 +97,8 @@
     
     // Initialize Drag Funciton
     drag = new XYDrag(1.0, 7, 5 + toolbarWidth, 5, width - 10 - toolbarWidth, int(0.85*height) - 5);
+    
+    showFrameRate = false;
   }
   
   // Set Camera Position based upon current parameters

@@ -53,8 +53,6 @@ PVector b = new PVector(6000, 6000, 0); //Bounding Box for Environment (px)
 Toolbar bar;
 int toolbar_width = 250;
 
-boolean showFrameRate = false;
-
 void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
@@ -227,7 +225,7 @@ void keyPressed() {
     //  initPopulation();
     //  break;
     case 'f':
-      showFrameRate = !showFrameRate;
+      cam.showFrameRate = !cam.showFrameRate;
       break;
     case 'r':
       cam.reset();
