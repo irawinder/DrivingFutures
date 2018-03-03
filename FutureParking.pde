@@ -79,8 +79,8 @@ void setup() {
   // Setup Toolbar
   //
   bar = new Toolbar(toolbar_width, int(cam.MARGIN*height));
-  bar.title = "Shared Autonomous Future, v1.0\n";
-  bar.credit = "Ira Winder, Diana Vasquez, \nKevin Kusina, Andrew Starr, \nKarina Silvestor, JF Finn";
+  bar.title = "Shared Autonomous Future V1.1\n";
+  bar.credit = "Ira Winder, Diana Vasquez, \nKevin Kusina, Andrew Starr, \nKarina Silvester, JF Finn";
   bar.explanation = "Explore a hypothetical future of shared and autonomous vehicles";
   
   // Setup System Simulation

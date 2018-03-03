@@ -113,7 +113,26 @@ void draw() {
     }
   }
   
+  
+  //Agent p;
+  //float s_x = 0;
+  //float s_y = 0;
+  //if (type1.size() > 0) {
+  //  p = type1.get(0);
+  //  s_x = screenX(p.location.x, p.location.y, p.location.z);
+  //  s_y = screenX(p.location.x, p.location.y, p.location.z);
+  //  p.display(#FF0000, 200);
+  //  println(p.location.x, p.location.y, p.location.y, s_x, s_y);
+  //}
+  
   cam.drawControls();
+  
+  
+  //if (type1.size() > 0) {
+  //  noFill();
+  //  stroke(#FF0000);
+  //  ellipse(s_x, s_y, 25, 25);
+  //}
   
   // Draw Margin Toolbar
   bar.draw();
