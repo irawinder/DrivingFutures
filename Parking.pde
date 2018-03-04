@@ -415,7 +415,7 @@ class AV_System {
   }
   
   // Plot a stacked bar char with 4 elements per interval
-  void plot4(String title, int[] value1, int[] value2, int[] value3, int[] value4, int color1, int color2, int color3, int color4, int x, int y, int w, int h, float scaler) {
+  void plot4(String title, String unit, int[] value1, int[] value2, int[] value3, int[] value4, int color1, int color2, int color3, int color4, int x, int y, int w, int h, float scaler) {
   
     pushMatrix();
     translate(x, y);
@@ -455,7 +455,7 @@ class AV_System {
     textAlign(RIGHT, TOP);
     text(year_now, j*iWidth - 0.5*iWidth, 20);
     
-    // Draw Graph Title and x_axis
+    // Draw Graph Title, x_axis, and y_axis
     //
     fill(255);
     textAlign(LEFT, TOP);
@@ -465,6 +465,8 @@ class AV_System {
     text(year_0, 0, h+16);
     textAlign(RIGHT, BOTTOM);
     text(year_f, w, h+16);
+    textAlign(RIGHT, TOP);
+    text(unit, w, 40);
 
     popMatrix();
   }
