@@ -465,8 +465,8 @@ class AV_System {
     text(year_0, 0, h+16);
     textAlign(RIGHT, BOTTOM);
     text(year_f, w, h+16);
-    textAlign(RIGHT, TOP);
-    text(unit, w, 40);
+    textAlign(LEFT, TOP);
+    text(unit, 0, 40);
 
     popMatrix();
   }

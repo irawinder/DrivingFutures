@@ -216,7 +216,7 @@ void draw() {
   pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
   text("Parking", 0, 0);
   translate(bar_left.contentW/2, 0);
-  text("Parking", 0, 0);
+  text("Vehicles", 0, 0);
   popMatrix();
   
   // Draw System Output

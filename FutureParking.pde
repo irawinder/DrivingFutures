@@ -83,7 +83,7 @@ void setup() {
   
   // Initialize Left Toolbar
   bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
-  bar_left.title = "Shared Autonomous Future V1.1\n";
+  bar_left.title = "Shared Autonomous Future V1.1";
   bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
   bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles";
   bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
@@ -96,7 +96,7 @@ void setup() {
   bar_left.addTriSlider("Parking\nVacancy\nPriority", "Below\nGround", belowColor, 
                                                       "Surface\nParking", surfaceColor, 
                                                       "Above\nGround", aboveColor);
-  bar_left.addButton("BLANK", 0, true, ' ');
+  bar_left.addButton("BLANK", 0, true, ' '); // Spacer for Parking and Vehicle Button Lables
   bar_left.addButton("Below",               belowColor,    true, '1');
   bar_left.addButton("Surface",             surfaceColor,  true, '2');
   bar_left.addButton("Above",               aboveColor,    true, '3');
@@ -114,7 +114,7 @@ void setup() {
   
   // Initialize Right Toolbar
   bar_right = new Toolbar(width - (BAR_X + BAR_W), BAR_Y, BAR_W, BAR_H, MARGIN);
-  bar_right.title = "Summary Projections";
+  bar_right.title = "[Analysis] System Projections";
   bar_right.credit = "";
   bar_right.explanation = "";
   bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
