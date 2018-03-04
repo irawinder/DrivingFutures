@@ -134,7 +134,7 @@
     // Translate Reference Frame
     translate(offset.x, offset.y, 0);
     
-    cam.update();
+    update();
   }
   
   // resets and centers camera view
