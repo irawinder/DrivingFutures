@@ -10,17 +10,49 @@ boolean showReserved = true;
 void draw() {
   background(20);
   
-  // Draw 3D Graphics
+  // -------------------------
+  // Begin Updating backend system components
+  
+  // Update camera position settings for a number of frames after key updates
+  if (cam.moveTimer > 0) {
+    cam.moved();
+  }
+  
+  // Synchronize Sliders to Systems Model
+  //
+  setSliders();
+  
+  // Synchronized Systems Model to Parking
+  //
+  setParking();
+  
+  // Draw and Calculate 3D Graphics 
   cam.orient();
+  
+  // ****
+  // NOTE: Objects draw earlier in the loop will obstruct 
+  // objects drawn afterward (despite alpha value!)
+  // ****
+  
+  
+  
+  // -------------------------
+  // Begin Drawing 3D Elements
   
   //  Displays the Graph in grayscale.
   //
   tint(255, 25); // overlaid as an image
-  image(network.img, 0, 0, b.x, b.y);
+  image(network.img, 0, 0, B.x, B.y);
   tint(255, 175);
-  image(routes.img, 0, 0, b.x, b.y);
+  image(routes.img, 0, 0, B.x, B.y);
   //tint(255, 255);
-  //image(structures.img, 0, 0, b.x, b.y);
+  //image(structures.img, 0, 0, B.x, B.y);
+  
+  //// Field: Draw Selection Field
+  ////
+  //pushMatrix(); translate(0, 0, 1);
+  //image(cam.chunkField.img, 0, 0, B.x, B.y);
+  //popMatrix();
   
   for (Parking p: structures.parking) {
     pushMatrix();
@@ -113,6 +145,34 @@ void draw() {
     }
   }
   
+  // Click-Object: Draw mouse-based object additions
+  if (additions.size() > 0) {
+    for (PVector v: additions) {
+      pushMatrix(); translate(v.x, v.y, v.z + 15);
+      fill(#00FF00, 200); noStroke();
+      sphere(15);
+      popMatrix();
+    }
+  }
+  
+  // Click-Object: Draw Selection Cursor
+  float cursorX = 0;
+  float cursorY = 0;
+  //cam.chunkField.drawCursor();
+  if (cam.chunkField.closestFound) {
+    Chunk c = cam.chunkField.closest;
+    PVector loc = c.location;
+    
+    // Place Ghost of Object to Place
+    pushMatrix(); translate(loc.x, loc.y, loc.z + 15);
+    fill(#00FF00, 100); noStroke();
+    sphere(15);
+    popMatrix();
+    
+    // Calculate Curson Screen Location
+    cursorX = screenX(loc.x, loc.y, loc.z + 30/2.0);
+    cursorY = screenY(loc.x, loc.y, loc.z + 30/2.0);
+  }
   
   //Agent p;
   //float s_x = 0;
@@ -125,8 +185,10 @@ void draw() {
   //  println(p.location.x, p.location.y, p.location.y, s_x, s_y);
   //}
   
-  cam.drawControls();
-  
+  // -------------------------
+  // Begin Drawing 2D Elements
+  hint(DISABLE_DEPTH_TEST);
+  camera(); noLights(); perspective(); 
   
   //if (type1.size() > 0) {
   //  noFill();
@@ -134,86 +196,39 @@ void draw() {
   //  ellipse(s_x, s_y, 25, 25);
   //}
   
+  // Click-Object: Draw Cursor Text
+  float diam = min(100, 5/pow(cam.zoom, 2));
+  if (cam.chunkField.closestFound) {
+    fill(#00FF00, 200); textAlign(LEFT, CENTER);
+    text("Place Marker", cursorX + 0.3*diam, cursorY);
+  }
+  
+  // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
+  cam.drawControls();
+  
   // Draw Margin Toolbar
-  bar.draw();
+  bar_left.draw();
+  bar_right.draw();
   
-  // Synchronize Sliders to Systems Model
+  // Radio Button Labels:
   //
-  setSliders();
-  
-  // Synchronized Systems Model to Parking
-  //
-  setParking();
+  textAlign(LEFT, BOTTOM);
+  pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
+  text("Parking", 0, 0);
+  translate(bar_left.contentW/2, 0);
+  text("Parking", 0, 0);
+  popMatrix();
   
   // Draw System Output
   //
   hint(DISABLE_DEPTH_TEST);
-  pushMatrix();
-  translate(width - bar.GAP - 200 - 2*bar.U_OFFSET, bar.GAP);
-  
-  // Shadow of Canvas
-  //
-  pushMatrix();
-  translate(3, 3);
-  noStroke();
-  fill(0, 220);
-  if (height > 800) {
-    rect(0, 0, 200 + 2*bar.U_OFFSET, 800 - bar.GAP, bar.GAP);
-  } else {
-    rect(0, 0, 200 + 2*bar.U_OFFSET, height - 5*bar.GAP, bar.GAP);
-  }
+  pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
+  sys.plot4("Vehicle Counts [100's]",          sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
+  sys.plot4("Trips by Vehicle Type [100's]",   sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
+  sys.plot4("Parking Space Demand [100's]",    sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
+  sys.plot4("Parking Space Vacancy [100's]",   sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
   popMatrix();
-  
-  // Canvas
-  //
-  fill(255, 20);
-  noStroke();
-  if (height > 800) {
-    rect(0, 0, 200 + 2*bar.U_OFFSET, 800 - bar.GAP, bar.GAP);
-  } else {
-    rect(0, 0, 200 + 2*bar.U_OFFSET, height - 5*bar.GAP, bar.GAP);
-  }
-  popMatrix();
-  
-  pushMatrix();
-  translate(0, bar.U_OFFSET);
-  sys.plot4("Vehicle Counts [100's]",          sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+000, 200 + bar.U_OFFSET, 125, 0.04);
-  sys.plot4("Trips by Vehicle Type [100's]",   sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+165, 200 + bar.U_OFFSET, 125, 0.03);
-  sys.plot4("Parking Space Demand [100's]",    sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+330, 200 + bar.U_OFFSET, 125, 0.08);
-  sys.plot4("Parking Space Vacancy [100's]",   sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, width - bar.GAP - 200 - int(1.4*bar.U_OFFSET), bar.GAP+495, 200 + bar.U_OFFSET, 125, 0.08);
-  
   hint(ENABLE_DEPTH_TEST);
-  popMatrix();
-  
-  /*
-  textAlign(CENTER, CENTER);
-  fill(255, 200);
-  textAlign(LEFT, TOP);
-  String fRate = "";
-  if (showFrameRate) fRate = "\nFramerate: " + frameRate;
-  text("Gensler Future of Parking, Beta\n" +
-       "Diana Vasquez, Kevin Kusina, Andrew Starr, Karina Silvestor, JF Finn, Ira Winder\n\n" +
-       "Press ' p ' to regenerate vehicles\n" +
-       "Press ' g ' to regenerate OD matrix\n" +
-       "Press ' f ' to show/hide framerate\n" +
-       fRate, cam.MARGIN*width, cam.MARGIN*height);
-  fill(#CC33CC);
-  text("Share Ride Vehicle", cam.MARGIN*width, 150);
-  fill(255);
-  text("Single Occupancy Vehicle", cam.MARGIN*width, 150 + 1*16);
-  fill(structures.belowColor);
-  text("Below Ground Parking", cam.MARGIN*width, 150 + 3*16);
-  fill(structures.surfaceColor);
-  text("Surface Parking", cam.MARGIN*width, 150 + 4*16);
-  fill(structures.aboveColor);
-  text("Parking Structure", cam.MARGIN*width, 150 + 5*16);
-  fill(255);
-  text("Uncategorized Parking", cam.MARGIN*width, 150 + 6*16);
-  
-  fill(255);
-  text("Total Parking Features: " + structures.parking.size() + "\n" +
-       "Total Vehicles: " + type1.size(), cam.MARGIN*width, 150 + 8*16);
-  */
 }
 
 ArrayList<PVector> vehicleLocations(ArrayList<Agent> vehicles) {

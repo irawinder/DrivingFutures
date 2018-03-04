@@ -1,14 +1,14 @@
 // Car Colors
-int car1Color = #FFFFFF;
+int car1Color = #999999;
 int car2Color = #FF00FF;
 int car3Color = #00FFFF;
 int car4Color = #FFFF00;
  
 // Parking Colors
 int reservedColor = #999999;
-int belowColor = #9900FF;
-int surfaceColor = #FF9900;
-int aboveColor = #0000FF;
+int belowColor = #CC99FF;
+int surfaceColor = #FFBB66;
+int aboveColor = #5555FF;
 
 class Parking {
   PVector location;
