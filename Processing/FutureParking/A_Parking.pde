@@ -306,33 +306,36 @@ class Parking_System {
   // Plot a stacked bar char with 4 elements per interval
   void plot4(String title, String unit, int[] value1, int[] value2, int[] value3, int[] value4, int color1, int color2, int color3, int color4, int x, int y, int w, int h, float scaler) {
   
-    pushMatrix();
-    translate(x, y);
+    pushMatrix(); translate(x, y);
     float iWidth = float(w)/intervals;
+    float columnW = 0.40*iWidth; // fraction of total width
      
     // Draw current year indicator
     //
-    fill(255, 100);
+    stroke(255, 100); noFill();
     int j = (year_now - year_0);
-    rect(j*iWidth + 0.35*iWidth, 22, 1, h-22, 5);
+    float markerH = min(h, scaler*(value1[j] + value2[j] + value3[j] + value4[j])) - 5;
+    line(j*iWidth + 0.5*columnW, 22, j*iWidth + 0.5*columnW, markerH);
     
     // Cycle through each interval of the graph
+    //
+    int alpha = 200;
     for (int i=0; i<intervals; i++) {
       float xpos1 = i*iWidth;
       noStroke();
       
       // Value 1
-      fill(color1);
-      rect( xpos1, h - scaler*value1[i], 0.75*iWidth, scaler*value1[i] );
+      fill(color1, alpha);
+      rect( xpos1, h - scaler*value1[i], columnW, scaler*value1[i] );
       // Value 2
-      fill(color2);
-      rect( xpos1, h - scaler*(value1[i] + value2[i]), 0.75*iWidth, scaler*value2[i] );
+      fill(color2, alpha);
+      rect( xpos1, h - scaler*(value1[i] + value2[i]), columnW, scaler*value2[i] );
       // Value 3
-      fill(color3);
-      rect( xpos1, h - scaler*(value1[i] + value2[i] + value3[i]), 0.75*iWidth, scaler*value3[i] );
+      fill(color3, alpha);
+      rect( xpos1, h - scaler*(value1[i] + value2[i] + value3[i]), columnW, scaler*value3[i] );
       // Value 4
-      fill(color4);
-      rect( xpos1, h - scaler*(value1[i] + value2[i] + value3[i] + value4[i]), 0.75*iWidth, scaler*value4[i] );
+      fill(color4, alpha);
+      rect( xpos1, h - scaler*(value1[i] + value2[i] + value3[i] + value4[i]), columnW, scaler*value4[i] );
        
     }
     
