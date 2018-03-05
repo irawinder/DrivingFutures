@@ -152,7 +152,6 @@ void setup() {
     bar_left.buttons.get(i+4).ypos = bar_left.buttons.get(i).ypos;
   }
   
-  
   // Initialize Right Toolbar
   bar_right = new Toolbar(width - (BAR_X + BAR_W), BAR_Y, BAR_W, BAR_H, MARGIN);
   bar_right.title = "[Analysis] System Projections";
@@ -178,6 +177,7 @@ void setup() {
   cam.ZOOM_MAX     = 0.10;
   cam.ZOOM_MIN     = 0.70;
   cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
+  cam.enableChunks = false;  // Enable/Disable 3D mouse cursor
   cam.init(); //Must End with init() if any variables within Camera() are changed from default
   
   // Setup System Simulation
@@ -381,7 +381,7 @@ void mouseDragged() {
 }
 
 void mouseClicked() {
-  if (cam.chunkField.closestFound) {
+  if (cam.chunkField.closestFound && cam.enableChunks) {
     additions.add(cam.chunkField.closest.location);
   }
 }

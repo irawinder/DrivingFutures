@@ -180,35 +180,40 @@ void draw() {
     }
   }
   
-  // Click-Object: Draw mouse-based object additions
-  if (additions.size() > 0) {
-    for (PVector v: additions) {
-      pushMatrix(); translate(v.x, v.y, v.z + 15);
-      fill(#00FF00, 200); noStroke();
-      sphere(15);
-      popMatrix();
+  if (cam.enableChunks) {
+    // Click-Object: Draw mouse-based object additions
+    if (additions.size() > 0) {
+      for (PVector v: additions) {
+        pushMatrix(); translate(v.x, v.y, v.z + 15);
+        fill(#00FF00, 200); noStroke();
+        sphere(15);
+        popMatrix();
+      }
     }
   }
   
   // Click-Object: Draw Selection Cursor
   float cursorX = 0;
   float cursorY = 0;
-  //cam.chunkField.drawCursor();
-  if (cam.chunkField.closestFound) {
-    Chunk c = cam.chunkField.closest;
-    PVector loc = c.location;
-    
-    // Place Ghost of Object to Place
-    pushMatrix(); translate(loc.x, loc.y, loc.z + 15);
-    fill(#00FF00, 100); noStroke();
-    sphere(15);
-    popMatrix();
-    
-    // Calculate Curson Screen Location
-    cursorX = screenX(loc.x, loc.y, loc.z + 30/2.0);
-    cursorY = screenY(loc.x, loc.y, loc.z + 30/2.0);
+  if (cam.enableChunks) {
+    //cam.chunkField.drawCursor();
+    if (cam.chunkField.closestFound) {
+      Chunk c = cam.chunkField.closest;
+      PVector loc = c.location;
+      
+      // Place Ghost of Object to Place
+      pushMatrix(); translate(loc.x, loc.y, loc.z + 15);
+      fill(#00FF00, 100); noStroke();
+      sphere(15);
+      popMatrix();
+      
+      // Calculate Curson Screen Location
+      cursorX = screenX(loc.x, loc.y, loc.z + 30/2.0);
+      cursorY = screenY(loc.x, loc.y, loc.z + 30/2.0);
+    }
   }
   
+  // Debug: Find a single agent
   //Agent p;
   //float s_x = 0;
   //float s_y = 0;
@@ -225,17 +230,21 @@ void draw() {
   hint(DISABLE_DEPTH_TEST);
   camera(); noLights(); perspective(); 
   
+  // Debug: Redraw a cursor at Agent's Location
   //if (type1.size() > 0) {
   //  noFill();
   //  stroke(#FF0000);
   //  ellipse(s_x, s_y, 25, 25);
   //}
   
-  // Click-Object: Draw Cursor Text
-  float diam = min(100, 5/pow(cam.zoom, 2));
-  if (cam.chunkField.closestFound) {
-    fill(#00FF00, 200); textAlign(LEFT, CENTER);
-    text("Place Marker", cursorX + 0.3*diam, cursorY);
+  
+  if (cam.enableChunks) {
+    // Click-Object: Draw Cursor Text
+    float diam = min(100, 5/pow(cam.zoom, 2));
+    if (cam.chunkField.closestFound) {
+      fill(#00FF00, 200); textAlign(LEFT, CENTER);
+      text("Place Marker", cursorX + 0.3*diam, cursorY);
+    }
   }
   
   // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)

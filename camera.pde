@@ -65,6 +65,7 @@ class Camera {
   
   // UI: Chunks used for selecting area in 3D
   //
+  boolean enableChunks;
   ChunkGrid chunkField;
   
   // UI: Active UI Input
@@ -117,6 +118,9 @@ class Camera {
     eY = 0;
     eW = width;
     eH = height;
+    
+    // Allow 3D mouse cursor object to select chunks
+    enableChunks = true;
     
     init();
   }
@@ -195,8 +199,8 @@ class Camera {
     uiFade = 1.0;
     fadeTimer = FADE_TIMER;
     orient();
-        if (chunkTimer <= 0) {
-      if (!mousePressed) chunkField.checkChunks(mouseX, mouseY);
+    if (chunkTimer <= 0) {
+      if (!mousePressed && enableChunks) chunkField.checkChunks(mouseX, mouseY);
       chunkTimer = CHUNK_TIMER;
     }  else {
       chunkTimer--;
