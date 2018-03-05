@@ -1,14 +1,13 @@
-# FutureParking
+# Future of Parking
 The Future of Parking is an application that simulates and visualizes parking utilization for passenger vehicles in hypothetical scenarios into the future.
 
 ![Future of Parking Simulation by Ira Winder](screenshots/Screen%20Shot%202018-03-04%20at%2011.27.07%20PM.png?raw=true "Future of Parking Simulation by Ira Winder")
 
-SHARED AUTONOMOUS FUTURE
+HOW TO USE
 
-The Future of Parking is an application that simulates and visualizes 
-parking utilization for passenger vehicles in hypothetical scenarios.
+Clone the Repo and open it with [Processing3](http://processing.org)
 
-TAB MAP:
+MAIN TAB MAP:
 
       "A_" denotes high layer of organization on par with FutureParking.pde
       FutureParking.pde - highest level layer containing most interdependencies and complexity
@@ -16,7 +15,7 @@ TAB MAP:
       A_Parking.pde     - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
       Agent.pde, Camera.pde, Pathfinder.pde, Toolbar.pde - Primitive class modules with no interdependencies
 
-  PRIMARY CLASSES:
+PRIMARY CLASSES:
 
       These are not necessarily inter-dependent
 
@@ -26,7 +25,7 @@ TAB MAP:
       Camera()             - The primary container for implementing and editing Camera parameters
       ToolBar()            - Toolbar that may implement ControlSlider(), Radio Button(), and TriSlider()
 
-  DATA INPUT:
+DATA INPUT:
       
       A simulation is populated with the following structured data CSVs, usually exported from
       ArcGIS or QGIS from available OSM files:
@@ -50,7 +49,7 @@ TAB MAP:
 
           X (Lat), Y (Lon), Structure_ID, Structure_Type, Area [sqft], Num_Spaces
 
-  MIT LICENSE: 
+MIT LICENSE: 
   
                Copyright 2018 Ira Winder
 
