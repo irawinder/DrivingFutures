@@ -4,9 +4,6 @@
  *  The Future of Parking is an application that simulates and visualizes 
  *  parking utilization for passenger vehicles in hypothetical scenarios.
  *
- *  A simulation is populated with the following structured data CSVs, usually exported from
- *  ArcGIS or QGIS from available OSM files
- *
  *  TAB MAP:
  *
  *      "A_" denotes high layer of organization on par with FutureParking.pde
@@ -27,6 +24,9 @@
  *      ToolBar()            - Toolbar that may implement ControlSlider(), Radio Button(), and TriSlider()
  *
  *  DATA INPUT:
+ *
+ *      A simulation is populated with the following structured data CSVs, usually exported from
+ *      ArcGIS or QGIS from available OSM files
  *
  *      Vehicle Road Network CSV
  *      Comma separated values where each node in the road network 
