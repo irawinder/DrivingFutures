@@ -125,8 +125,8 @@ void setup() {
   bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
   bar_left.title = "Shared Autonomous Future V1.1";
   bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
-  bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles";
-  bar_left.explanation += "\nPress 'e' to reset simulation";
+  bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.";
+  bar_left.explanation += "\n[r] <- Press 'r' key to reset";
   bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
   bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
   bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
@@ -327,10 +327,10 @@ void keyPressed() {
     case 'f':
       cam.showFrameRate = !cam.showFrameRate;
       break;
-    case 'r':
+    case 'c':
       cam.reset();
       break;
-    case 'e':
+    case 'r':
       bar_left.restoreDefault();
       bar_right.restoreDefault();
       additions.clear();
