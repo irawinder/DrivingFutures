@@ -1,7 +1,7 @@
 # Future of Parking
 The Future of Parking is an application that simulates and visualizes parking utilization for passenger vehicles in hypothetical scenarios into the future.
 
-![Future of Parking Simulation by Ira Winder](screenshots/Screen%20Shot%202018-03-04%20at%2011.27.07%20PM.png?raw=true "Future of Parking Simulation by Ira Winder")
+![Future of Parking Simulation by Ira Winder](screenshots/Screen%20Shot%202018-03-05%20at%202.50.33%20PM.png?raw=true "Future of Parking Simulation by Ira Winder")
 
 ## How to Use
 
