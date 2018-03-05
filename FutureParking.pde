@@ -319,6 +319,8 @@ void addVehicle(ArrayList<Agent> array, String type) {
 }
 
 void keyPressed() {
+  cam.moved();
+  
   switch(key) {
     //case 'g':
     //  initPaths();
@@ -333,6 +335,13 @@ void keyPressed() {
     case 'r':
       bar_left.restoreDefault();
       bar_right.restoreDefault();
+      bar_left.pressed();
+      bar_right.pressed();
+      setSliders();
+      setParking();
+      sys.update();
+      setParking();
+      updatePopulation();
       additions.clear();
       break;
     //case 'p':
@@ -345,15 +354,6 @@ void keyPressed() {
     //  println("cam.rotation = " + cam.rotation);
     //  break;
   }
-  
-  cam.moved();
-  bar_left.pressed();
-  bar_right.pressed();
-  setSliders();
-  setParking();
-  sys.update();
-  setParking();
-  updatePopulation();
 }
 
 void mousePressed() {

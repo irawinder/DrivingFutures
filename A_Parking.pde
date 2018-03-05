@@ -151,94 +151,140 @@ class Parking_System {
         otherFree[i] = 0;
       }
       
-      // Allocation Parking Vacancy Based Upon priority triangle
-      int pB = int( priorityBelow*10 );
-      int pS = int( prioritySurface*10 );
-      int pA = int( priorityAbove*10 );
-      int tot = pB + pS + pA;
-      int counter = 0;
+      // Allocation of Parking Vacancy Based Upon Priority triangle
+      //
+      int pB = int( 0.5 + 100 * priorityBelow   ); // 0-100
+      int pS = int( 0.5 + 100 * prioritySurface ); // 0-100
+      int pA = int( 0.5 + 100 * priorityAbove   ); // 0-100
+      int pBSA = pB + pS + pA; // ~100
+      int pBS = pB + pS;
+      int pBA = pB + pA;
+      int pSA = pS + pA;
+      int counterBSA = 0;
+      int counterBS = 0;
+      int counterBA = 0;
+      int counterSA = 0;
       int k = totalFree[i];
+      int kLast = totalFree[i];
       while (k > 0) {
-        if (counter < pB) {
-          belowFree[i]++;
+        // A. Tries to allocate to below ground
+        if (counterBSA < pB) {
+          if (belowFree[i] < totBelow) {
+            belowFree[i]++;
             k--;
-        } else if (counter < pB+pS) {
-          surfaceFree[i]++;
-            k--;
-        } else if (counter < pB+pS+pA) {
-          aboveFree[i]++;
-            k--;
-        }
-        counter++;
-        if (counter == tot) counter = 0;
-      }
-      if (belowFree[i] > totBelow) {
-        int remaining = belowFree[i] - totBelow;
-        belowFree[i] -= remaining;
-        while (remaining > 0) {
-          if (pS > pA) {
-            if (surfaceFree[i] < totSurface) {
-              surfaceFree[i]++;
-              remaining--;
-            } else {
-              aboveFree[i]++;
-              remaining--;
-            }
           } else {
-            if (aboveFree[i] < totAbove) {
-              aboveFree[i]++;
-              remaining--;
+            // i. Tries to allocate to Surface and Above
+            if (pS == pA) {
+              if (surfaceFree[i] < totSurface) {
+                surfaceFree[i]++;
+                k--;
+              } 
+              if (aboveFree[i] < totAbove) {
+                aboveFree[i]++;
+                k--;
+              } 
+            // ii. Tries to allocate to Surface THEN Above
+            } else if (counterSA < pS || (pA == 0 && pS != 0) ) {
+              if (surfaceFree[i] < totSurface) {
+                surfaceFree[i]++;
+                k--;
+              } else if (aboveFree[i] < totAbove) {
+                aboveFree[i]++;
+                k--;
+              } 
+            // iii. Tries to allocate to Above THEN Surface
             } else {
-              surfaceFree[i]++;
-              remaining--;
+              if (aboveFree[i] < totAbove) {
+                aboveFree[i]++;
+                k--;
+              } else if (surfaceFree[i] < totSurface) {
+                surfaceFree[i]++;
+                k--;
+              }
             }
+            counterSA++;
+            if (counterSA == pSA) counterSA = 0;
+          }
+        // B. Tries to allocate to surface
+        } else if (counterBSA < pB+pS) {
+          if (surfaceFree[i] < totSurface) {
+            surfaceFree[i]++;
+            k--;
+          } else {
+            if (pB == pA) {
+              if (belowFree[i] < totBelow) {
+                belowFree[i]++;
+                k--;
+              } 
+              if (aboveFree[i] < totAbove) {
+                aboveFree[i]++;
+                k--;
+              } 
+            } else if (counterBA < pB || (pA == 0 && pB != 0) ) {
+              if (belowFree[i] < totBelow) {
+                belowFree[i]++;
+                k--;
+              } else if (aboveFree[i] < totAbove) {
+                aboveFree[i]++;
+                k--;
+              } 
+            } else {
+              if (aboveFree[i] < totAbove) {
+                aboveFree[i]++;
+                k--;
+              } else if (belowFree[i] < totBelow) {
+                belowFree[i]++;
+                k--;
+              }
+            }
+            counterBA++;
+            if (counterBA == pBA) counterBA = 0;
+          }
+        // B. Tries to allocate to above ground
+        } else if (counterBSA < pB+pS+pA) {
+          if (aboveFree[i] < totAbove) {
+            aboveFree[i]++;
+            k--;
+          } else {
+            if (pB == pS) {
+              if (belowFree[i] < totBelow) {
+                belowFree[i]++;
+                k--;
+              } 
+              if (surfaceFree[i] < totSurface) {
+                surfaceFree[i]++;
+                k--;
+              } 
+            } else if (counterBS < pB || (pS == 0 && pB != 0) ) {
+              if (belowFree[i] < totBelow) {
+                belowFree[i]++;
+                k--;
+              } else if (surfaceFree[i] < totSurface) {
+                surfaceFree[i]++;
+                k--;
+              } 
+            } else {
+              if (surfaceFree[i] < totSurface) {
+                surfaceFree[i]++;
+                k--;
+              } else if (belowFree[i] < totBelow) {
+                belowFree[i]++;
+                k--;
+              }
+            }
+            counterBS++;
+            if (counterBS == pBS) counterBS = 0;
           }
         }
-      }
-      if (surfaceFree[i] > totSurface) {
-        int remaining = surfaceFree[i] - totSurface;
-        surfaceFree[i] -= remaining;
-        while (remaining > 0) {
-          if (pB > pA) {
-            if (belowFree[i] < totBelow) {
-              belowFree[i]++;
-              remaining--;
-            } else {
-              aboveFree[i]++;
-              remaining--;
-            }
-          } else {
-            if (aboveFree[i] < totAbove) {
-              aboveFree[i]++;
-              remaining--;
-            } else {
-              belowFree[i]++;
-              remaining--;
-            }
-          }
-        }
-      }
-      if (aboveFree[i] > totAbove) {
-        int remaining = aboveFree[i] - totAbove;
-        aboveFree[i] -= remaining;
-        while (remaining > 0) {
-          if (pB > pS) {
-            if (belowFree[i] < totBelow) {
-              belowFree[i]++;
-              remaining--;
-            } else {
-              surfaceFree[i]++;
-              remaining--;
-            }
-          } else {
-            if (surfaceFree[i] < totSurface) {
-              surfaceFree[i]++;
-              remaining--;
-            } else {
-              belowFree[i]++;
-              remaining--;
-            }
-          }
+        counterBSA++;
+        if (counterBSA == pBSA) counterBSA = 0;
+        
+        // Avoids infinite loop!
+        if (kLast == k) {
+          println("Infinite loop avoided!");
+          break;
+        } else {
+          kLast = k;
         }
       }
       
