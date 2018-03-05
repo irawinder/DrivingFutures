@@ -5,7 +5,7 @@ The Future of Parking is an application that simulates and visualizes parking ut
 
 ## How to Use
 
-Clone the repo and open *FutureParking.pde* with [Processing3](http://processing.org)
+Clone the repo and open *FutureParking.pde* with [Processing3](https://processing.org/download/)
 
 ## Structure
 
