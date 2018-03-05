@@ -21,7 +21,7 @@
  *      These are not necessarily inter-dependent
  *
  *      Parking_System()     - Mathematically realated parameters to forcast vheicle and parking demand over time using logistic equations   
- *      ParkingStructures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
+ *      Parking_Structures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
  *      Agent()              - A force-based autonomous agent that can navigate along a series of waypoints that comprise a path
  *      Camera()             - The primary container for implementing and editing Camera parameters
  *      ToolBar()            - Toolbar that may implement ControlSlider(), Radio Button(), and TriSlider()
