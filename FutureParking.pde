@@ -1,50 +1,90 @@
-/*  Future of Parking, Ira Winder and Gensler, 2018
+/*  SHARED AUTONOMOUS FUTURE
+ *  Ira Winder, ira@mit.edu, 2018
  *
  *  The Future of Parking is an application that simulates and visualizes 
  *  parking utilization for passenger vehicles in hypothetical scenarios.
  *
  *  A simulation is populated with the following structured data CSVs, usually exported from
- *  ArcGIS or QGIS from available shape files
+ *  ArcGIS or QGIS from available OSM files
  *
- *  Vehicle Road Network CSV - Comma separated values where each node in the road network 
+ *  TAB MAP:
+ *
+ *      "A_" denotes high layer of organization on par with FutureParking.pde
+ *
+ *      FutureParking.pde - highest level layer containing most interdependencies and complexity
+ *      A_Draw.pde        - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
+ *      A_Parking.pde     - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
+ *      Agent.pde, Camera.pde, Pathfinder.pde, Toolbar.pde - Primitive class modules with no interdependencies
+ *
+ *  PRIMARY CLASSES:
+ *
+ *      These are not necessarily inter-dependent
+ *
+ *      Parking_System()     - Mathematically realated parameters to forcast vheicle and parking demand over time using logistic equations   
+ *      ParkingStructures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
+ *      Agent()              - A force-based autonomous agent that can navigate along a series of waypoints that comprise a path
+ *      Camera()             - The primary container for implementing and editing Camera parameters
+ *      ToolBar()            - Toolbar that may implement ControlSlider(), Radio Button(), and TriSlider()
+ *
+ *  DATA INPUT:
+ *
+ *      Vehicle Road Network CSV
+ *      Comma separated values where each node in the road network 
  *      represented as a row with the following 3 columns of information (i.e. data/roads.csv):
- *      
- *      X (Lat), Y (Lon), Road_ID
+ *        
+ *          X (Lat), Y (Lon), Road_ID
  *
- *  Parking Structure Nodes CSV - Comma Separated values where each row describes a 
+ *      Parking Structure Nodes CSV
+ *      Comma Separated values where each row describes a 
  *      parking structure (i.e. data/parking_nodes.csv):
  *
- *      X (Lat), Y (Lon), Structure_ID, Structure_Type, Area [sqft], Num_Spaces
+ *          X (Lat), Y (Lon), Structure_ID, Structure_Type, Area [sqft], Num_Spaces
  *
- *  Parking Structure Polygons CSV - Comma Separated values where each row describes a 
+ *      Parking Structure Polygons CSV
+ *      Comma Separated values where each row describes a 
  *      node of a parking structure polygon in the order that it is drawn (i.e. 
  *      data/parking_poly.csv):
  *
- *      X (Lat), Y (Lon), Structure_ID, Structure_Type, Area [sqft], Num_Spaces
+ *          X (Lat), Y (Lon), Structure_ID, Structure_Type, Area [sqft], Num_Spaces
+ *
+ *  MIT LICENSE:  Copyright 2018 Ira Winder
+ *
+ *               Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
+ *               and associated documentation files (the "Software"), to deal in the Software without restriction, 
+ *               including without limitation the rights to use, copy, modify, merge, publish, distribute, 
+ *               sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is 
+ *               furnished to do so, subject to the following conditions:
+ *
+ *               The above copyright notice and this permission notice shall be included in all copies or 
+ *               substantial portions of the Software.
+ *
+ *               THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT 
+ *               NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+ *               NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, 
+ *               DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+ *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
-//  Geometric Parameters:
+//  GeoLocation Parameters:
 float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
 
-// Objects to define our Network:
-//
-RoadNetwork rNetwork;
-Graph network;
-
 //  Object to define and capture paths to collection of origins, destinations:
-TravelRoutes routes;
-
+Parking_Routes routes;
 //  Object to define parking facilities:
-ParkingStructures structures;
-
+Parking_Structures structures;
 //  Object to Define Systems Model
-AV_System sys;
+Parking_System sys;
 
 //  Objects to define agents that navigate our environment:
 ArrayList<Agent> type1;
 ArrayList<Agent> type2;
 ArrayList<Agent> type3;
 ArrayList<Agent> type4;
+
+// Objects for importing road network
+//
+RoadNetwork rNetwork;
+Graph network;
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -140,7 +180,7 @@ void setup() {
   cam.init(); //Must End with init() if any variables within Camera() are changed from default
   
   // Setup System Simulation
-  sys = new AV_System(901, 2010, 2030);
+  sys = new Parking_System(901, 2010, 2030);
   sys.av_growth = 1.0;
   sys.rideShare_growth = 1.0;
   sys.totBelow = structures.totBelow / 100;
@@ -214,12 +254,12 @@ void initEnvironment() {
   
   //  A list of parking structures
   //
-  structures = new ParkingStructures(int(B.x), int(B.y), latMin, latMax, lonMin, lonMax);
+  structures = new Parking_Structures(int(B.x), int(B.y), latMin, latMax, lonMin, lonMax);
 }
 
 void initPaths() {
   // Collection of routes to and from home, work, and parking ammentities
-  routes = new TravelRoutes(int(B.x), int(B.y), network, structures);
+  routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
 }
 
 void initPopulation() {
