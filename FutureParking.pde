@@ -126,6 +126,7 @@ void setup() {
   bar_left.title = "Shared Autonomous Future V1.1";
   bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
   bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles";
+  bar_left.explanation += "\nPress 'e' to reset simulation";
   bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
   bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
   bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
@@ -328,6 +329,8 @@ void keyPressed() {
       break;
     case 'r':
       cam.reset();
+      break;
+    case 'e':
       bar_left.restoreDefault();
       bar_right.restoreDefault();
       additions.clear();
