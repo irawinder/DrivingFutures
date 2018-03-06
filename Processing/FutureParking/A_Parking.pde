@@ -29,7 +29,7 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// That that contains a system of elements including autonomous vehicles, ride share vehicles, 
+// Contains a system of elements including autonomous vehicles, ride share vehicles, 
 // parking information, trip demands, and simulated outputs.
 //
 class Parking_System {
