@@ -163,6 +163,7 @@ void setup() {
   bar_right.credit = "";
   bar_right.explanation = "";
   bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
+  println("Toolbars Initialized");
 
   // Initialize Simulation Components
   initEnvironment(); println("Environment Initialized");
@@ -204,8 +205,6 @@ void setup() {
   
   // Sample 3D objects to manipulate
   additions = new ArrayList<PVector>();
-  
-  // network.saveJSON("boston_OSM.json");
 }
 
 // Set System Parameters According to Slider Values
@@ -291,6 +290,9 @@ void initEnvironment() {
     int nodeResolution = 5;     // pixels
     network = new Graph(graphWidth, graphHeight, latMin, latMax, lonMin, lonMax, nodeResolution, rNetwork);
     
+    // Save network to JSON file
+    //
+    network.saveJSON("boston_OSM.json");
   }
   
   //  A list of parking structures
