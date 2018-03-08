@@ -42,7 +42,15 @@ int belowColor    = #CC99FF;
 int surfaceColor  = #FFBB66;
 int aboveColor    = #5555FF;
 
+boolean initialized = false;
+
 void draw() {
+  
+  if (!initialized) {
+    initialize();
+    initialized = true;
+  }
+  
   background(20);
   
   // -------------------------
