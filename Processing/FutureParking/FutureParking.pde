@@ -64,12 +64,16 @@
  *               DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
+import java.io.File;
+import java.io.FileNotFoundException;
+
 //  GeoLocation Parameters:
 float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
 
 //  Object to define and capture paths to collection of origins, destinations:
 Parking_Routes routes;
+File routesJSON;
 //  Object to define parking facilities:
 Parking_Structures structures;
 //  Object to Define Systems Model
@@ -85,6 +89,7 @@ ArrayList<Agent> type4;
 //
 RoadNetwork rNetwork;
 Graph network;
+File graphJSON;
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -179,6 +184,7 @@ void setup() {
   cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
   cam.enableChunks = false;  // Enable/Disable 3D mouse cursor
   cam.init(); //Must End with init() if any variables within Camera() are changed from default
+  println("Camera Initialized");
   
   // Setup System Simulation
   sys = new Parking_System(901, 2010, 2030);
@@ -190,14 +196,16 @@ void setup() {
   setSliders();
   sys.update();
   setParking();
+  println("Parking System Initialized");
   
   // Initialize Vehicle Agents
-  initPopulation();  println("Population Initialized");
+  initPopulation();  
+  println("Population Initialized");
   
   // Sample 3D objects to manipulate
   additions = new ArrayList<PVector>();
   
-  network.saveJSON();
+  // network.saveJSON("boston_OSM.json");
 }
 
 // Set System Parameters According to Slider Values
@@ -241,19 +249,49 @@ void setParking() {
 
 void initEnvironment() {
   
-  //  A Road Network Created from a QGIS OSM File
+  // Check for existance of JSON file
   //
-  // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
-  //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax);
-  //
-  rNetwork = new RoadNetwork("data/roads.csv");
+  String fileName = "boston_OSM.json";
+  graphJSON = new File(dataPath(fileName));
+  boolean loadFile;
+  if(graphJSON.exists()) { 
+    loadFile = true;
+  } else {
+    loadFile = false;
+    println("The specified file '" + fileName + "' is not present");
+  }
   
-  //  An example gridded network of width x height (pixels) and node resolution (pixels)
+  // loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
+  
+  // Graph pixel dimensions
   //
-  int nodeResolution = 5;     // pixels
-  int graphWidth = int(B.x);  // pixels
+  int graphWidth  = int(B.x); // pixels
   int graphHeight = int(B.y); // pixels
-  network = new Graph(graphWidth, graphHeight, latMin, latMax, lonMin, lonMax, nodeResolution, rNetwork);
+    
+  if (loadFile) {
+    
+    //  A Road Network Created from a JSON File compatible with Graph.loadJSON()
+    //
+    boolean drawNodes = false;
+    boolean drawEdges = true;
+    network = new Graph(graphWidth, graphHeight, fileName, drawNodes, drawEdges);
+    println("**network imported from " + fileName + "**");
+    
+  } else {
+    
+    //  A Road Network Created from a QGIS OSM File
+    //
+    // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
+    //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax);
+    //
+    rNetwork = new RoadNetwork("data/roads.csv");
+    
+    //  An example gridded network of width x height (pixels) and node resolution (pixels)
+    //
+    int nodeResolution = 5;     // pixels
+    network = new Graph(graphWidth, graphHeight, latMin, latMax, lonMin, lonMax, nodeResolution, rNetwork);
+    
+  }
   
   //  A list of parking structures
   //
@@ -261,8 +299,29 @@ void initEnvironment() {
 }
 
 void initPaths() {
+  
+  // Check for existance of JSON file
+  //
+  String fileName = "routes.json";
+  routesJSON = new File(dataPath(fileName));
+  boolean loadFile;
+  if(routesJSON.exists()) { 
+    loadFile = true;
+  } else {
+    loadFile = false;
+    println("The specified file '" + fileName + "' is not present");
+  }
+  
+  // loadFile = false;
+  
   // Collection of routes to and from home, work, and parking ammentities
-  routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
+  if (loadFile) {
+    routes = new Parking_Routes(int(B.x), int(B.y), fileName);
+    println("**network imported from " + fileName + "**");
+  } else {
+    routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
+    routes.saveJSON(fileName);
+  }
 }
 
 void initPopulation() {

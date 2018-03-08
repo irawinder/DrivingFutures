@@ -90,7 +90,18 @@ class Graph {
   int U, V;
   float SCALE;
   PGraphics img; // Graph is drawn once into memory
-  boolean roadNetwork;
+  boolean drawNodes, drawEdges;
+  
+  // Graph from JSON File
+  //
+  Graph (int w, int h, String fileName, boolean drawNodes, boolean drawEdges) {
+    img = createGraphics(w, h);
+    nodes = new ArrayList<Node>();
+    loadJSON(fileName);
+    this.drawNodes = drawNodes;
+    this.drawEdges = drawEdges;
+    render(255, 255);
+  }
   
   // Using the canvas width and height in pixels, a gridded graph 
   // is generated with a pixel spacing of 'scale'
@@ -100,7 +111,8 @@ class Graph {
     U = int(w / SCALE);
     V = int(h / SCALE);
     img = createGraphics(w, h);
-    roadNetwork = false;
+    drawNodes = true;
+    drawEdges = true;
     nodes = new ArrayList<Node>();
     for (int i=0; i<U; i++) {
       for (int j=0; j<V; j++) {
@@ -108,44 +120,6 @@ class Graph {
       }
     }
     generateEdges();
-  }
-  
-  // Save Graph Nodes to JSON
-  void saveJSON(String name) {
-    JSONObject graphJSON = new JSONObject();
-    
-    graphJSON.setInt("U", U);
-    graphJSON.setInt("V", V);
-    graphJSON.setFloat("SCALE", SCALE);
-    JSONArray nodesJSON = new JSONArray();
-    
-    for (Node n: nodes) {
-      JSONObject nodeJSON = new JSONObject();
-      
-      nodeJSON.setInt("ID", n.ID);
-      nodeJSON.setFloat("locX", n.loc.x);
-      nodeJSON.setFloat("locY", n.loc.y);
-      nodeJSON.setFloat("locZ", n.loc.z);
-      nodeJSON.setInt("gridX", n.gridX);
-      nodeJSON.setInt("gridY", n.gridY);
-      
-      JSONArray neighborsJSON = new JSONArray();
-      for (int i=0; i<n.adj_ID.size(); i++) {
-        JSONObject neighborJSON = new JSONObject();
-        neighborJSON.setInt("adj_ID", n.adj_ID.get(i) );
-        neighborJSON.setFloat("adj_Dist", n.adj_Dist.get(i) );
-        neighborsJSON.append(neighborJSON);
-      }
-      nodeJSON.setJSONArray("neighbors", neighborsJSON);
-      nodesJSON.append(nodeJSON);
-    }
-    graphJSON.setJSONArray("nodes", nodesJSON);
-  
-    saveJSONObject(graphJSON, "data/" + name + "_" + nodes.size() + ".json");
-  }
-  
-  void loadJSON(String name) {
-    
   }
   
   // Using the canvas width and height in pixels, a graph 
@@ -156,7 +130,8 @@ class Graph {
     U = int(w / SCALE);
     V = int(h / SCALE);
     img = createGraphics(w, h);
-    roadNetwork = true;
+    drawNodes = false;
+    drawEdges = true;
     nodes = new ArrayList<Node>();
     
     float x, y;
@@ -165,7 +140,7 @@ class Graph {
     float canvasX, canvasY;
     for (int i=0; i<numNodes; i++) {
       // Status Output
-      if (i%1000 == 0) println("Loading Nodes: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%10000 == 0 || i == numNodes-1) println("Loading Nodes: " + int(100*float(i+1)/numNodes) + "% complete");
       x        = r.networkT.getFloat(i, 0);
       y        = r.networkT.getFloat(i, 1);
       canvasX  = w * (x - lonMin) / abs(lonMax - lonMin);
@@ -181,7 +156,7 @@ class Graph {
     String oneway, type;
 
     for (int i=0; i<numNodes; i++) {
-      if (i%5000 == 0) println("Loading Segments: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%10000 == 0 || i == numNodes-1) println("Loading Segments: " + int(100*float(i+1)/nodes.size()) + "% complete");
       if (i != 0) {
       lastID   = r.networkT.getInt(i-1, 2);
       }
@@ -216,7 +191,7 @@ class Graph {
     }
     for (int i=0; i<numNodes; i++) {
       // Status Output
-      if (i%5000 == 0) println("Connecting Segments: " + int(100*float(i)/nodes.size()) + "% complete");
+      if (i%10000 == 0 || i == numNodes-1) println("Connecting Segments: " + int(100*float(i+1)/nodes.size()) + "% complete");
       u = min(U-1, nodes.get(i).gridX);
       u = max(0,   u);
       v = min(V-1, nodes.get(i).gridY);
@@ -236,6 +211,76 @@ class Graph {
     }
     
     render(255, 255);
+  }
+  
+  // A Graph is created by loading a compatible JSON file
+  //
+  void loadJSON(String fileName) {
+    JSONObject graphJSON = loadJSONObject(fileName);
+    
+    U = graphJSON.getInt("U");
+    V = graphJSON.getInt("V");
+    SCALE = graphJSON.getInt("SCALE");
+    JSONArray nodesJSON = graphJSON.getJSONArray("nodes");
+    
+    nodes.clear();
+    for (int n=0; n<nodesJSON.size(); n++) {
+      JSONObject nodeJSON = nodesJSON.getJSONObject(n);
+      float x = nodeJSON.getFloat("locX");
+      float y = nodeJSON.getFloat("locY");
+      Node node = new Node(x, y, SCALE);
+      node.ID = nodeJSON.getInt("ID");
+      node.gridX = nodeJSON.getInt("gridX");
+      node.gridY = nodeJSON.getInt("gridY");
+      
+      JSONArray neighborsJSON = nodeJSON.getJSONArray("neighbors");
+      for (int i=0; i<neighborsJSON.size(); i++) {
+        JSONObject neighborJSON = neighborsJSON.getJSONObject(i);
+        int adj_ID = neighborJSON.getInt("adj_ID");
+        float adj_Dist = neighborJSON.getFloat("adj_Dist");
+        node.addNeighbor(adj_ID, adj_Dist);
+      }
+      nodes.add(node);
+    }
+  }
+  
+  // Save Graph Nodes to JSON
+  //
+  void saveJSON(String fileName) {
+    JSONObject graphJSON = new JSONObject();
+    
+    // The graph object contains four attributes:
+    graphJSON.setInt("U", U);
+    graphJSON.setInt("V", V);
+    graphJSON.setFloat("SCALE", SCALE);
+    JSONArray nodesJSON = new JSONArray();
+    
+    // All nodes of the graph are populated
+    for (Node n: nodes) {
+      JSONObject nodeJSON = new JSONObject();
+      
+      // Each node's metadata:
+      nodeJSON.setInt("ID", n.ID);
+      nodeJSON.setFloat("locX", n.loc.x);
+      nodeJSON.setFloat("locY", n.loc.y);
+      nodeJSON.setInt("gridX", n.gridX);
+      nodeJSON.setInt("gridY", n.gridY);
+      
+      // Each node has a list of neighbors (ID and distance) associated with them
+      JSONArray neighborsJSON = new JSONArray();
+      for (int i=0; i<n.adj_ID.size(); i++) {
+        JSONObject neighborJSON = new JSONObject();
+        neighborJSON.setInt("adj_ID", n.adj_ID.get(i) );
+        neighborJSON.setFloat("adj_Dist", n.adj_Dist.get(i) );
+        neighborsJSON.append(neighborJSON);
+      }
+      nodeJSON.setJSONArray("neighbors", neighborsJSON);
+      nodesJSON.append(nodeJSON);
+    }
+    graphJSON.setJSONArray("nodes", nodesJSON);
+    
+    // JSON file saved to disk
+    saveJSONObject(graphJSON, fileName);
   }
   
   void newNodes(ArrayList<PVector> locs) {
@@ -430,7 +475,7 @@ class Graph {
     
     // Draws Tangent Circles Centered at pathfinding nodes
     //
-    if (!roadNetwork) {
+    if (drawNodes) {
       Node n;
       for (int i=0; i<nodes.size(); i++) {
         n = nodes.get(i);
@@ -440,11 +485,13 @@ class Graph {
     
     // Draws Edges that Connect Nodes
     //
-    int neighbor;
-    for (int i=0; i<nodes.size(); i++) {
-      for (int j=0; j<nodes.get(i).adj_ID.size(); j++) {
-        neighbor = nodes.get(i).adj_ID.get(j);
-        img.line(nodes.get(i).loc.x, nodes.get(i).loc.y, nodes.get(neighbor).loc.x, nodes.get(neighbor).loc.y);
+    if (drawEdges) {
+      int neighbor;
+      for (int i=0; i<nodes.size(); i++) {
+        for (int j=0; j<nodes.get(i).adj_ID.size(); j++) {
+          neighbor = nodes.get(i).adj_ID.get(j);
+          img.line(nodes.get(i).loc.x, nodes.get(i).loc.y, nodes.get(neighbor).loc.x, nodes.get(neighbor).loc.y);
+        }
       }
     }
     img.endDraw();
@@ -460,8 +507,9 @@ class Path {
   ArrayList<PVector> waypoints;
   boolean enableFinder = true;
   float diameter = 10;
-  PGraphics img;
   boolean closed;
+  
+  Path () { } // Load blank path
   
   Path(float x, float y, float l, float w) {
     origin = new PVector( random(x, x+l), random(y, y+w) );

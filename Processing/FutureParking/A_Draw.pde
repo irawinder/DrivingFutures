@@ -64,15 +64,15 @@ void draw() {
   // Draw and Calculate 3D Graphics 
   cam.orient();
   
-  // ****
-  // NOTE: Objects draw earlier in the loop will obstruct 
-  // objects drawn afterward (despite alpha value!)
-  // ****
-  
   
   
   // -------------------------
   // Begin Drawing 3D Elements
+  //
+  // ****
+  // NOTE: Objects draw earlier in the loop will obstruct 
+  // objects drawn afterward (despite alpha value!)
+  // ****
   
   //  Displays the Graph in grayscale.
   //

@@ -446,6 +446,12 @@ class Parking_Routes {
   PGraphics img;
   Pathfinder finder;
   
+  Parking_Routes(int w, int h, String fileName) {
+    paths = new ArrayList<Path>();
+    loadJSON(fileName);
+    render(w, h);
+  }
+  
   Parking_Routes(int w, int h, Graph n, Parking_Structures s) {
     //  FORMAT 1: Path(float x, float y, float l, float w)
     //  FORMAT 2: Path(PVector o, PVector d)
@@ -507,6 +513,66 @@ class Parking_Routes {
       
     }
     
+    render(w, h);
+  }
+  
+  // Paths are created by loading a compatible JSON file
+  //
+  void loadJSON(String fileName) {
+    JSONArray pathsJSON = loadJSONArray(fileName);
+
+    for (int i=0; i<pathsJSON.size(); i++) {
+      // Each element in pathsJSON array is a path object
+      JSONObject pathJSON = pathsJSON.getJSONObject(i);
+      Path path = new Path();
+      path.enableFinder = false;
+      path.closed = true;
+      path.diameter = 10;
+      
+      // Each path object contains series of waypoints:
+      JSONArray waypointsJSON = pathJSON.getJSONArray("waypoints");
+      path.waypoints = new ArrayList<PVector>();
+      for (int j=0; j<waypointsJSON.size(); j++) {
+        JSONObject waypointJSON = waypointsJSON.getJSONObject(j);
+        float x = waypointJSON.getFloat("x");
+        float y = waypointJSON.getFloat("y");
+        PVector waypoint = new PVector(x, y);
+        path.waypoints.add(waypoint);
+        
+        if( j == 0                        ) path.origin      = new PVector(x, y);
+        if( j == waypointsJSON.size() - 1 ) path.destination = new PVector(x, y);
+      }
+      paths.add(path);
+    }
+  }
+  
+  // Save Paths to JSON
+  //
+  void saveJSON(String fileName) {
+    JSONArray pathsJSON = new JSONArray();
+    
+    for (Path p: paths) {
+      // Each element in pathsJSON array is a path object
+      JSONObject pathJSON = new JSONObject();
+    
+      // Each path object contains series of waypoints:
+      JSONArray waypointsJSON = new JSONArray();
+      
+      for (PVector v: p.waypoints) {
+        JSONObject waypointJSON = new JSONObject();
+        waypointJSON.setFloat("x", v.x);
+        waypointJSON.setFloat("y", v.y);
+        waypointsJSON.append(waypointJSON);
+      }
+      pathJSON.setJSONArray("waypoints", waypointsJSON);
+      pathsJSON.append(pathJSON);
+    }
+    
+    // JSON file saved to disk
+    saveJSONArray(pathsJSON, "data/" + fileName);
+  }
+  
+  void render(int w, int h) {
     img = createGraphics(w, h);
     img.beginDraw();
     img.clear();
