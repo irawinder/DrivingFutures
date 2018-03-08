@@ -110,6 +110,44 @@ class Graph {
     generateEdges();
   }
   
+  // Save Graph Nodes to JSON
+  void saveJSON(String name) {
+    JSONObject graphJSON = new JSONObject();
+    
+    graphJSON.setInt("U", U);
+    graphJSON.setInt("V", V);
+    graphJSON.setFloat("SCALE", SCALE);
+    JSONArray nodesJSON = new JSONArray();
+    
+    for (Node n: nodes) {
+      JSONObject nodeJSON = new JSONObject();
+      
+      nodeJSON.setInt("ID", n.ID);
+      nodeJSON.setFloat("locX", n.loc.x);
+      nodeJSON.setFloat("locY", n.loc.y);
+      nodeJSON.setFloat("locZ", n.loc.z);
+      nodeJSON.setInt("gridX", n.gridX);
+      nodeJSON.setInt("gridY", n.gridY);
+      
+      JSONArray neighborsJSON = new JSONArray();
+      for (int i=0; i<n.adj_ID.size(); i++) {
+        JSONObject neighborJSON = new JSONObject();
+        neighborJSON.setInt("adj_ID", n.adj_ID.get(i) );
+        neighborJSON.setFloat("adj_Dist", n.adj_Dist.get(i) );
+        neighborsJSON.append(neighborJSON);
+      }
+      nodeJSON.setJSONArray("neighbors", neighborsJSON);
+      nodesJSON.append(nodeJSON);
+    }
+    graphJSON.setJSONArray("nodes", nodesJSON);
+  
+    saveJSONObject(graphJSON, "data/" + name + "_" + nodes.size() + ".json");
+  }
+  
+  void loadJSON(String name) {
+    
+  }
+  
   // Using the canvas width and height in pixels, a graph 
   // is generated using an OSM-standard roadfile CSV/Table 
   //

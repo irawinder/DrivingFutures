@@ -196,6 +196,8 @@ void setup() {
   
   // Sample 3D objects to manipulate
   additions = new ArrayList<PVector>();
+  
+  network.saveJSON();
 }
 
 // Set System Parameters According to Slider Values
