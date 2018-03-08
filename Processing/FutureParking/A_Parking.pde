@@ -314,7 +314,7 @@ class Parking_System {
     //
     stroke(255, 100); noFill();
     int j = (year_now - year_0);
-    float markerH = min(h, scaler*(value1[j] + value2[j] + value3[j] + value4[j])) - 5;
+    float markerH = min(h, h-scaler*(value1[j] + value2[j] + value3[j] + value4[j])) - 5;
     line(j*iWidth + 0.5*columnW, 22, j*iWidth + 0.5*columnW, markerH);
     
     // Cycle through each interval of the graph
@@ -342,23 +342,27 @@ class Parking_System {
     // Draw Current Year Total
     //
     fill(150);
-    textAlign(LEFT, TOP);
-    text("Tot: " + (value1[j]+value2[j]+value3[j]+value4[j]), j*iWidth + iWidth, 20);
-    textAlign(RIGHT, TOP);
-    text(year_now, j*iWidth - 0.5*iWidth, 20);
+    String current = year_now + "\nTot: " + (value1[j]+value2[j]+value3[j]+value4[j]);
+    if (j < intervals/2) {
+      textAlign(LEFT, TOP);
+      text(current, j*iWidth + iWidth, 20);
+    } else {
+      textAlign(RIGHT, TOP);
+      text(current, j*iWidth - 0.5*iWidth, 20);
+    }
     
     // Draw Graph Title, x_axis, and y_axis
     //
     fill(255);
     textAlign(LEFT, TOP);
     text(title, 0, 0);
+    textAlign(RIGHT, TOP);
+    text(unit, w, 0);
     fill(150);
     textAlign(LEFT, BOTTOM);
     text(year_0, 0, h+16);
     textAlign(RIGHT, BOTTOM);
     text(year_f, w, h+16);
-    textAlign(LEFT, TOP);
-    text(unit, 0, 40);
 
     popMatrix();
   }

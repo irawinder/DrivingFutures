@@ -24,6 +24,7 @@
 // Counter to track which phase of initialization
 int initPhase = 0;
 int NUM_PHASES = 8;
+int phaseDelay = 0;
 
 void initialize() {
   
@@ -39,7 +40,7 @@ void initialize() {
     lonMin = lonCtr - tol;
     lonMax = lonCtr + tol;
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Loading Toolbars ...";
     loadScreen(initPhase, NUM_PHASES, status);
     
@@ -90,7 +91,7 @@ void initialize() {
     bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
     //println("Toolbars Initialized");
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Importing Infrastructure ...";
     loadScreen(initPhase, NUM_PHASES, status);
     
@@ -99,7 +100,7 @@ void initialize() {
     // Initialize Simulation Components
     initEnvironment(); //println("Environment Initialized");
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Finding Shortest Paths ...";
     loadScreen(initPhase, NUM_PHASES, status);
     
@@ -107,7 +108,7 @@ void initialize() {
     
     initPaths();       //println("Paths Initialized");
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Setting Up 3D Environment ...";
     loadScreen(initPhase, NUM_PHASES, status);
     
@@ -131,7 +132,7 @@ void initialize() {
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
     //println("Camera Initialized");
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Calibrating Systems Model ...";
     loadScreen(initPhase, NUM_PHASES, status);
   
@@ -149,7 +150,7 @@ void initialize() {
     setParking();
     //println("Parking System Initialized");
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Populating Vehicles ...";
     loadScreen(initPhase, NUM_PHASES, status);
   
@@ -159,7 +160,7 @@ void initialize() {
     initPopulation();  
     //println("Population Initialized");
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Finishing Up ...";
     loadScreen(initPhase, NUM_PHASES, status);
   
@@ -172,7 +173,7 @@ void initialize() {
     
     initialized = true;
     
-    initPhase++; delay(1000);
+    initPhase++; delay(phaseDelay);
     String status = "Ready to Go! ...";
     loadScreen(initPhase, NUM_PHASES, status);
     
