@@ -407,7 +407,7 @@ class Parking_Structures {
       //if (capacity > 0) parking.add(park);
       parking.add(park);
     }
-    println("Parking Structures Loaded: " + parking.size());
+    //println("Parking Structures Loaded: " + parking.size());
     
     totBelow = 0;
     totSurface = 0;

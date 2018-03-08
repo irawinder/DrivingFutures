@@ -48,9 +48,14 @@ void draw() {
   
   if (!initialized) {
     initialize();
-    initialized = true;
+  } else {
+    run();
   }
   
+}
+
+void run() {
+
   background(20);
   
   // -------------------------

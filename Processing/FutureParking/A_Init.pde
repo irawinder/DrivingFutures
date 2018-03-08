@@ -20,105 +20,163 @@
  *               DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
-void initialize() {
-  //  Parameter Space for Geometric Area
-  //
-  latCtr = +42.350;
-  lonCtr = -71.066;
-  tol    =  0.035;
-  latMin = latCtr - tol;
-  latMax = latCtr + tol;
-  lonMin = lonCtr - tol;
-  lonMax = lonCtr + tol;
-  
-  // Initialize Toolbar
-  BAR_X = MARGIN;
-  BAR_Y = MARGIN;
-  BAR_W = 250;
-  BAR_H = height - 2*MARGIN;
-  
-  // Initialize Left Toolbar
-  bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
-  bar_left.title = "Shared Autonomous Future V1.1";
-  bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
-  bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.";
-  bar_left.explanation += "\n[r] <- Press 'r' key to reset";
-  bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
-  bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
-  bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
-  bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   50, 'a', 's');
-  bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S');
-  bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x');
-  bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X');
-  bar_left.addTriSlider("Parking\nVacancy\nPriority", "Below\nGround", belowColor, 
-                                                      "Surface\nParking", surfaceColor, 
-                                                      "Above\nGround", aboveColor);
-  bar_left.addButton("BLANK", 0, true, ' '); // Spacer for Parking and Vehicle Button Lables
-  bar_left.addButton("Below",               belowColor,    true, '1');
-  bar_left.addButton("Surface",             surfaceColor,  true, '2');
-  bar_left.addButton("Above",               aboveColor,    true, '3');
-  bar_left.addButton("RSVD",                reservedColor, true, '4');
-  bar_left.addButton("Private",             car1Color,     true, '5');
-  bar_left.addButton("Shared",              car2Color,     true, '6');
-  bar_left.addButton("AV Private",          car3Color,     true, '7');
-  bar_left.addButton("AV Shared",           car4Color,     true, '8');
-  bar_left.buttons.remove(0); // Remove blanks
-  for (int i=0; i<4; i++) {   // Shift last 4 buttons right
-    bar_left.buttons.get(i+4).xpos = bar_left.barX + bar_left.barW/2; 
-    bar_left.buttons.get(i+4).ypos = bar_left.buttons.get(i).ypos;
-  }
-  
-  // Initialize Right Toolbar
-  bar_right = new Toolbar(width - (BAR_X + BAR_W), BAR_Y, BAR_W, BAR_H, MARGIN);
-  bar_right.title = "[Analysis] System Projections";
-  bar_right.credit = "";
-  bar_right.explanation = "";
-  bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
-  println("Toolbars Initialized");
 
-  // Initialize Simulation Components
-  initEnvironment(); println("Environment Initialized");
-  initPaths();       println("Paths Initialized");
+// Counter to track which phase of initialization
+int initPhase = 0;
+int NUM_PHASES = 8;
+
+void initialize() {
   
-  // Initialize the Camera
-  // cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
-  // Initialize 3D World Camera Defaults
-  cam = new Camera (B, MARGIN);
-  // eX, eW (extentsX ...) prevents accidental dragging when interactiong with toolbar
-  cam.eX = MARGIN + BAR_W;
-  cam.eW = width - 2*(BAR_W + MARGIN);
-  cam.X_DEFAULT    = -350;
-  cam.Y_DEFAULT     =   50;
-  cam.ZOOM_DEFAULT = 0.45;
-  cam.ZOOM_POW     = 2.00;
-  cam.ZOOM_MAX     = 0.10;
-  cam.ZOOM_MIN     = 0.70;
-  cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
-  cam.enableChunks = false;  // Enable/Disable 3D mouse cursor
-  cam.init(); //Must End with init() if any variables within Camera() are changed from default
-  println("Camera Initialized");
+  if (initPhase == 0) {
+    
+    //  Parameter Space for Geometric Area
+    //
+    latCtr = +42.350;
+    lonCtr = -71.066;
+    tol    =  0.035;
+    latMin = latCtr - tol;
+    latMax = latCtr + tol;
+    lonMin = lonCtr - tol;
+    lonMax = lonCtr + tol;
+    
+    initPhase++; delay(1000);
+    String status = "Loading Toolbars ...";
+    loadScreen(initPhase, NUM_PHASES, status);
+    
+  } else if (initPhase == 1) {
+    
+    // Initialize Toolbar
+    BAR_X = MARGIN;
+    BAR_Y = MARGIN;
+    BAR_W = 250;
+    BAR_H = height - 2*MARGIN;
+    
+    // Initialize Left Toolbar
+    bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
+    bar_left.title = "Shared Autonomous Future V1.1";
+    bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
+    bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.";
+    bar_left.explanation += "\n[r] <- Press 'r' key to reset";
+    bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
+    bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
+    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
+    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   50, 'a', 's');
+    bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S');
+    bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x');
+    bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X');
+    bar_left.addTriSlider("Parking\nVacancy\nPriority", "Below\nGround", belowColor, 
+                                                        "Surface\nParking", surfaceColor, 
+                                                        "Above\nGround", aboveColor);
+    bar_left.addButton("BLANK", 0, true, ' '); // Spacer for Parking and Vehicle Button Lables
+    bar_left.addButton("Below",               belowColor,    true, '1');
+    bar_left.addButton("Surface",             surfaceColor,  true, '2');
+    bar_left.addButton("Above",               aboveColor,    true, '3');
+    bar_left.addButton("RSVD",                reservedColor, true, '4');
+    bar_left.addButton("Private",             car1Color,     true, '5');
+    bar_left.addButton("Shared",              car2Color,     true, '6');
+    bar_left.addButton("AV Private",          car3Color,     true, '7');
+    bar_left.addButton("AV Shared",           car4Color,     true, '8');
+    bar_left.buttons.remove(0); // Remove blanks
+    for (int i=0; i<4; i++) {   // Shift last 4 buttons right
+      bar_left.buttons.get(i+4).xpos = bar_left.barX + bar_left.barW/2; 
+      bar_left.buttons.get(i+4).ypos = bar_left.buttons.get(i).ypos;
+    }
+    
+    // Initialize Right Toolbar
+    bar_right = new Toolbar(width - (BAR_X + BAR_W), BAR_Y, BAR_W, BAR_H, MARGIN);
+    bar_right.title = "[Analysis] System Projections";
+    bar_right.credit = "";
+    bar_right.explanation = "";
+    bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
+    //println("Toolbars Initialized");
+    
+    initPhase++; delay(1000);
+    String status = "Importing Infrastructure ...";
+    loadScreen(initPhase, NUM_PHASES, status);
+    
+  } else if (initPhase == 2) {
+    
+    // Initialize Simulation Components
+    initEnvironment(); //println("Environment Initialized");
+    
+    initPhase++; delay(1000);
+    String status = "Finding Shortest Paths ...";
+    loadScreen(initPhase, NUM_PHASES, status);
+    
+  } else if (initPhase == 3) {
+    
+    initPaths();       //println("Paths Initialized");
+    
+    initPhase++; delay(1000);
+    String status = "Setting Up 3D Environment ...";
+    loadScreen(initPhase, NUM_PHASES, status);
+    
+  } else if (initPhase == 4) {
+    
+    // Initialize the Camera
+    // cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
+    // Initialize 3D World Camera Defaults
+    cam = new Camera (B, MARGIN);
+    // eX, eW (extentsX ...) prevents accidental dragging when interactiong with toolbar
+    cam.eX = MARGIN + BAR_W;
+    cam.eW = width - 2*(BAR_W + MARGIN);
+    cam.X_DEFAULT    = -350;
+    cam.Y_DEFAULT     =   50;
+    cam.ZOOM_DEFAULT = 0.45;
+    cam.ZOOM_POW     = 2.00;
+    cam.ZOOM_MAX     = 0.10;
+    cam.ZOOM_MIN     = 0.70;
+    cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
+    cam.enableChunks = false;  // Enable/Disable 3D mouse cursor
+    cam.init(); //Must End with init() if any variables within Camera() are changed from default
+    //println("Camera Initialized");
+    
+    initPhase++; delay(1000);
+    String status = "Calibrating Systems Model ...";
+    loadScreen(initPhase, NUM_PHASES, status);
   
-  // Setup System Simulation
-  sys = new Parking_System(901, 2010, 2030);
-  sys.av_growth = 1.0;
-  sys.rideShare_growth = 1.0;
-  sys.totBelow = structures.totBelow / 100;
-  sys.totSurface = structures.totSurface / 100;
-  sys.totAbove = structures.totAbove / 100;
-  setSliders();
-  sys.update();
-  setParking();
-  println("Parking System Initialized");
+  } else if (initPhase == 5) {
+    
+    // Setup System Simulation
+    sys = new Parking_System(901, 2010, 2030);
+    sys.av_growth = 1.0;
+    sys.rideShare_growth = 1.0;
+    sys.totBelow = structures.totBelow / 100;
+    sys.totSurface = structures.totSurface / 100;
+    sys.totAbove = structures.totAbove / 100;
+    setSliders();
+    sys.update();
+    setParking();
+    //println("Parking System Initialized");
+    
+    initPhase++; delay(1000);
+    String status = "Populating Vehicles ...";
+    loadScreen(initPhase, NUM_PHASES, status);
   
-  // Initialize Vehicle Agents
-  initPopulation();  
-  println("Population Initialized");
+  } else if (initPhase == 6) {
+    
+    // Initialize Vehicle Agents
+    initPopulation();  
+    //println("Population Initialized");
+    
+    initPhase++; delay(1000);
+    String status = "Finishing Up ...";
+    loadScreen(initPhase, NUM_PHASES, status);
   
-  // Sample 3D objects to manipulate
-  additions = new ArrayList<PVector>();
-  
-  println("Go time!");
+  } else if (initPhase == 7) {
+    
+    // Sample 3D objects to manipulate
+    additions = new ArrayList<PVector>();
+    
+    //println("Ready to Go!");
+    
+    initialized = true;
+    
+    initPhase++; delay(1000);
+    String status = "Ready to Go! ...";
+    loadScreen(initPhase, NUM_PHASES, status);
+    
+  }
 }
 
 void initEnvironment() {
@@ -194,8 +252,9 @@ void initPaths() {
   // Collection of routes to and from home, work, and parking ammentities
   if (loadFile) {
     routes = new Parking_Routes(int(B.x), int(B.y), fileName);
-    println("**network imported from " + fileName + "**");
+    println("**paths imported from " + fileName + "**");
   } else {
+    // generate randomly according to parking structures
     routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
     routes.saveJSON(fileName);
   }
@@ -213,4 +272,27 @@ void initPopulation() {
   for (int i=0; i<sys.numCar2[yr]; i++) addVehicle(type2, "2");
   for (int i=0; i<sys.numCar3[yr]; i++) addVehicle(type3, "3");
   for (int i=0; i<sys.numCar4[yr]; i++) addVehicle(type4, "4");
+}
+
+PImage loadingBG;
+void loadScreen(int phase, int numPhases, String status) {
+  background(loadingBG);
+  camera(); noLights(); perspective(); 
+  pushMatrix(); translate(width/2, height/2);
+  int lW = 400;
+  int lH = 50;
+  
+  // Draw Loading Bar Outline
+  strokeWeight(10); stroke(255, 200); fill(0);
+  rect(-lW/2, -lH/2, lW, lH, lH/2);
+  
+  // Draw Loading Bar Fill
+  float percent = float(phase)/numPhases;
+  noStroke(); fill(255, 150);
+  rect(-lW/2 + lH/4, -lH/4, percent*(lW - lH/2), lH/2, lH/4);
+  
+  textAlign(CENTER, CENTER); fill(255);
+  text(status, 0, 0);
+  
+  popMatrix();
 }

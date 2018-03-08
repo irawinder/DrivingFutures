@@ -111,13 +111,8 @@ void setup() {
   //fullScreen(P3D);
   
   loadingBG = loadImage("loading.png");
-  loadScreen(0.5, "Loading!");
+  loadScreen(initPhase, NUM_PHASES, "");
   
-}
-
-PImage loadingBG;
-void loadScreen(float percent, String status) {
-  background(loadingBG);
 }
 
 // Set System Parameters According to Slider Values
@@ -201,72 +196,84 @@ void addVehicle(ArrayList<Agent> array, String type) {
 }
 
 void keyPressed() {
-  cam.moved();
-  
-  switch(key) {
-    //case 'g':
-    //  initPaths();
-    //  initPopulation();
-    //  break;
-    case 'f':
-      cam.showFrameRate = !cam.showFrameRate;
-      break;
-    case 'c':
-      cam.reset();
-      break;
-    case 'r':
-      bar_left.restoreDefault();
-      bar_right.restoreDefault();
-      bar_left.pressed();
-      bar_right.pressed();
-      setSliders();
-      setParking();
-      sys.update();
-      setParking();
-      updatePopulation();
-      additions.clear();
-      break;
-    case 's':
-      save("capture.png");
-      break;
-    //case 'p':
-    //  initPopulation();
-    //  break;
-    //case 'p':
-    //  println("cam.offset.x = " + cam.offset.x);
-    //  println("cam.offset.x = " + cam.offset.x);
-    //  println("cam.zoom = "     + cam.zoom);
-    //  println("cam.rotation = " + cam.rotation);
-    //  break;
+  if (initialized) {
+    cam.moved();
+    
+    switch(key) {
+      //case 'g':
+      //  initPaths();
+      //  initPopulation();
+      //  break;
+      case 'f':
+        cam.showFrameRate = !cam.showFrameRate;
+        break;
+      case 'c':
+        cam.reset();
+        break;
+      case 'r':
+        bar_left.restoreDefault();
+        bar_right.restoreDefault();
+        bar_left.pressed();
+        bar_right.pressed();
+        setSliders();
+        setParking();
+        sys.update();
+        setParking();
+        updatePopulation();
+        additions.clear();
+        break;
+      //case 's':
+      //  save("capture.png");
+      //  break;
+      //case 'p':
+      //  initPopulation();
+      //  break;
+      //case 'p':
+      //  println("cam.offset.x = " + cam.offset.x);
+      //  println("cam.offset.x = " + cam.offset.x);
+      //  println("cam.zoom = "     + cam.zoom);
+      //  println("cam.rotation = " + cam.rotation);
+      //  break;
+    }
   }
 }
 
 void mousePressed() {
-  cam.pressed();
-  bar_left.pressed();
-  bar_right.pressed();
-  sys.update();
-  updatePopulation();
+  if (initialized) {
+    cam.pressed();
+    bar_left.pressed();
+    bar_right.pressed();
+    sys.update();
+    updatePopulation();
+  }
 }
 
 void mouseMoved() {
-  cam.moved();
+  if (initialized) {
+    cam.moved();
+  }
 }
 
 void mouseReleased() {
-  bar_left.released();
-  bar_right.released();
-  sys.update();
-  updatePopulation();
+  if (initialized) {
+    bar_left.released();
+    bar_right.released();
+    sys.update();
+    updatePopulation();
+  }
 }
 
 void mouseDragged() {
-  sys.update();
-  updatePopulation();
+  if (initialized) {
+    sys.update();
+    updatePopulation();
+  }
 }
 
 void mouseClicked() {
-  if (cam.chunkField.closestFound && cam.enableChunks) {
-    additions.add(cam.chunkField.closest.location);
+  if (initialized) {
+    if (cam.chunkField.closestFound && cam.enableChunks) {
+      additions.add(cam.chunkField.closest.location);
+    }
   }
 }
