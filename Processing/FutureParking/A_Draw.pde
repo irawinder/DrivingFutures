@@ -146,22 +146,14 @@ void run() {
         if (p.utilization > 0 && p.capacity > 0) {
           arc(p.location.x, p.location.y, -10 + 2.0*sqrt( max(structures.minCap, p.capacity) ), -10 + 2.0*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
         }
-        noFill();
-      } 
       
-      // Draw Capacity Text
-      //
-      translate(0,0,1);
-      fill(255, 255);
-      textAlign(CENTER, CENTER);
-      if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, p.location.x, p.location.y);
-    } else {
-      // Draw Capacity Text
-      //
-      translate(0,0,1);
-      fill(255, 255);
-      textAlign(CENTER, CENTER);
-      text(p.capacity - p.utilization, p.location.x, p.location.y);
+        // Draw Capacity Text
+        //
+        translate(0,0,1);
+        fill(255, 255);
+        textAlign(CENTER, CENTER);
+        if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, p.location.x, p.location.y);
+      } 
     }
     popMatrix();
   }
@@ -272,6 +264,7 @@ void run() {
   int MIN_DIST = 50;
   if (showCar1) for (int i=0; i<type1.size(); i++) {
     Agent p = type1.get(i);
+    p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
       shortestDistance = dist; index = i; type = "car1";
@@ -279,6 +272,7 @@ void run() {
   }
   if (showCar2) for (int i=0; i<type2.size(); i++) {
     Agent p = type2.get(i);
+    p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
       shortestDistance = dist; index = i; type = "car2";
@@ -286,6 +280,7 @@ void run() {
   }
   if (showCar3) for (int i=0; i<type3.size(); i++) {
     Agent p = type3.get(i);
+    p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
       shortestDistance = dist; index = i; type = "car3";
@@ -293,6 +288,7 @@ void run() {
   }
   if (showCar4) for (int i=0; i<type4.size(); i++) {
     Agent p = type4.get(i);
+    p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
       shortestDistance = dist; index = i; type = "car4";
@@ -318,16 +314,16 @@ void run() {
   noFill(); stroke(255);
   if (type.equals("car1")) {
     Agent p = type1.get(index);
-    ellipse(p.s_x, p.s_y, diam, diam);
+    p.highlight = true;
   } else if (type.equals("car2")) {
     Agent p = type2.get(index);
-    ellipse(p.s_x, p.s_y, diam, diam);
+    p.highlight = true;
   } else if (type.equals("car3")) {
     Agent p = type3.get(index);
-    ellipse(p.s_x, p.s_y, diam, diam);
+    p.highlight = true;
   } else if (type.equals("car4")) {
     Agent p = type4.get(index);
-    ellipse(p.s_x, p.s_y, diam, diam);
+    p.highlight = true;
   } else if (type.equals("parking")) {
     Parking p = structures.parking.get(index);
     p.highlight = true;

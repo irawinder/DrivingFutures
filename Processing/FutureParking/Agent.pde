@@ -39,6 +39,7 @@ class Agent {
   boolean loop, teleport;
   String laneSide;
   String type;
+  boolean highlight;
   
   float s_x, s_y; // screen location (for mouse commnads)
   void setScreen() {
@@ -88,6 +89,8 @@ class Agent {
     velocity = new PVector(0, 0);
     smoothVelocity = new PVector(0, 0);
     pathIndex = getClosestWaypoint(location);
+    
+    highlight = false;
   }
   
   PVector seek(PVector target){
@@ -221,9 +224,37 @@ class Agent {
     }
     translate(x, y); rotate(orientation);
     
-    fill(col, alpha); noStroke();
+    noStroke();
+    if (highlight) {
+      fill(col, 255);
+    } else {
+      fill(col, alpha);
+    }
     box(2*SCALER*r, SCALER*r, 0.75*SCALER*r);
+    
+    if (highlight) {
+      // Draw Bubble around car
+      fill(#00AA00, 100);
+      sphere(4*SCALER*r);
+    }
     popMatrix();
+    
+    if (highlight) {
+      // Draw Bubble around destination
+      pushMatrix(); translate(path.get(0).x, path.get(0).y);
+      fill(#AA0000, 100);
+      sphere(4*SCALER*r);
+      popMatrix();
+    }
+    
+    
+    // Draw Path
+    if (highlight) {
+      noFill(); stroke(#00AA00, 100); strokeWeight(3); strokeCap(ROUND);
+      beginShape();
+      for (PVector v: path) vertex(v.x, v.y);
+      endShape();
+    }
     
     // Find Screen location of vehicle
     setScreen(x, y);
