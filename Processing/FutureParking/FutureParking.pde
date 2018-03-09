@@ -106,6 +106,9 @@ int BAR_X, BAR_Y, BAR_W, BAR_H;
 //
 ArrayList<PVector> additions; 
 
+// Index of Entity one is currently hovering over
+int hoverIndex = 0; String hoverType = "";
+
 void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
@@ -144,18 +147,45 @@ void setSliders() {
   showCar4                      = bar_left.buttons.get(7).value;
 }
 
+// Calculate Parking Ratios for each structure for current year only
+//
 void setParking() {
-  int yr = sys.year_now - sys.year_0;
-  float belowRatio   = 1 - float(sys.belowFree[yr])   / sys.totBelow;
-  float surfaceRatio = 1 - float(sys.surfaceFree[yr]) / sys.totSurface;
-  float aboveRatio   = 1 - float(sys.aboveFree[yr])   / sys.totAbove;
+  
+  // Account for unactive parking first ...
+  sys.belowOff   = 0;
+  sys.surfaceOff = 0;
+  sys.aboveOff   = 0;
   for (Parking p: structures.parking) {
-    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+    if (!p.active) {
+      if (p.col == belowColor)   sys.belowOff   += p.capacity;
+      if (p.col == surfaceColor) sys.surfaceOff += p.capacity;
+      if (p.col == aboveColor)   sys.aboveOff   += p.capacity;
+      p.utilization = 0;
+    }
+  }
+  sys.belowOff   /= 100;
+  sys.surfaceOff /= 100;
+  sys.aboveOff   /= 100;
+  
+  sys.update();
+  
+  // For active parking, calculate ratio
+  //
+  int yr = sys.year_now - sys.year_0;
+  float belowRatio   = 1 - float(sys.belowFree[yr]    )  / sys.totBelow  ;
+  float surfaceRatio = 1 - float(sys.surfaceFree[yr]  )  / sys.totSurface;
+  float aboveRatio   = 1 - float(sys.aboveFree[yr]    )  / sys.totAbove  ;
+  
+  for (Parking p: structures.parking) {
+    p.ratio = 0;
+    if (p.col == belowColor && p.active) {
       p.ratio = belowRatio;
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+    } else if (p.col == surfaceColor && p.active) {
       p.ratio = surfaceRatio;
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+    } else if (p.col == aboveColor && p.active) {
       p.ratio = aboveRatio;
+    } else if (p.col == reservedColor && p.active) {
+      p.ratio = 1.0;
     }
     p.utilization = int(p.ratio*p.capacity);
   }
@@ -179,6 +209,7 @@ void keyPressed() {
       case 'r':
         bar_left.restoreDefault();
         bar_right.restoreDefault();
+        structures.reset();
         additions.clear();
         break;
       //case 'h':
@@ -202,8 +233,6 @@ void keyPressed() {
     bar_left.pressed();
     bar_right.pressed();
     setSliders();
-    setParking();
-    sys.update();
     setParking();
     updatePopulation();
   }
@@ -245,6 +274,10 @@ void mouseClicked() {
   if (initialized) {
     if (cam.chunkField.closestFound && cam.enableChunks) {
       additions.add(cam.chunkField.closest.location);
+    }
+    if (hoverType.equals("parking")) {
+      structures.parking.get(hoverIndex).active = !structures.parking.get(hoverIndex).active;
+      setParking();
     }
   }
 }

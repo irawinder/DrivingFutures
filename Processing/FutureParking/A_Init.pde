@@ -63,7 +63,7 @@ void initialize() {
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
     bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
     bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
-    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   50, 'a', 's');
+    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   60, 'a', 's');
     bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S');
     bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x');
     bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X');

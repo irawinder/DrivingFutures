@@ -126,13 +126,20 @@ void run() {
     
         // Draw Parking Button/Icon
         translate(0,0,1);
-        noStroke();
+        if (p.capacity == p.utilization) {
+          stroke(#AA0000, 200); strokeWeight(3);
+        } else if (0 == p.utilization) {
+          stroke(#00AA00, 200); strokeWeight(3);
+        } else {
+          noStroke();
+        }
         if (p.highlight) {
           fill(p.col, 255);
         } else {
           fill(p.col, 200);
         }
-        ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
+        float pW = 2.0*sqrt( max(structures.minCap, p.capacity));
+        ellipse(p.location.x, p.location.y, pW, pW);
         
         // Draw Parking Utilization
         translate(0,0,3);
@@ -142,17 +149,23 @@ void run() {
         } else {
           fill(0, 200);
         }
-        //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
         if (p.utilization > 0 && p.capacity > 0) {
-          arc(p.location.x, p.location.y, -10 + 2.0*sqrt( max(structures.minCap, p.capacity) ), -10 + 2.0*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
+          arc(p.location.x, p.location.y, -10 + pW, -10 + pW, 0, p.ratio*2*PI);
         }
-      
+        
         // Draw Capacity Text
         //
         translate(0,0,1);
         fill(255, 255);
         textAlign(CENTER, CENTER);
         if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, p.location.x, p.location.y);
+        
+        if (!p.active) {
+          pushMatrix(); translate(p.location.x, p.location.y, 1*pW-4);
+          fill(p.col, 100); stroke(255, 100); strokeWeight(1);
+          box(0.7*pW, 0.7*pW, 2*pW);
+          popMatrix();
+        }
       } 
     }
     popMatrix();
@@ -256,9 +269,9 @@ void run() {
     hint(ENABLE_DEPTH_TEST);
   }
   
-  // Find Nearest Vehicle or Parking Entity
+  // Find Nearest Vehicle or Parking Entity when hovering
   //
-  int index = 0; String type = "";
+  hoverIndex = 0; hoverType = "";
   PVector mouse = new PVector(mouseX, mouseY);
   float shortestDistance = Float.POSITIVE_INFINITY;
   int MIN_DIST = 50;
@@ -267,7 +280,7 @@ void run() {
     p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; index = i; type = "car1";
+      shortestDistance = dist; hoverIndex = i; hoverType = "car1";
     }
   }
   if (showCar2) for (int i=0; i<type2.size(); i++) {
@@ -275,7 +288,7 @@ void run() {
     p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; index = i; type = "car2";
+      shortestDistance = dist; hoverIndex = i; hoverType = "car2";
     }
   }
   if (showCar3) for (int i=0; i<type3.size(); i++) {
@@ -283,7 +296,7 @@ void run() {
     p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; index = i; type = "car3";
+      shortestDistance = dist; hoverIndex = i; hoverType = "car3";
     }
   }
   if (showCar4) for (int i=0; i<type4.size(); i++) {
@@ -291,7 +304,7 @@ void run() {
     p.highlight = false;
     float dist = mouseDistance(mouse, p.s_x, p.s_y);
     if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; index = i; type = "car4";
+      shortestDistance = dist; hoverIndex = i; hoverType = "car4";
     }
   }
   for (int i=0; i<structures.parking.size(); i++) {
@@ -300,7 +313,7 @@ void run() {
     if (p.show) {
       float dist = mouseDistance(mouse, p.s_x, p.s_y);
       if ( dist < shortestDistance && dist < MIN_DIST ) {
-        shortestDistance = dist; index = i; type = "parking";
+        shortestDistance = dist; hoverIndex = i; hoverType = "parking";
       }
     }
   }
@@ -312,20 +325,20 @@ void run() {
   // Recall Nearest Object and draw cursor
   //
   noFill(); stroke(255);
-  if (type.equals("car1")) {
-    Agent p = type1.get(index);
+  if (hoverType .equals("car1")) {
+    Agent p = type1.get(hoverIndex);
     p.highlight = true;
-  } else if (type.equals("car2")) {
-    Agent p = type2.get(index);
+  } else if (hoverType .equals("car2")) {
+    Agent p = type2.get(hoverIndex);
     p.highlight = true;
-  } else if (type.equals("car3")) {
-    Agent p = type3.get(index);
+  } else if (hoverType .equals("car3")) {
+    Agent p = type3.get(hoverIndex);
     p.highlight = true;
-  } else if (type.equals("car4")) {
-    Agent p = type4.get(index);
+  } else if (hoverType .equals("car4")) {
+    Agent p = type4.get(hoverIndex);
     p.highlight = true;
-  } else if (type.equals("parking")) {
-    Parking p = structures.parking.get(index);
+  } else if (hoverType .equals("parking")) {
+    Parking p = structures.parking.get(hoverIndex);
     p.highlight = true;
     p.displayInfo();
   }

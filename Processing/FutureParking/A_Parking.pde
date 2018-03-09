@@ -46,6 +46,7 @@ class Parking_System {
   int av_peak_hype_year; // Year of peak adoption
   
   int totOther, totBelow, totSurface, totAbove; // Total Parking Stock at year_0
+  int belowOff, surfaceOff, aboveOff; // Total Deactivated Stock
   float priorityBelow, prioritySurface, priorityAbove; // Relative priority when removing parking utilization (all three must add up to 1!!
   
   /* 4 Car Types:
@@ -164,8 +165,8 @@ class Parking_System {
       int counterBS = 0;
       int counterBA = 0;
       int counterSA = 0;
-      int k = totalFree[i];
-      int kLast = totalFree[i];
+      int k     = totalFree[i] - belowOff - surfaceOff - aboveOff;
+      int kLast = totalFree[i] - belowOff - surfaceOff - aboveOff;
       while (k > 0) {
         // A. Tries to allocate to below ground
         if (counterBSA < pB) {
@@ -376,15 +377,15 @@ class Parking {
   boolean show; // is this draw or detected in GUI
   int col;
   boolean highlight;
+  boolean active;
   
   Parking(float x, float y, float area, String type, int capacity) {
     this.location = new PVector(x, y);
     this.type = type;
     this.capacity = capacity;
     this.area = area;
-    //utilization = int( random(0, capacity) );
-    utilization = 0;
-    ratio = float(utilization) / capacity;
+    this.utilization = capacity;
+    ratio = 1.0;
     show = true;
     
     respondent = "";
@@ -396,6 +397,7 @@ class Parking {
     userGroup = "";
     
     highlight = false;
+    active = true;
   }
   
   float s_x, s_y; // screen location (for mouse commnads)
@@ -544,7 +546,10 @@ class Parking_Structures {
 
     }
     img.endDraw();
-    
+  }
+  
+  void reset() {
+    for (Parking p: parking) p.active = true;
   }
 }
 
