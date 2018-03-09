@@ -1,4 +1,4 @@
-/*  SHARED AUTONOMOUS FUTURE
+/*  DRIVING FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
  *  Init Functions (Superficially Isolated from FutureParking.pde)
@@ -50,12 +50,13 @@ void initialize() {
     BAR_X = MARGIN;
     BAR_Y = MARGIN;
     BAR_W = 250;
-    BAR_H = height - 2*MARGIN;
+    BAR_H = 800 - 2*MARGIN;
     
     // Initialize Left Toolbar
     bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
-    bar_left.title = "Shared Autonomous Future V1.1";
-    bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
+    bar_left.title = "Driving Futures V1.1\n\n";
+    //bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
+    bar_left.credit = "";
     bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.";
     bar_left.explanation += "\n[r] <- Press 'r' key to reset";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
@@ -277,15 +278,18 @@ void initPopulation() {
 
 PImage loadingBG;
 void loadScreen(int phase, int numPhases, String status) {
-  background(loadingBG);
+  image(loadingBG, 0, 0, width, height);
   camera(); noLights(); perspective(); 
   pushMatrix(); translate(width/2, height/2);
   int lW = 400;
-  int lH = 50;
+  int lH = 48;
+  int lB = 10;
   
   // Draw Loading Bar Outline
-  strokeWeight(10); stroke(255, 200); fill(0);
+  noStroke(); fill(255, 200);
   rect(-lW/2, -lH/2, lW, lH, lH/2);
+  noStroke(); fill(0, 200);
+  rect(-lW/2+lB, -lH/2+lB, lW-2*lB, lH-2*lB, lH/2);
   
   // Draw Loading Bar Fill
   float percent = float(phase)/numPhases;

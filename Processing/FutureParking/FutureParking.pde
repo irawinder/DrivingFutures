@@ -1,4 +1,4 @@
-/*  SHARED AUTONOMOUS FUTURE
+/*  DRIVING FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
  *  The Future of Parking is an application that simulates and visualizes 
@@ -222,6 +222,9 @@ void keyPressed() {
         updatePopulation();
         additions.clear();
         break;
+      //case 'h':
+      //  SHOW_INFO = !SHOW_INFO;
+      //  break;
       //case 's':
       //  save("capture.png");
       //  break;

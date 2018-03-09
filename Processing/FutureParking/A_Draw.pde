@@ -1,4 +1,4 @@
-/*  SHARED AUTONOMOUS FUTURE
+/*  DRIVING FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
  *  Draw Functions (Superficially Isolated from FutureParking.pde)
@@ -29,6 +29,7 @@ boolean showBelow = true;
 boolean showSurface = true;
 boolean showAbove = true;
 boolean showReserved = true;
+boolean SHOW_INFO = true;
 
 // Car Colors
 int car1Color = #999999;
@@ -41,6 +42,9 @@ int reservedColor = #999999;
 int belowColor    = #CC99FF;
 int surfaceColor  = #FFBB66;
 int aboveColor    = #5555FF;
+
+// Road Color
+int roadColor = #FFAAAA;
 
 boolean initialized = false;
 
@@ -89,6 +93,7 @@ void run() {
   
   //  Displays the Graph in grayscale.
   //
+  fill(roadColor); stroke(255); // Default Colors
   tint(255, 25); // overlaid as an image
   image(network.img, 0, 0, B.x, B.y);
   tint(255, 175);
@@ -260,32 +265,34 @@ void run() {
     }
   }
   
-  // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
-  cam.drawControls();
-  
-  // Draw Margin Toolbar
-  bar_left.draw();
-  bar_right.draw();
-  
-  // Radio Button Labels:
-  //
-  textAlign(LEFT, BOTTOM);
-  pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
-  text("Parking", 0, 0);
-  translate(bar_left.contentW/2, 0);
-  text("Vehicles", 0, 0);
-  popMatrix();
-  
-  // Draw System Output
-  //
-  hint(DISABLE_DEPTH_TEST);
-  pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
-  sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
-  sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
-  sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
-  sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
-  popMatrix();
-  hint(ENABLE_DEPTH_TEST);
+  if (SHOW_INFO) {
+    // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
+    cam.drawControls();
+    
+    // Draw Margin Toolbar
+    bar_left.draw();
+    bar_right.draw();
+    
+    // Radio Button Labels:
+    //
+    textAlign(LEFT, BOTTOM);
+    pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
+    text("Parking", 0, 0);
+    translate(bar_left.contentW/2, 0);
+    text("Vehicles", 0, 0);
+    popMatrix();
+    
+    // Draw System Output
+    //
+    hint(DISABLE_DEPTH_TEST);
+    pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
+    sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
+    sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
+    sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
+    sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
+    popMatrix();
+    hint(ENABLE_DEPTH_TEST);
+  }
 }
 
 ArrayList<PVector> vehicleLocations(ArrayList<Agent> vehicles) {
