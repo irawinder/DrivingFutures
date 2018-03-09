@@ -48,16 +48,6 @@ int roadColor = #FFAAAA;
 
 boolean initialized = false;
 
-void draw() {
-  
-  if (!initialized) {
-    initialize();
-  } else {
-    run();
-  }
-  
-}
-
 void run() {
 
   background(20);
@@ -115,23 +105,18 @@ void run() {
     boolean OVER_RIDE = false;
     if (p.capacity > 0 || OVER_RIDE) {
       
+      
       // Draw Fill / ID Dot
-      int alpha = 200;
-      noStroke();
-      boolean show = false;
       String sub = "";
       if (p.type.length() >= 3) sub = p.type.substring(0,3);
+      p.show = false;
       if (sub.equals("Bel") && showBelow) {
-        fill(belowColor, alpha);
         p.show = true;
       } else if (sub.equals("Sur") && showSurface) {
-        fill(surfaceColor, alpha);
         p.show = true;
       } else if (sub.equals("Sta") && showAbove) {
-        fill(aboveColor, alpha);
         p.show = true;
       } else if (showReserved && !sub.equals("Bel") && !sub.equals("Sur") && !sub.equals("Sta")) {
-        fill(reservedColor, alpha);
         p.show = true;
       } 
       
@@ -141,15 +126,25 @@ void run() {
     
         // Draw Parking Button/Icon
         translate(0,0,1);
+        noStroke();
+        if (p.highlight) {
+          fill(p.col, 255);
+        } else {
+          fill(p.col, 200);
+        }
         ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
         
         // Draw Parking Utilization
-        translate(0,0,1);
-        noStroke();
-        fill(255, 200);
+        translate(0,0,3);
+        noStroke();  
+        if (p.highlight) {
+          fill(0, 150);
+        } else {
+          fill(0, 200);
+        }
         //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
         if (p.utilization > 0 && p.capacity > 0) {
-          arc(p.location.x, p.location.y, 1.75*sqrt( max(structures.minCap, p.capacity) ), 1.75*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
+          arc(p.location.x, p.location.y, -10 + 2.0*sqrt( max(structures.minCap, p.capacity) ), -10 + 2.0*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
         }
         noFill();
       } 
@@ -157,9 +152,9 @@ void run() {
       // Draw Capacity Text
       //
       translate(0,0,1);
-      fill(0, 255);
+      fill(255, 255);
       textAlign(CENTER, CENTER);
-      text(p.capacity - p.utilization, p.location.x, p.location.y);
+      if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, p.location.x, p.location.y);
     } else {
       // Draw Capacity Text
       //
@@ -240,14 +235,34 @@ void run() {
   hint(DISABLE_DEPTH_TEST);
   camera(); noLights(); perspective(); 
   
-  ////  Display screen location of vehicles and parking
-  ////
-  //noFill(); stroke(#FFFF00);
-  //if (showCar1) for (Agent p: type1) ellipse(p.s_x, p.s_y, 15, 15);
-  //if (showCar2) for (Agent p: type2) ellipse(p.s_x, p.s_y, 15, 15);
-  //if (showCar3) for (Agent p: type3) ellipse(p.s_x, p.s_y, 15, 15);
-  //if (showCar4) for (Agent p: type4) ellipse(p.s_x, p.s_y, 15, 15);
-  //for (Parking p: structures.parking) if (p.show) ellipse(p.s_x, p.s_y, 15, 15);
+  if (SHOW_INFO) {
+    // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
+    cam.drawControls();
+    
+    // Draw Margin Toolbar
+    bar_left.draw();
+    bar_right.draw();
+    
+    // Radio Button Labels:
+    //
+    textAlign(LEFT, BOTTOM);
+    pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
+    text("Parking", 0, 0);
+    translate(bar_left.contentW/2, 0);
+    text("Vehicles", 0, 0);
+    popMatrix();
+    
+    // Draw System Output
+    //
+    hint(DISABLE_DEPTH_TEST);
+    pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
+    sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
+    sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
+    sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
+    sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
+    popMatrix();
+    hint(ENABLE_DEPTH_TEST);
+  }
   
   // Find Nearest Vehicle or Parking Entity
   //
@@ -285,6 +300,7 @@ void run() {
   }
   for (int i=0; i<structures.parking.size(); i++) {
     Parking p = structures.parking.get(i);
+    p.highlight = false;
     if (p.show) {
       float dist = mouseDistance(mouse, p.s_x, p.s_y);
       if ( dist < shortestDistance && dist < MIN_DIST ) {
@@ -314,7 +330,8 @@ void run() {
     ellipse(p.s_x, p.s_y, diam, diam);
   } else if (type.equals("parking")) {
     Parking p = structures.parking.get(index);
-    ellipse(p.s_x, p.s_y, diam, diam);
+    p.highlight = true;
+    p.displayInfo();
   }
   
   if (cam.enableChunks) {
@@ -326,34 +343,6 @@ void run() {
     }
   }
   
-  if (SHOW_INFO) {
-    // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
-    cam.drawControls();
-    
-    // Draw Margin Toolbar
-    bar_left.draw();
-    bar_right.draw();
-    
-    // Radio Button Labels:
-    //
-    textAlign(LEFT, BOTTOM);
-    pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
-    text("Parking", 0, 0);
-    translate(bar_left.contentW/2, 0);
-    text("Vehicles", 0, 0);
-    popMatrix();
-    
-    // Draw System Output
-    //
-    hint(DISABLE_DEPTH_TEST);
-    pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
-    sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
-    sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
-    sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
-    sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
-    popMatrix();
-    hint(ENABLE_DEPTH_TEST);
-  }
 }
 
 float mouseDistance (PVector mouse, float s_x, float s_y) {

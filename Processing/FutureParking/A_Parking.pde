@@ -370,10 +370,12 @@ class Parking_System {
 
 class Parking {
   PVector location;
-  String type;
+  String type, name, respondent, address, devName, devAddy, parkMethod, userGroup;
   int capacity, utilization;
   float area, ratio;
   boolean show; // is this draw or detected in GUI
+  int col;
+  boolean highlight;
   
   Parking(float x, float y, float area, String type, int capacity) {
     this.location = new PVector(x, y);
@@ -384,12 +386,86 @@ class Parking {
     utilization = 0;
     ratio = float(utilization) / capacity;
     show = true;
+    
+    respondent = "";
+    address = "";
+    name = "";
+    devName = "";
+    devAddy = "";
+    parkMethod = "";
+    userGroup = "";
+    
+    highlight = false;
   }
   
   float s_x, s_y; // screen location (for mouse commnads)
   void setScreen() {
     s_x = screenX(location.x, location.y, location.z);
     s_y = screenY(location.x, location.y, location.z);
+  }
+  
+  void displayInfo() {
+    int rows = 5;
+    if (!respondent.equals("")) rows++;
+    if (!address.equals("")) rows++;
+    if (!name.equals("")) rows++;
+    if (!devName.equals("")) rows++;
+    if (!devAddy.equals("")) rows++;
+    if (!parkMethod.equals("")) rows++;
+    if (!userGroup.equals("")) rows++;
+    
+    int infoW = 400;
+    int infoH = 50 + rows * 16;
+    float x, y;
+    x = min(width  - infoW, s_x + 10);
+    y = min(height - infoH, s_y + 10);
+    fill(0, 200);   noStroke();
+    rect(x+3, y+3, infoW, infoH, 25);
+    fill(255, 20); noStroke();
+    rect(x+0, y+0, infoW, infoH, 25);
+    
+    String typeInfo = "";
+    typeInfo += "\n" + type;
+    
+    String spaceInfo = "";
+    spaceInfo += "\n\n\n\n" + (capacity-utilization) + " / " + capacity + " spaces";
+    
+    String info = "";
+    info += "Gensler Parking Typology:\n\n\nUnutilized Parking: \n\n";
+    if (!name.equals(""))
+      info += "\nName: " + name;
+    if (!address.equals("")) 
+      info += "\nAddress: " + address;
+      
+    info += "\nParcel Area: " + int(area) + " sqft";
+    
+    if (!devName.equals(""))
+      info += "\nDeveloper: " + devName;
+    if (!devAddy.equals(""))
+      info += "\nDev. Addy: " + devAddy;
+    if (!parkMethod.equals(""))
+      info += "\nParking Method: " + parkMethod;
+    if (!userGroup.equals(""))
+      info += "\nUser Group: " + userGroup;
+    if (!respondent.equals("")) 
+      info += "\nData Confirmed By: " + respondent;
+    
+    fill(col); textAlign(LEFT, TOP);
+    text(typeInfo, x+25, y+25, infoW - 50, infoH-50);
+    
+    if (capacity == utilization) {
+      fill(#FF0000);
+      spaceInfo += " - AT CAPACITY";
+    } else if (utilization == 0) {
+      fill(#00FF00); 
+      spaceInfo += " - VACANT";
+    } else {
+      fill(255);
+    }
+    text(spaceInfo, x+25, y+25, infoW - 50, infoH-50);
+    
+    fill(255);
+    text(info, x+25, y+25, infoW - 50, infoH-50);
   }
     
 }
@@ -417,6 +493,25 @@ class Parking_Structures {
       type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
       capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
       park = new Parking(canvasX, canvasY, area, type, capacity);
+      park.respondent = parkingCSV.getString(i, "20171127_Respondent (First+ Last)");
+      park.address    = parkingCSV.getString(i, "MAL");
+      park.name       = parkingCSV.getString(i, "Proj_nam");
+      park.devName    = parkingCSV.getString(i, "DevName");
+      park.devAddy    = parkingCSV.getString(i, "DevAddy");
+      park.parkMethod = parkingCSV.getString(i, "Park_type");
+      park.userGroup  = parkingCSV.getString(i, "User_Group");
+      
+      String sub = ""; if (park.type.length() >= 3) sub = park.type.substring(0,3);
+      if (sub.equals("Bel")) {
+        park.col = belowColor;
+      } else if (sub.equals("Sur")) {
+        park.col = surfaceColor;
+      } else if (sub.equals("Sta")) {
+        park.col = aboveColor;
+      } else {
+        park.col = reservedColor;
+      } 
+      
       if (capacity > 0) parking.add(park);
     }
     //println("Parking Structures Loaded: " + parking.size());

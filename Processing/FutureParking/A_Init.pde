@@ -300,3 +300,44 @@ void loadScreen(int phase, int numPhases, String status) {
   
   popMatrix();
 }
+
+void updatePopulation() {
+  int yr = sys.year_now - sys.year_0;
+  
+  while (type1.size() > sys.numCar1[yr]) type1.remove(0);
+  while (type2.size() > sys.numCar2[yr]) type2.remove(0);
+  while (type3.size() > sys.numCar3[yr]) type3.remove(0);
+  while (type4.size() > sys.numCar4[yr]) type4.remove(0);
+  
+  while (type1.size() < sys.numCar1[yr]) addVehicle(type1, "1");
+  while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
+  while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
+  while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
+  
+}
+
+void addVehicle(ArrayList<Agent> array, String type) {
+  //  An example population that traverses along shortest path calculation
+  //  FORMAT: Agent(x, y, radius, speed, path);
+  //
+  Agent vehicle;
+  PVector loc;
+  int random_waypoint;
+  float random_speed;
+  
+  Path random;
+  boolean loop = true;
+  boolean teleport = true;
+  
+  random = routes.paths.get( int(random(routes.paths.size())) );
+  int wpts = random.waypoints.size();
+  while (wpts < 2) {
+    random = routes.paths.get( int(random(routes.paths.size())) );
+    wpts = random.waypoints.size();
+  }
+  random_waypoint = int(random(random.waypoints.size()));
+  random_speed = 3.0*random(0.3, 0.4);
+  loc = random.waypoints.get(random_waypoint);
+  vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  array.add(vehicle);
+}
