@@ -8,7 +8,7 @@ The Future of Parking is an application that simulates and visualizes parking ut
 1. Make sure you have installed the latest version of [Java](https://www.java.com/verify/)
 2. Download [Processing 3](https://processing.org/download/)
 3. Clone or download the repository to your computer
-4. Open "Processing/FutureParking/FutureParking.pde" with Processing 3
+4. Open and run "Processing/FutureParking/FutureParking.pde" with Processing 3
 
 ## Structure
 
