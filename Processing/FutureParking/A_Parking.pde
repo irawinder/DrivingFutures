@@ -400,16 +400,15 @@ class Parking_Structures {
     String type;
     int capacity;
     for (int i=0; i<parkingCSV.getRowCount(); i++) {
-      x = parkingCSV.getFloat(i, 0);
-      y = parkingCSV.getFloat(i, 1);
+      x = parkingCSV.getFloat(i, "X");
+      y = parkingCSV.getFloat(i, "Y");
       canvasX  = w * (x - lonMin) / abs(lonMax - lonMin);
       canvasY  = h - h * (y - latMin) / abs(latMax - latMin);
-      area = parkingCSV.getFloat(i, 7);
+      area = parkingCSV.getFloat(i, "SHAPE_area");
       type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
       capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
       park = new Parking(canvasX, canvasY, area, type, capacity);
-      //if (capacity > 0) parking.add(park);
-      parking.add(park);
+      if (capacity > 0) parking.add(park);
     }
     //println("Parking Structures Loaded: " + parking.size());
     
