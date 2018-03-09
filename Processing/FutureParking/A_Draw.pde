@@ -235,44 +235,91 @@ void run() {
     }
   }
   
-  // Debug: Find a single agent
-  //Agent p;
-  //float s_x = 0;
-  //float s_y = 0;
-  //if (type1.size() > 0) {
-  //  p = type1.get(0);
-  //  s_x = screenX(p.location.x, p.location.y, p.location.z);
-  //  s_y = screenX(p.location.x, p.location.y, p.location.z);
-  //  p.display(#FF0000, 200);
-  //  println(p.location.x, p.location.y, p.location.y, s_x, s_y);
-  //}
-  
   // -------------------------
   // Begin Drawing 2D Elements
   hint(DISABLE_DEPTH_TEST);
   camera(); noLights(); perspective(); 
   
-  // Debug: Redraw a cursor at Agent's Location
-  //if (type1.size() > 0) {
-  //  noFill();
-  //  stroke(#FF0000);
-  //  ellipse(s_x, s_y, 25, 25);
-  //}
+  ////  Display screen location of vehicles and parking
+  ////
+  //noFill(); stroke(#FFFF00);
+  //if (showCar1) for (Agent p: type1) ellipse(p.s_x, p.s_y, 15, 15);
+  //if (showCar2) for (Agent p: type2) ellipse(p.s_x, p.s_y, 15, 15);
+  //if (showCar3) for (Agent p: type3) ellipse(p.s_x, p.s_y, 15, 15);
+  //if (showCar4) for (Agent p: type4) ellipse(p.s_x, p.s_y, 15, 15);
+  //for (Parking p: structures.parking) if (p.show) ellipse(p.s_x, p.s_y, 15, 15);
   
-  //  Display screen location of vehicles and parking
+  // Find Nearest Vehicle or Parking Entity
   //
-  noFill(); stroke(#FFFF00);
-  if (showCar1) for (Agent p: type1) ellipse(p.s_x, p.s_y, 15, 15);
-  if (showCar2) for (Agent p: type2) ellipse(p.s_x, p.s_y, 15, 15);
-  if (showCar3) for (Agent p: type3) ellipse(p.s_x, p.s_y, 15, 15);
-  if (showCar4) for (Agent p: type4) ellipse(p.s_x, p.s_y, 15, 15);
-  for (Parking p: structures.parking) if (p.show) ellipse(p.s_x, p.s_y, 15, 15);
+  int index = 0; String type = "";
+  PVector mouse = new PVector(mouseX, mouseY);
+  float shortestDistance = Float.POSITIVE_INFINITY;
+  int MIN_DIST = 50;
+  if (showCar1) for (int i=0; i<type1.size(); i++) {
+    Agent p = type1.get(i);
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; index = i; type = "car1";
+    }
+  }
+  if (showCar2) for (int i=0; i<type2.size(); i++) {
+    Agent p = type2.get(i);
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; index = i; type = "car2";
+    }
+  }
+  if (showCar3) for (int i=0; i<type3.size(); i++) {
+    Agent p = type3.get(i);
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; index = i; type = "car3";
+    }
+  }
+  if (showCar4) for (int i=0; i<type4.size(); i++) {
+    Agent p = type4.get(i);
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; index = i; type = "car4";
+    }
+  }
+  for (int i=0; i<structures.parking.size(); i++) {
+    Parking p = structures.parking.get(i);
+    if (p.show) {
+      float dist = mouseDistance(mouse, p.s_x, p.s_y);
+      if ( dist < shortestDistance && dist < MIN_DIST ) {
+        shortestDistance = dist; index = i; type = "parking";
+      }
+    }
+  }
   
-  // Find Nearest Vehicle or Parking Object
+  // Set Diameter of Cursor
+  //
+  float diam = min(50, 5/pow(cam.zoom, 2));
+  
+  // Recall Nearest Object and draw cursor
+  //
+  noFill(); stroke(255);
+  if (type.equals("car1")) {
+    Agent p = type1.get(index);
+    ellipse(p.s_x, p.s_y, diam, diam);
+  } else if (type.equals("car2")) {
+    Agent p = type2.get(index);
+    ellipse(p.s_x, p.s_y, diam, diam);
+  } else if (type.equals("car3")) {
+    Agent p = type3.get(index);
+    ellipse(p.s_x, p.s_y, diam, diam);
+  } else if (type.equals("car4")) {
+    Agent p = type4.get(index);
+    ellipse(p.s_x, p.s_y, diam, diam);
+  } else if (type.equals("parking")) {
+    Parking p = structures.parking.get(index);
+    ellipse(p.s_x, p.s_y, diam, diam);
+  }
   
   if (cam.enableChunks) {
     // Click-Object: Draw Cursor Text
-    float diam = min(100, 5/pow(cam.zoom, 2));
+    diam = min(100, 5/pow(cam.zoom, 2));
     if (cam.chunkField.closestFound) {
       fill(#00FF00, 200); textAlign(LEFT, CENTER);
       text("Place Marker", cursorX + 0.3*diam, cursorY);
@@ -307,6 +354,10 @@ void run() {
     popMatrix();
     hint(ENABLE_DEPTH_TEST);
   }
+}
+
+float mouseDistance (PVector mouse, float s_x, float s_y) {
+  return abs(mouse.x-s_x) + abs(mouse.y-s_y);
 }
 
 ArrayList<PVector> vehicleLocations(ArrayList<Agent> vehicles) {

@@ -21,7 +21,9 @@
  *               DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
+// TODO - Reduce complexity/entanglements of Agent() class
+
 class Agent {
   PVector location;
   PVector velocity;
@@ -42,6 +44,10 @@ class Agent {
   void setScreen() {
     s_x = screenX(location.x, location.y, location.z);
     s_y = screenY(location.x, location.y, location.z);
+  }
+  void setScreen(float x, float y) { // Ofset screen location by x, y
+    s_x = screenX(location.x+x, location.y+y, location.z);
+    s_y = screenY(location.x+x, location.y+y, location.z);
   }
   
   Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide, String type) {
@@ -200,23 +206,26 @@ class Agent {
   }
   
   void display(color col, int alpha) {
-    fill(col, alpha);
-    float scaler = 4.0;
-    noStroke();
-    pushMatrix();
-    translate(location.x, location.y);
+    pushMatrix(); translate(location.x, location.y);
     
     // Adjust vehicle's orientation and lane (right or left)
-    float orientation = velocity.heading();
-    if(laneSide.equals("RIGHT")) translate(0.6*scaler*r*cos(orientation+PI/2), 0.6*scaler*r*sin(orientation+PI/2));
-    if(laneSide.equals("LEFT")) translate(0.6*scaler*r*cos(orientation-PI/2), 0.6*scaler*r*sin(orientation-PI/2));
-    rotate(orientation);
+    float SCALER = 4.0;
+    float orientation = velocity.heading(); 
+    float x=0; float y=0;
+    if(laneSide.equals("RIGHT")) {
+      x = 0.6*SCALER*r*cos(orientation+PI/2);
+      y = 0.6*SCALER*r*sin(orientation+PI/2);
+    } else if(laneSide.equals("LEFT")) {
+      x = -0.6*SCALER*r*cos(orientation+PI/2);
+      y = -0.6*SCALER*r*sin(orientation+PI/2);
+    }
+    translate(x, y); rotate(orientation);
     
-    box(2*scaler*r, scaler*r, 0.75*scaler*r);
-    //ellipse(location.x, location.y, r, r);
+    fill(col, alpha); noStroke();
+    box(2*SCALER*r, SCALER*r, 0.75*SCALER*r);
     popMatrix();
     
     // Find Screen location of vehicle
-    setScreen();
+    setScreen(x, y);
   }
 }
