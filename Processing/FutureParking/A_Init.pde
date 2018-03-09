@@ -57,8 +57,8 @@ void initialize() {
     bar_left.title = "Driving Futures V1.1\n\n";
     //bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
     bar_left.credit = "";
-    bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.";
-    bar_left.explanation += "\n[r] <- Press 'r' key to reset";
+    bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.\n\n";
+    bar_left.explanation += "[r] <- Press 'r' to reset sliders";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
     bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
     bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');

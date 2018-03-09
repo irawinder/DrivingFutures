@@ -213,13 +213,6 @@ void keyPressed() {
       case 'r':
         bar_left.restoreDefault();
         bar_right.restoreDefault();
-        bar_left.pressed();
-        bar_right.pressed();
-        setSliders();
-        setParking();
-        sys.update();
-        setParking();
-        updatePopulation();
         additions.clear();
         break;
       //case 'h':
@@ -238,6 +231,15 @@ void keyPressed() {
       //  println("cam.rotation = " + cam.rotation);
       //  break;
     }
+    
+    // Update Inputs and model
+    bar_left.pressed();
+    bar_right.pressed();
+    setSliders();
+    setParking();
+    sys.update();
+    setParking();
+    updatePopulation();
   }
 }
 
