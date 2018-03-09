@@ -185,14 +185,14 @@ void initEnvironment() {
   
   // Check for existance of JSON file
   //
-  String fileName = "boston_OSM.json";
+  String fileName = "local/boston_OSM.json";
   graphJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(graphJSON.exists()) { 
     loadFile = true;
   } else {
     loadFile = false;
-    println("The specified file '" + fileName + "' is not present");
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
   // loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
@@ -209,7 +209,6 @@ void initEnvironment() {
     boolean drawNodes = false;
     boolean drawEdges = true;
     network = new Graph(graphWidth, graphHeight, fileName, drawNodes, drawEdges);
-    println("**network imported from " + fileName + "**");
     
   } else {
     
@@ -227,7 +226,7 @@ void initEnvironment() {
     
     // Save network to JSON file
     //
-    network.saveJSON("boston_OSM.json");
+    network.saveJSON(fileName);
   }
   
   //  A list of parking structures
@@ -239,14 +238,14 @@ void initPaths() {
   
   // Check for existance of JSON file
   //
-  String fileName = "routes.json";
+  String fileName = "local/routes.json";
   routesJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(routesJSON.exists()) { 
     loadFile = true;
   } else {
     loadFile = false;
-    println("The specified file '" + fileName + "' is not present");
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
   // loadFile = false;
@@ -254,7 +253,6 @@ void initPaths() {
   // Collection of routes to and from home, work, and parking ammentities
   if (loadFile) {
     routes = new Parking_Routes(int(B.x), int(B.y), fileName);
-    println("**paths imported from " + fileName + "**");
   } else {
     // generate randomly according to parking structures
     routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
