@@ -129,7 +129,7 @@ void initialize() {
     cam.ZOOM_MAX     = 0.10;
     cam.ZOOM_MIN     = 0.70;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
-    cam.enableChunks = false;  // Enable/Disable 3D mouse cursor
+    cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
     //println("Camera Initialized");
     

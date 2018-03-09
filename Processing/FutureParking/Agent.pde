@@ -36,8 +36,13 @@ class Agent {
   int pathDirection; // -1 or +1 to specific directionality
   boolean loop, teleport;
   String laneSide;
-  
   String type;
+  
+  float s_x, s_y; // screen location (for mouse commnads)
+  void setScreen() {
+    s_x = screenX(location.x, location.y, location.z);
+    s_y = screenY(location.x, location.y, location.z);
+  }
   
   Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide, String type) {
     r = rad;
@@ -210,5 +215,8 @@ class Agent {
     box(2*scaler*r, scaler*r, 0.75*scaler*r);
     //ellipse(location.x, location.y, r, r);
     popMatrix();
+    
+    // Find Screen location of vehicle
+    setScreen();
   }
 }

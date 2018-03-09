@@ -373,6 +373,7 @@ class Parking {
   String type;
   int capacity, utilization;
   float area, ratio;
+  boolean show; // is this draw or detected in GUI
   
   Parking(float x, float y, float area, String type, int capacity) {
     this.location = new PVector(x, y);
@@ -382,7 +383,15 @@ class Parking {
     //utilization = int( random(0, capacity) );
     utilization = 0;
     ratio = float(utilization) / capacity;
+    show = true;
   }
+  
+  float s_x, s_y; // screen location (for mouse commnads)
+  void setScreen() {
+    s_x = screenX(location.x, location.y, location.z);
+    s_y = screenY(location.x, location.y, location.z);
+  }
+    
 }
 
 class Parking_Structures {

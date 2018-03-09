@@ -107,14 +107,15 @@ void run() {
   //image(cam.chunkField.img, 0, 0, B.x, B.y);
   //popMatrix();
   
+  // Draw Parking Infrastructure
+  //
   for (Parking p: structures.parking) {
     pushMatrix();
     
-    boolean overRide = false;
-    if (p.capacity > 0 || overRide) {
+    boolean OVER_RIDE = false;
+    if (p.capacity > 0 || OVER_RIDE) {
       
       // Draw Fill / ID Dot
-      //
       int alpha = 200;
       noStroke();
       boolean show = false;
@@ -122,19 +123,22 @@ void run() {
       if (p.type.length() >= 3) sub = p.type.substring(0,3);
       if (sub.equals("Bel") && showBelow) {
         fill(belowColor, alpha);
-        show = true;
+        p.show = true;
       } else if (sub.equals("Sur") && showSurface) {
         fill(surfaceColor, alpha);
-        show = true;
+        p.show = true;
       } else if (sub.equals("Sta") && showAbove) {
         fill(aboveColor, alpha);
-        show = true;
+        p.show = true;
       } else if (showReserved && !sub.equals("Bel") && !sub.equals("Sur") && !sub.equals("Sta")) {
         fill(reservedColor, alpha);
-        show = true;
+        p.show = true;
       } 
       
-      if (show) {
+      if (p.show) {
+        // Find Screen location of parking ammenity
+        p.setScreen();
+    
         // Draw Parking Button/Icon
         translate(0,0,1);
         ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
@@ -148,7 +152,7 @@ void run() {
           arc(p.location.x, p.location.y, 1.75*sqrt( max(structures.minCap, p.capacity) ), 1.75*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
         }
         noFill();
-      }
+      } 
       
       // Draw Capacity Text
       //
@@ -255,6 +259,16 @@ void run() {
   //  ellipse(s_x, s_y, 25, 25);
   //}
   
+  //  Display screen location of vehicles and parking
+  //
+  noFill(); stroke(#FFFF00);
+  if (showCar1) for (Agent p: type1) ellipse(p.s_x, p.s_y, 15, 15);
+  if (showCar2) for (Agent p: type2) ellipse(p.s_x, p.s_y, 15, 15);
+  if (showCar3) for (Agent p: type3) ellipse(p.s_x, p.s_y, 15, 15);
+  if (showCar4) for (Agent p: type4) ellipse(p.s_x, p.s_y, 15, 15);
+  for (Parking p: structures.parking) if (p.show) ellipse(p.s_x, p.s_y, 15, 15);
+  
+  // Find Nearest Vehicle or Parking Object
   
   if (cam.enableChunks) {
     // Click-Object: Draw Cursor Text
