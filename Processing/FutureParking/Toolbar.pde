@@ -135,11 +135,6 @@ class Toolbar {
   // Draw Margin Elements
   //
   void draw() {
-    camera();
-    noLights();
-    perspective();
-    hint(DISABLE_DEPTH_TEST);
-    
     pushMatrix();
     translate(barX, barY);
     
@@ -178,8 +173,6 @@ class Toolbar {
       t.update();
       t.drawMe();
     }
-    
-    hint(ENABLE_DEPTH_TEST);
   }
   
   boolean hover() {
