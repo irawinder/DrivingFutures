@@ -42,7 +42,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Loading Toolbars ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 1) {
     
@@ -58,11 +58,12 @@ void initialize() {
     //bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
     bar_left.credit = "";
     bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.\n\n";
-    bar_left.explanation += "[r] <- Press 'r' to reset sliders";
+    bar_left.explanation += "[r] <- Press 'r' to reset sliders\n";
+    bar_left.explanation += "[f] <- Press 'f' to show framerate";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
     bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
     bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
-    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   50, 'a', 's');
+    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   60, 'a', 's');
     bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S');
     bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x');
     bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X');
@@ -94,7 +95,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Importing Infrastructure ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 2) {
     
@@ -103,7 +104,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Finding Shortest Paths ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 3) {
     
@@ -111,7 +112,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Setting Up 3D Environment ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 4) {
     
@@ -129,13 +130,14 @@ void initialize() {
     cam.ZOOM_MAX     = 0.10;
     cam.ZOOM_MIN     = 0.70;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
-    cam.enableChunks = false;  // Enable/Disable 3D mouse cursor
+    cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
+    cam.off(); // turn cam off while still initializing
     //println("Camera Initialized");
     
     initPhase++; delay(phaseDelay);
     String status = "Calibrating Systems Model ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 5) {
     
@@ -153,7 +155,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Populating Vehicles ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 6) {
     
@@ -163,7 +165,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Finishing Up ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 7) {
     
@@ -176,7 +178,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Ready to Go! ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   }
 }
@@ -185,14 +187,14 @@ void initEnvironment() {
   
   // Check for existance of JSON file
   //
-  String fileName = "boston_OSM.json";
+  String fileName = "local/boston_OSM.json";
   graphJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(graphJSON.exists()) { 
     loadFile = true;
   } else {
     loadFile = false;
-    println("The specified file '" + fileName + "' is not present");
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
   // loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
@@ -209,7 +211,6 @@ void initEnvironment() {
     boolean drawNodes = false;
     boolean drawEdges = true;
     network = new Graph(graphWidth, graphHeight, fileName, drawNodes, drawEdges);
-    println("**network imported from " + fileName + "**");
     
   } else {
     
@@ -227,7 +228,7 @@ void initEnvironment() {
     
     // Save network to JSON file
     //
-    network.saveJSON("boston_OSM.json");
+    network.saveJSON(fileName);
   }
   
   //  A list of parking structures
@@ -239,14 +240,14 @@ void initPaths() {
   
   // Check for existance of JSON file
   //
-  String fileName = "routes.json";
+  String fileName = "local/routes.json";
   routesJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(routesJSON.exists()) { 
     loadFile = true;
   } else {
     loadFile = false;
-    println("The specified file '" + fileName + "' is not present");
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
   // loadFile = false;
@@ -254,7 +255,6 @@ void initPaths() {
   // Collection of routes to and from home, work, and parking ammentities
   if (loadFile) {
     routes = new Parking_Routes(int(B.x), int(B.y), fileName);
-    println("**paths imported from " + fileName + "**");
   } else {
     // generate randomly according to parking structures
     routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
@@ -277,9 +277,8 @@ void initPopulation() {
 }
 
 PImage loadingBG;
-void loadScreen(int phase, int numPhases, String status) {
-  image(loadingBG, 0, 0, width, height);
-  camera(); noLights(); perspective(); 
+void loadScreen(PImage bg, int phase, int numPhases, String status) {
+  image(bg, 0, 0, width, height);
   pushMatrix(); translate(width/2, height/2);
   int lW = 400;
   int lH = 48;
@@ -300,4 +299,45 @@ void loadScreen(int phase, int numPhases, String status) {
   text(status, 0, 0);
   
   popMatrix();
+}
+
+void updatePopulation() {
+  int yr = sys.year_now - sys.year_0;
+  
+  while (type1.size() > sys.numCar1[yr]) type1.remove(0);
+  while (type2.size() > sys.numCar2[yr]) type2.remove(0);
+  while (type3.size() > sys.numCar3[yr]) type3.remove(0);
+  while (type4.size() > sys.numCar4[yr]) type4.remove(0);
+  
+  while (type1.size() < sys.numCar1[yr]) addVehicle(type1, "1");
+  while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
+  while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
+  while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
+  
+}
+
+void addVehicle(ArrayList<Agent> array, String type) {
+  //  An example population that traverses along shortest path calculation
+  //  FORMAT: Agent(x, y, radius, speed, path);
+  //
+  Agent vehicle;
+  PVector loc;
+  int random_waypoint;
+  float random_speed;
+  
+  Path random;
+  boolean loop = true;
+  boolean teleport = true;
+  
+  random = routes.paths.get( int(random(routes.paths.size())) );
+  int wpts = random.waypoints.size();
+  while (wpts < 2) {
+    random = routes.paths.get( int(random(routes.paths.size())) );
+    wpts = random.waypoints.size();
+  }
+  random_waypoint = int(random(random.waypoints.size()));
+  random_speed = 3.0*random(0.3, 0.4);
+  loc = random.waypoints.get(random_waypoint);
+  vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  array.add(vehicle);
 }

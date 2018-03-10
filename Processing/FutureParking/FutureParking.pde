@@ -9,8 +9,9 @@
  *      "A_" denotes high layer of organization on par with FutureParking.pde
  *
  *      FutureParking.pde - highest level layer containing most interdependencies and complexity
- *      A_Draw.pde        - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
- *      A_Parking.pde     - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
+ *      A_Init            - mostly void functions to initializing application and simulation
+ *      A_Draw.pde        - mostly void functions for drawing application to screen
+ *      A_Parking.pde     - Primary simulation environment
  *      Agent.pde, Camera.pde, Pathfinder.pde, Toolbar.pde - Primitive class modules with no interdependencies
  *
  *  PRIMARY CLASSES:
@@ -106,13 +107,23 @@ int BAR_X, BAR_Y, BAR_W, BAR_H;
 //
 ArrayList<PVector> additions; 
 
+// Index of Entity one is currently hovering over
+int hoverIndex = 0; String hoverType = "";
+
 void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
   
   loadingBG = loadImage("loading.png");
-  loadScreen(initPhase, NUM_PHASES, "");
-  
+  loadScreen(loadingBG, initPhase, NUM_PHASES, "");
+}
+
+void draw() {
+  if (!initialized) {
+    initialize();
+  } else {
+    run();
+  }
 }
 
 // Set System Parameters According to Slider Values
@@ -137,62 +148,48 @@ void setSliders() {
   showCar4                      = bar_left.buttons.get(7).value;
 }
 
+// Calculate Parking Ratios for each structure for current year only
+//
 void setParking() {
-  int yr = sys.year_now - sys.year_0;
-  float belowRatio   = 1 - float(sys.belowFree[yr])   / sys.totBelow;
-  float surfaceRatio = 1 - float(sys.surfaceFree[yr]) / sys.totSurface;
-  float aboveRatio   = 1 - float(sys.aboveFree[yr])   / sys.totAbove;
+  
+  // Account for unactive parking first ...
+  sys.belowOff   = 0;
+  sys.surfaceOff = 0;
+  sys.aboveOff   = 0;
   for (Parking p: structures.parking) {
-    if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
+    if (!p.active) {
+      if (p.col == belowColor)   sys.belowOff   += p.capacity;
+      if (p.col == surfaceColor) sys.surfaceOff += p.capacity;
+      if (p.col == aboveColor)   sys.aboveOff   += p.capacity;
+      p.utilization = 0;
+    }
+  }
+  sys.belowOff   /= 100;
+  sys.surfaceOff /= 100;
+  sys.aboveOff   /= 100;
+  
+  sys.update();
+  
+  // For active parking, calculate ratio
+  //
+  int yr = sys.year_now - sys.year_0;
+  float belowRatio   = 1 - float(sys.belowFree[yr]    )  / sys.totBelow  ;
+  float surfaceRatio = 1 - float(sys.surfaceFree[yr]  )  / sys.totSurface;
+  float aboveRatio   = 1 - float(sys.aboveFree[yr]    )  / sys.totAbove  ;
+  
+  for (Parking p: structures.parking) {
+    p.ratio = 0;
+    if (p.col == belowColor && p.active) {
       p.ratio = belowRatio;
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
+    } else if (p.col == surfaceColor && p.active) {
       p.ratio = surfaceRatio;
-    } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
+    } else if (p.col == aboveColor && p.active) {
       p.ratio = aboveRatio;
+    } else if (p.col == reservedColor && p.active) {
+      p.ratio = 1.0;
     }
     p.utilization = int(p.ratio*p.capacity);
   }
-}
-
-void updatePopulation() {
-  int yr = sys.year_now - sys.year_0;
-  
-  while (type1.size() > sys.numCar1[yr]) type1.remove(0);
-  while (type2.size() > sys.numCar2[yr]) type2.remove(0);
-  while (type3.size() > sys.numCar3[yr]) type3.remove(0);
-  while (type4.size() > sys.numCar4[yr]) type4.remove(0);
-  
-  while (type1.size() < sys.numCar1[yr]) addVehicle(type1, "1");
-  while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
-  while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
-  while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
-  
-}
-
-void addVehicle(ArrayList<Agent> array, String type) {
-  //  An example population that traverses along shortest path calculation
-  //  FORMAT: Agent(x, y, radius, speed, path);
-  //
-  Agent vehicle;
-  PVector loc;
-  int random_waypoint;
-  float random_speed;
-  
-  Path random;
-  boolean loop = true;
-  boolean teleport = true;
-  
-  random = routes.paths.get( int(random(routes.paths.size())) );
-  int wpts = random.waypoints.size();
-  while (wpts < 2) {
-    random = routes.paths.get( int(random(routes.paths.size())) );
-    wpts = random.waypoints.size();
-  }
-  random_waypoint = int(random(random.waypoints.size()));
-  random_speed = 3.0*random(0.3, 0.4);
-  loc = random.waypoints.get(random_waypoint);
-  vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
-  array.add(vehicle);
 }
 
 void keyPressed() {
@@ -213,6 +210,7 @@ void keyPressed() {
       case 'r':
         bar_left.restoreDefault();
         bar_right.restoreDefault();
+        structures.reset();
         additions.clear();
         break;
       //case 'h':
@@ -236,8 +234,6 @@ void keyPressed() {
     bar_left.pressed();
     bar_right.pressed();
     setSliders();
-    setParking();
-    sys.update();
     setParking();
     updatePopulation();
   }
@@ -279,6 +275,10 @@ void mouseClicked() {
   if (initialized) {
     if (cam.chunkField.closestFound && cam.enableChunks) {
       additions.add(cam.chunkField.closest.location);
+    }
+    if (hoverType.equals("parking")) {
+      structures.parking.get(hoverIndex).active = !structures.parking.get(hoverIndex).active;
+      setParking();
     }
   }
 }

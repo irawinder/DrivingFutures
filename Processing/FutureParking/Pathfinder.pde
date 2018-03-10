@@ -280,7 +280,7 @@ class Graph {
     graphJSON.setJSONArray("nodes", nodesJSON);
     
     // JSON file saved to disk
-    saveJSONObject(graphJSON, fileName);
+    saveJSONObject(graphJSON, "data/" + fileName);
   }
   
   void newNodes(ArrayList<PVector> locs) {

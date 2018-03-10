@@ -48,16 +48,6 @@ int roadColor = #FFAAAA;
 
 boolean initialized = false;
 
-void draw() {
-  
-  if (!initialized) {
-    initialize();
-  } else {
-    run();
-  }
-  
-}
-
 void run() {
 
   background(20);
@@ -79,7 +69,7 @@ void run() {
   setParking();
   
   // Draw and Calculate 3D Graphics 
-  cam.orient();
+  cam.on();
   
   
   
@@ -107,62 +97,76 @@ void run() {
   //image(cam.chunkField.img, 0, 0, B.x, B.y);
   //popMatrix();
   
+  // Draw Parking Infrastructure
+  //
   for (Parking p: structures.parking) {
     pushMatrix();
     
-    boolean overRide = false;
-    if (p.capacity > 0 || overRide) {
+    boolean OVER_RIDE = false;
+    if (p.capacity > 0 || OVER_RIDE) {
+      
       
       // Draw Fill / ID Dot
-      //
-      int alpha = 200;
-      noStroke();
-      boolean show = false;
       String sub = "";
       if (p.type.length() >= 3) sub = p.type.substring(0,3);
+      p.show = false;
       if (sub.equals("Bel") && showBelow) {
-        fill(belowColor, alpha);
-        show = true;
+        p.show = true;
       } else if (sub.equals("Sur") && showSurface) {
-        fill(surfaceColor, alpha);
-        show = true;
+        p.show = true;
       } else if (sub.equals("Sta") && showAbove) {
-        fill(aboveColor, alpha);
-        show = true;
+        p.show = true;
       } else if (showReserved && !sub.equals("Bel") && !sub.equals("Sur") && !sub.equals("Sta")) {
-        fill(reservedColor, alpha);
-        show = true;
+        p.show = true;
       } 
       
-      if (show) {
+      if (p.show) {
+        // Find Screen location of parking ammenity
+        p.setScreen();
+    
         // Draw Parking Button/Icon
         translate(0,0,1);
-        ellipse(p.location.x, p.location.y, 2.0*sqrt( max(structures.minCap, p.capacity) ), 2.0*sqrt( max(structures.minCap, p.capacity) ));
+        if (p.capacity == p.utilization) {
+          stroke(#AA0000, 200); strokeWeight(3);
+        } else if (0 == p.utilization) {
+          stroke(#00AA00, 200); strokeWeight(3);
+        } else {
+          noStroke();
+        }
+        if (p.highlight) {
+          fill(p.col, 255);
+        } else {
+          fill(p.col, 200);
+        }
+        float pW = 2.0*sqrt( max(structures.minCap, p.capacity));
+        ellipse(p.location.x, p.location.y, pW, pW);
         
         // Draw Parking Utilization
-        translate(0,0,1);
-        noStroke();
-        fill(255, 200);
-        //ellipse(p.location.x, p.location.y, 0.1*sqrt(p.ratio*p.area), 0.1*sqrt(p.ratio*p.area));
-        if (p.utilization > 0 && p.capacity > 0) {
-          arc(p.location.x, p.location.y, 1.75*sqrt( max(structures.minCap, p.capacity) ), 1.75*sqrt( max(structures.minCap, p.capacity) ), 0, p.ratio*2*PI);
+        translate(0,0,3);
+        noStroke();  
+        if (p.highlight) {
+          fill(0, 150);
+        } else {
+          fill(0, 200);
         }
-        noFill();
-      }
-      
-      // Draw Capacity Text
-      //
-      translate(0,0,1);
-      fill(0, 255);
-      textAlign(CENTER, CENTER);
-      text(p.capacity - p.utilization, p.location.x, p.location.y);
-    } else {
-      // Draw Capacity Text
-      //
-      translate(0,0,1);
-      fill(255, 255);
-      textAlign(CENTER, CENTER);
-      text(p.capacity - p.utilization, p.location.x, p.location.y);
+        if (p.utilization > 0 && p.capacity > 0) {
+          arc(p.location.x, p.location.y, -10 + pW, -10 + pW, 0, p.ratio*2*PI);
+        }
+        
+        // Draw Capacity Text
+        //
+        translate(0,0,1);
+        fill(255, 255);
+        textAlign(CENTER, CENTER);
+        if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, p.location.x, p.location.y);
+        
+        if (!p.active) {
+          pushMatrix(); translate(p.location.x, p.location.y, 1*pW-4);
+          fill(p.col, 100); stroke(255, 100); strokeWeight(1);
+          box(0.7*pW, 0.7*pW, 2*pW);
+          popMatrix();
+        }
+      } 
     }
     popMatrix();
   }
@@ -231,39 +235,9 @@ void run() {
     }
   }
   
-  // Debug: Find a single agent
-  //Agent p;
-  //float s_x = 0;
-  //float s_y = 0;
-  //if (type1.size() > 0) {
-  //  p = type1.get(0);
-  //  s_x = screenX(p.location.x, p.location.y, p.location.z);
-  //  s_y = screenX(p.location.x, p.location.y, p.location.z);
-  //  p.display(#FF0000, 200);
-  //  println(p.location.x, p.location.y, p.location.y, s_x, s_y);
-  //}
-  
   // -------------------------
   // Begin Drawing 2D Elements
-  hint(DISABLE_DEPTH_TEST);
-  camera(); noLights(); perspective(); 
-  
-  // Debug: Redraw a cursor at Agent's Location
-  //if (type1.size() > 0) {
-  //  noFill();
-  //  stroke(#FF0000);
-  //  ellipse(s_x, s_y, 25, 25);
-  //}
-  
-  
-  if (cam.enableChunks) {
-    // Click-Object: Draw Cursor Text
-    float diam = min(100, 5/pow(cam.zoom, 2));
-    if (cam.chunkField.closestFound) {
-      fill(#00FF00, 200); textAlign(LEFT, CENTER);
-      text("Place Marker", cursorX + 0.3*diam, cursorY);
-    }
-  }
+  cam.off();
   
   if (SHOW_INFO) {
     // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
@@ -284,15 +258,101 @@ void run() {
     
     // Draw System Output
     //
-    hint(DISABLE_DEPTH_TEST);
     pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
     sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
     sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
     sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
     sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
     popMatrix();
-    hint(ENABLE_DEPTH_TEST);
   }
+  
+  // Find Nearest Vehicle or Parking Entity when hovering
+  //
+  hoverIndex = 0; hoverType = "";
+  PVector mouse = new PVector(mouseX, mouseY);
+  float shortestDistance = Float.POSITIVE_INFINITY;
+  int MIN_DIST = 50;
+  if (showCar1) for (int i=0; i<type1.size(); i++) {
+    Agent p = type1.get(i);
+    p.highlight = false;
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; hoverIndex = i; hoverType = "car1";
+    }
+  }
+  if (showCar2) for (int i=0; i<type2.size(); i++) {
+    Agent p = type2.get(i);
+    p.highlight = false;
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; hoverIndex = i; hoverType = "car2";
+    }
+  }
+  if (showCar3) for (int i=0; i<type3.size(); i++) {
+    Agent p = type3.get(i);
+    p.highlight = false;
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; hoverIndex = i; hoverType = "car3";
+    }
+  }
+  if (showCar4) for (int i=0; i<type4.size(); i++) {
+    Agent p = type4.get(i);
+    p.highlight = false;
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; hoverIndex = i; hoverType = "car4";
+    }
+  }
+  for (int i=0; i<structures.parking.size(); i++) {
+    Parking p = structures.parking.get(i);
+    p.highlight = false;
+    if (p.show) {
+      float dist = mouseDistance(mouse, p.s_x, p.s_y);
+      if ( dist < shortestDistance && dist < MIN_DIST ) {
+        shortestDistance = dist; hoverIndex = i; hoverType = "parking";
+      }
+    }
+  }
+  
+  // Set Diameter of Cursor
+  //
+  float diam = min(50, 5/pow(cam.zoom, 2));
+  
+  // Recall Nearest Object and draw cursor
+  //
+  noFill(); stroke(255);
+  if (hoverType .equals("car1")) {
+    Agent p = type1.get(hoverIndex);
+    p.highlight = true;
+  } else if (hoverType .equals("car2")) {
+    Agent p = type2.get(hoverIndex);
+    p.highlight = true;
+  } else if (hoverType .equals("car3")) {
+    Agent p = type3.get(hoverIndex);
+    p.highlight = true;
+  } else if (hoverType .equals("car4")) {
+    Agent p = type4.get(hoverIndex);
+    p.highlight = true;
+  } else if (hoverType .equals("parking")) {
+    Parking p = structures.parking.get(hoverIndex);
+    p.highlight = true;
+    p.displayInfo();
+  }
+  
+  if (cam.enableChunks) {
+    // Click-Object: Draw Cursor Text
+    diam = min(100, 5/pow(cam.zoom, 2));
+    if (cam.chunkField.closestFound) {
+      fill(#00FF00, 200); textAlign(LEFT, CENTER);
+      text("Place Marker", cursorX + 0.3*diam, cursorY);
+    }
+  }
+  
+}
+
+float mouseDistance (PVector mouse, float s_x, float s_y) {
+  return abs(mouse.x-s_x) + abs(mouse.y-s_y);
 }
 
 ArrayList<PVector> vehicleLocations(ArrayList<Agent> vehicles) {
