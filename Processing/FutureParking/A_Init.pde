@@ -42,7 +42,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Loading Toolbars ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 1) {
     
@@ -95,7 +95,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Importing Infrastructure ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 2) {
     
@@ -104,7 +104,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Finding Shortest Paths ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 3) {
     
@@ -112,7 +112,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Setting Up 3D Environment ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 4) {
     
@@ -132,11 +132,12 @@ void initialize() {
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
+    cam.off(); // turn cam off while still initializing
     //println("Camera Initialized");
     
     initPhase++; delay(phaseDelay);
     String status = "Calibrating Systems Model ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 5) {
     
@@ -154,7 +155,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Populating Vehicles ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 6) {
     
@@ -164,7 +165,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Finishing Up ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 7) {
     
@@ -177,7 +178,7 @@ void initialize() {
     
     initPhase++; delay(phaseDelay);
     String status = "Ready to Go! ...";
-    loadScreen(initPhase, NUM_PHASES, status);
+    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   }
 }
@@ -276,9 +277,8 @@ void initPopulation() {
 }
 
 PImage loadingBG;
-void loadScreen(int phase, int numPhases, String status) {
-  image(loadingBG, 0, 0, width, height);
-  camera(); noLights(); perspective(); 
+void loadScreen(PImage bg, int phase, int numPhases, String status) {
+  image(bg, 0, 0, width, height);
   pushMatrix(); translate(width/2, height/2);
   int lW = 400;
   int lH = 48;

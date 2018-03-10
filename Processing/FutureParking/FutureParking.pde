@@ -9,8 +9,9 @@
  *      "A_" denotes high layer of organization on par with FutureParking.pde
  *
  *      FutureParking.pde - highest level layer containing most interdependencies and complexity
- *      A_Draw.pde        - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
- *      A_Parking.pde     - might as well be in FutureParking.pde but placed in it's own tab for ease of editing
+ *      A_Init            - mostly void functions to initializing application and simulation
+ *      A_Draw.pde        - mostly void functions for drawing application to screen
+ *      A_Parking.pde     - Primary simulation environment
  *      Agent.pde, Camera.pde, Pathfinder.pde, Toolbar.pde - Primitive class modules with no interdependencies
  *
  *  PRIMARY CLASSES:
@@ -114,7 +115,7 @@ void setup() {
   //fullScreen(P3D);
   
   loadingBG = loadImage("loading.png");
-  loadScreen(initPhase, NUM_PHASES, "");
+  loadScreen(loadingBG, initPhase, NUM_PHASES, "");
 }
 
 void draw() {

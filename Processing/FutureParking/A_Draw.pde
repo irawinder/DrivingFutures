@@ -69,7 +69,7 @@ void run() {
   setParking();
   
   // Draw and Calculate 3D Graphics 
-  cam.orient();
+  cam.on();
   
   
   
@@ -237,8 +237,7 @@ void run() {
   
   // -------------------------
   // Begin Drawing 2D Elements
-  hint(DISABLE_DEPTH_TEST);
-  camera(); noLights(); perspective(); 
+  cam.off();
   
   if (SHOW_INFO) {
     // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
@@ -259,14 +258,12 @@ void run() {
     
     // Draw System Output
     //
-    hint(DISABLE_DEPTH_TEST);
     pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
     sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.04);
     sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.03);
     sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.08);
     sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.08);
     popMatrix();
-    hint(ENABLE_DEPTH_TEST);
   }
   
   // Find Nearest Vehicle or Parking Entity when hovering
