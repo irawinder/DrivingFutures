@@ -266,7 +266,7 @@ class Agent {
     }
     popMatrix();
     
-    if (highlight || showPath) {
+    if (highlight) {
       // Draw Bubble around destination
       pushMatrix(); translate(path.get(0).x, path.get(0).y);
       fill(#AA0000, 100);
