@@ -291,10 +291,12 @@ void mouseClicked() {
       for (Agent p: type2) p.showPath = false;
       for (Agent p: type3) p.showPath = false;
       for (Agent p: type4) p.showPath = false;
-      if (hoverType.equals("car1")) type1.get(hoverIndex).showPath = !type1.get(hoverIndex).showPath;
-      if (hoverType.equals("car2")) type2.get(hoverIndex).showPath = !type2.get(hoverIndex).showPath;
-      if (hoverType.equals("car3")) type3.get(hoverIndex).showPath = !type3.get(hoverIndex).showPath;
-      if (hoverType.equals("car4")) type4.get(hoverIndex).showPath = !type4.get(hoverIndex).showPath;
+      try {
+        if (hoverType.equals("car1")) type1.get(hoverIndex).showPath = !type1.get(hoverIndex).showPath;
+        if (hoverType.equals("car2")) type2.get(hoverIndex).showPath = !type2.get(hoverIndex).showPath;
+        if (hoverType.equals("car3")) type3.get(hoverIndex).showPath = !type3.get(hoverIndex).showPath;
+        if (hoverType.equals("car4")) type4.get(hoverIndex).showPath = !type4.get(hoverIndex).showPath;
+      } catch (RuntimeException e) { println("Oops! Something went wrong"); }
     }
   }
 }
