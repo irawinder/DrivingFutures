@@ -371,7 +371,7 @@ class HScrollbar {
     }
     ellipse(spos + sheight/2, ypos + sheight/2, sheight, sheight);
     fill(lineColor, 255); textAlign(CENTER, BOTTOM);
-    text("ROTATION", xpos + swidth/2, ypos - 14);
+    text("ROTATION", int(xpos + swidth/2), int(ypos) - 14);
   }
 
   float getPos() {
@@ -456,7 +456,7 @@ class VScrollbar {
     }
     ellipse(xpos + swidth/2, spos + swidth/2, swidth, swidth);
     fill(lineColor, 255); textAlign(CENTER, TOP);
-    text("ZOOM", xpos + swidth/2, ypos + sheight + 21);
+    text("ZOOM", int(xpos + swidth/2), int(ypos + sheight) + 21);
   }
 
   float getPos() {

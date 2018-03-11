@@ -155,7 +155,7 @@ void run() {
         translate(0,0,1);
         fill(255, 255);
         textAlign(CENTER, CENTER);
-        if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, p.location.x, p.location.y);
+        if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, int(p.location.x), int(p.location.y));
         
         if (!p.active) {
           pushMatrix(); translate(p.location.x, p.location.y, 1*pW-4);
@@ -254,7 +254,7 @@ void run() {
     // Radio Button Labels:
     //
     textAlign(LEFT, BOTTOM);
-    pushMatrix(); translate(bar_left.barX + bar_left.margin, 17.5*bar_left.CONTROL_H);
+    pushMatrix(); translate(bar_left.barX + bar_left.margin, int(17.5*bar_left.CONTROL_H) );
     text("Parking", 0, 0);
     translate(bar_left.contentW/2, 0);
     text("Vehicles", 0, 0);

@@ -249,9 +249,9 @@ class ControlSlider {
     strokeWeight(1);
     fill(255);
     textAlign(LEFT, BOTTOM);
-    text( "[" + keyMinus + "," + keyPlus + "] " + name,xpos,ypos-0.75*diameter);
+    text( "[" + keyMinus + "," + keyPlus + "] " + name,int(xpos), int(ypos-0.75*diameter) );
     textAlign(LEFT, CENTER);
-    text(int(value) + " " + unit,xpos+6+len,ypos-1);
+    text(int(value) + " " + unit,int(xpos+6+len), int(ypos-1) );
     
     // Slider Bar
     fill(100); noStroke();
@@ -321,7 +321,7 @@ class RadioButton {
     if (value) { fill(255); }
     else       { fill(150); } 
     textAlign(LEFT, CENTER);
-    text("[" + keyToggle + "] " + name,xpos + 1.5*diameter,ypos);
+    text("[" + keyToggle + "] " + name,int(xpos + 1.5*diameter),int(ypos) );
     
     // Button Holder
     noStroke(); fill(50);
@@ -458,21 +458,21 @@ class TriSlider {
     //
     fill(255);
     textAlign(LEFT, TOP);
-    text(name, xpos, ypos-16);
+    text(name, int(xpos), int(ypos-16) );
     textAlign(CENTER, CENTER); fill(col1);
-    text(name1, avg.x,          avg.y+1.5*r);
+    text(name1, int(avg.x),          int(avg.y+1.5*r) );
     textAlign(LEFT,   CENTER); fill(col2);
-    text(name2, xpos,           avg.y+1.5*r);
+    text(name2, int(xpos),           int(avg.y+1.5*r) );
     textAlign(RIGHT,  CENTER); fill(col3);
-    text(name3, xpos+2*(avg.x-xpos), avg.y+1.5*r);
+    text(name3, int(xpos+2*(avg.x-xpos)), int(avg.y+1.5*r) );
     textAlign(CENTER, TOP);
     fill(col1);
-    text(int(100*value1+0.5)+ "%", corner1.x, ypos);
+    text(int(100*value1+0.5)+ "%", int(corner1.x), int(ypos) );
     textAlign(RIGHT, TOP);
     fill(col2);
-    text(int(100*value2+0.5) + "%   ", corner2.x, corner2.y);
+    text(int(100*value2+0.5) + "%   ", int(corner2.x) , int(corner2.y) );
     textAlign(LEFT, TOP);
     fill(col3);
-    text("   " + int(100*value3+0.5) + "%", corner3.x, corner3.y);
+    text("   " + int(100*value3+0.5) + "%", int(corner3.x) , int(corner3.y) );
   }
 }
