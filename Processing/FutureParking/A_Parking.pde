@@ -641,11 +641,10 @@ class Parking_Routes {
     for (Path p: paths) {
       // Draw Origin (Red) and Destination (Blue)
       //
-      img.fill(0, 255); // Green
-      img.stroke(255, 255);
+      img.fill(0, 255);     // Black
+      img.stroke(255, 255); // White
       img.strokeWeight(4);
       img.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
-      //img.ellipse(p.destination.x, p.destination.y, p.diameter, p.diameter);
       
     }
     img.endDraw();

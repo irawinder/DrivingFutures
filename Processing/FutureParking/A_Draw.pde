@@ -60,6 +60,16 @@ void updateModel() {
   //
   syncParking();
   syncVehicles();
+  
+  // Update Vehicle Movement
+  //
+  boolean collisionDetection = false;
+  ArrayList<PVector> otherLocations = new ArrayList<PVector>();
+  if (collisionDetection) otherLocations = vehicleLocations();
+  if (showCar1) for (Agent p: type1) p.update(otherLocations, collisionDetection);
+  if (showCar2) for (Agent p: type2) p.update(otherLocations, collisionDetection);
+  if (showCar3) for (Agent p: type3) p.update(otherLocations, collisionDetection);
+  if (showCar4) for (Agent p: type4) p.update(otherLocations, collisionDetection);
 }
 
 void draw3D() {
@@ -84,19 +94,15 @@ void draw3D() {
   //
   background(20);
   
-  //  Displays the Graph in grayscale.
+  //  Displays the "Road" Graphe.
   //
   fill(roadColor); stroke(255); // Default Colors
   tint(255, 25); // overlaid as an image
   image(network.img, 0, 0, B.x, B.y);
+  
+  // Draw Routes overlaid on streets
   tint(255, 175);
   image(routes.img, 0, 0, B.x, B.y);
-  
-  //// Field: Draw Selection Field
-  ////
-  //pushMatrix(); translate(0, 0, 1);
-  //image(cam.chunkField.img, 0, 0, B.x, B.y);
-  //popMatrix();
   
   // Draw Parking Infrastructure
   //
@@ -170,43 +176,13 @@ void draw3D() {
   }
   
   //  Update and Display the population of agents
-  //  FORMAT: display(color, alpha)
   //
   translate(0,0,1);
-  boolean collisionDetection = false;
   float scaler = 2.0 * (1 + 2*cam.zoom);
-  ArrayList<PVector> otherLocations;
-  if (collisionDetection) {
-    otherLocations = vehicleLocations();
-  } else {
-    otherLocations = new ArrayList<PVector>();
-  }
-  if (showCar1) {
-    for (Agent p: type1) {
-      p.update(otherLocations, collisionDetection);
-      p.display(scaler, "BOX", car1Color, 200);
-    }
-  }
-  if (showCar2) {
-    for (Agent p: type2) {
-      p.update(otherLocations, collisionDetection);
-      p.display(scaler, "BOX", car2Color, 200);
-    }
-  }
-  if (showCar3) {
-    for (Agent p: type3) {
-      p.update(otherLocations, collisionDetection);
-      p.display(scaler, "BOX", car3Color, 200);
-    }
-  }
-  if (showCar4) {
-    for (Agent p: type4) {
-      p.update(otherLocations, collisionDetection);
-      p.display(scaler, "BOX", car4Color, 200);
-    }
-  }
-  
-  
+  if (showCar1) for (Agent p: type1) p.display(scaler, "BOX", car1Color, 200);
+  if (showCar2) for (Agent p: type2) p.display(scaler, "BOX", car2Color, 200);
+  if (showCar3) for (Agent p: type3) p.display(scaler, "BOX", car3Color, 200);
+  if (showCar4) for (Agent p: type4) p.display(scaler, "BOX", car4Color, 200);
   
   // -------------------------
   // Begin Drawing 2D Elements
@@ -288,6 +264,10 @@ void draw3D() {
     }
   }
 
+  // Set Diameter of Cursor
+  //
+  float diam = min(50, 5/pow(cam.zoom, 2));
+  
   // Recall Nearest Object and draw cursor
   //
   noFill(); stroke(255);
