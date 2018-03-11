@@ -192,6 +192,21 @@ void setParking() {
   }
 }
 
+void updatePopulation() {
+  int yr = sys.year_now - sys.year_0;
+  
+  while (type1.size() > sys.numCar1[yr]) type1.remove(0);
+  while (type2.size() > sys.numCar2[yr]) type2.remove(0);
+  while (type3.size() > sys.numCar3[yr]) type3.remove(0);
+  while (type4.size() > sys.numCar4[yr]) type4.remove(0);
+  
+  while (type1.size() < sys.numCar1[yr]) addVehicle(type1, "1");
+  while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
+  while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
+  while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
+  
+}
+
 void keyPressed() {
   if (initialized) {
     cam.moved();
@@ -245,6 +260,7 @@ void mousePressed() {
     cam.pressed();
     bar_left.pressed();
     bar_right.pressed();
+    setSliders();
     sys.update();
     updatePopulation();
   }
@@ -260,6 +276,7 @@ void mouseReleased() {
   if (initialized) {
     bar_left.released();
     bar_right.released();
+    setSliders();
     sys.update();
     updatePopulation();
   }

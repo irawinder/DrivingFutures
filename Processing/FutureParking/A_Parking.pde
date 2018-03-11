@@ -80,9 +80,9 @@ class Parking_System {
   float TRIPS_PER_CAR4 = 5.0;
    
   // Number of parking Spaces needed per vehicle of each type
-  float SPACES_PER_CAR1 = 1.00;
+  float SPACES_PER_CAR1 = 0.85;
   float SPACES_PER_CAR2 = 0.10;
-  float SPACES_PER_CAR3 = 0.75;
+  float SPACES_PER_CAR3 = 0.70;
   float SPACES_PER_CAR4 = 0.15;
    
   Parking_System(int tripDemand_0, int year_0, int year_f) {
@@ -407,7 +407,7 @@ class Parking {
   }
   
   void displayInfo() {
-    int rows = 5;
+    int rows = 7;
     if (!respondent.equals("")) rows++;
     if (!address.equals("")) rows++;
     if (!name.equals("")) rows++;
@@ -433,14 +433,12 @@ class Parking {
     spaceInfo += "\n\n\n\n" + (capacity-utilization) + " / " + capacity + " spaces";
     
     String info = "";
-    info += "Gensler Parking Typology:\n\n\nUnutilized Parking: \n\n";
+    info += "Parking Typology:\n\n\nUnutilized Parking:";
+    info += "\n\nParcel Area: " + int(area) + " sqft\n";
     if (!name.equals(""))
       info += "\nName: " + name;
     if (!address.equals("")) 
       info += "\nAddress: " + address;
-      
-    info += "\nParcel Area: " + int(area) + " sqft";
-    
     if (!devName.equals(""))
       info += "\nDeveloper: " + devName;
     if (!devAddy.equals(""))
@@ -449,11 +447,11 @@ class Parking {
       info += "\nParking Method: " + parkMethod;
     if (!userGroup.equals(""))
       info += "\nUser Group: " + userGroup;
-    if (!respondent.equals("")) 
-      info += "\nData Confirmed By: " + respondent;
+    if (!respondent.equals(""))
+      info += "\n\nData Confirmed By: " + respondent;
     
     fill(col); textAlign(LEFT, TOP);
-    text(typeInfo, x+25, y+25, infoW - 50, infoH-50);
+    text(typeInfo, int(x+25), int(y+25), infoW - 50, infoH-50);
     
     if (capacity == utilization) {
       fill(#FF0000);
@@ -464,88 +462,24 @@ class Parking {
     } else {
       fill(255);
     }
-    text(spaceInfo, x+25, y+25, infoW - 50, infoH-50);
+    text(spaceInfo, int(x+25), int(y+25), infoW - 50, infoH-50);
     
     fill(255);
-    text(info, x+25, y+25, infoW - 50, infoH-50);
+    text(info, int(x+25), int(y+25), infoW - 50, infoH-50);
   }
     
 }
 
 class Parking_Structures {
   ArrayList<Parking> parking;
-  PGraphics img;
   int totBelow, totSurface, totAbove;
   int minCap = 200;
   
-  Parking_Structures(int w, int h, float latMin, float latMax, float lonMin, float lonMax) {
-    
-    Table parkingCSV = loadTable("data/parking.csv", "header");
+  Parking_Structures(float latMin, float latMax, float lonMin, float lonMax) {
     parking = new ArrayList<Parking>();
-    Parking park;
-    float x, y, canvasX, canvasY, area;
-    String type;
-    int capacity;
-    for (int i=0; i<parkingCSV.getRowCount(); i++) {
-      x = parkingCSV.getFloat(i, "X");
-      y = parkingCSV.getFloat(i, "Y");
-      canvasX  = w * (x - lonMin) / abs(lonMax - lonMin);
-      canvasY  = h - h * (y - latMin) / abs(latMax - latMin);
-      area = parkingCSV.getFloat(i, "SHAPE_area");
-      type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
-      capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
-      park = new Parking(canvasX, canvasY, area, type, capacity);
-      park.respondent = parkingCSV.getString(i, "20171127_Respondent (First+ Last)");
-      park.address    = parkingCSV.getString(i, "MAL");
-      park.name       = parkingCSV.getString(i, "Proj_nam");
-      park.devName    = parkingCSV.getString(i, "DevName");
-      park.devAddy    = parkingCSV.getString(i, "DevAddy");
-      park.parkMethod = parkingCSV.getString(i, "Park_type");
-      park.userGroup  = parkingCSV.getString(i, "User_Group");
-      
-      String sub = ""; if (park.type.length() >= 3) sub = park.type.substring(0,3);
-      if (sub.equals("Bel")) {
-        park.col = belowColor;
-      } else if (sub.equals("Sur")) {
-        park.col = surfaceColor;
-      } else if (sub.equals("Sta")) {
-        park.col = aboveColor;
-      } else {
-        park.col = reservedColor;
-      } 
-      
-      if (capacity > 0) parking.add(park);
-    }
-    //println("Parking Structures Loaded: " + parking.size());
-    
-    totBelow = 0;
+    totAbove = 0;
     totSurface = 0;
     totAbove = 0;
-    img = createGraphics(w, h);
-    img.beginDraw();
-    img.clear();
-    for (Parking p: parking) {
-      if (p.type.length() >= 3 && p.type.substring(0,3).equals("Bel")) {
-        img.stroke(belowColor, 255);
-        img.fill(belowColor, 20);
-        totBelow += p.capacity;
-      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sur")) {
-        img.stroke(surfaceColor, 255);
-        img.fill(surfaceColor, 20);
-        totSurface += p.capacity;
-      } else if (p.type.length() >= 3 && p.type.substring(0,3).equals("Sta")) {
-        img.stroke(aboveColor, 255);
-        img.fill(aboveColor, 20);
-        totAbove += p.capacity;
-      } else {
-        img.stroke(255, 255);
-        img.fill(255, 20);
-      }
-      img.strokeWeight(5);
-      img.ellipse(p.location.x, p.location.y, 2.0*sqrt( max(minCap, p.capacity) ), 2.0*sqrt( max(minCap, p.capacity) ));
-
-    }
-    img.endDraw();
   }
   
   void reset() {

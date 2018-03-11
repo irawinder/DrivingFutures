@@ -23,8 +23,19 @@
 
 // Counter to track which phase of initialization
 int initPhase = 0;
-int NUM_PHASES = 8;
 int phaseDelay = 0;
+String status[] = {
+  "Loading Toolbars ...",
+  "Importing Road Network ...",
+  "Importing Parking Infrastructure ...",
+  "Finding Shortest Paths ...",
+  "Setting Up 3D Environment ...",
+  "Calibrating Systems Model ...",
+  "Populating Vehicles ...",
+  "Finishing Up ...",
+  "Ready to go!"
+};
+int NUM_PHASES = status.length;
 
 void initialize() {
   
@@ -40,13 +51,10 @@ void initialize() {
     lonMin = lonCtr - tol;
     lonMax = lonCtr + tol;
     
-    initPhase++; delay(phaseDelay);
-    String status = "Loading Toolbars ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
-    
   } else if (initPhase == 1) {
     
     // Initialize Toolbar
+    //
     BAR_X = MARGIN;
     BAR_Y = MARGIN;
     BAR_W = 250;
@@ -91,30 +99,20 @@ void initialize() {
     bar_right.credit = "";
     bar_right.explanation = "";
     bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
-    //println("Toolbars Initialized");
-    
-    initPhase++; delay(phaseDelay);
-    String status = "Importing Infrastructure ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
     
   } else if (initPhase == 2) {
     
-    // Initialize Simulation Components
-    initEnvironment(); //println("Environment Initialized");
-    
-    initPhase++; delay(phaseDelay);
-    String status = "Finding Shortest Paths ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
+    initRoads();
     
   } else if (initPhase == 3) {
     
-    initPaths();       //println("Paths Initialized");
-    
-    initPhase++; delay(phaseDelay);
-    String status = "Setting Up 3D Environment ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
+    initParking();
     
   } else if (initPhase == 4) {
+    
+    initPaths();
+    
+  } else if (initPhase == 5) {
     
     // Initialize the Camera
     // cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
@@ -133,57 +131,40 @@ void initialize() {
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
     cam.off(); // turn cam off while still initializing
-    //println("Camera Initialized");
-    
-    initPhase++; delay(phaseDelay);
-    String status = "Calibrating Systems Model ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
-  
-  } else if (initPhase == 5) {
-    
-    // Setup System Simulation
-    sys = new Parking_System(901, 2010, 2030);
-    sys.av_growth = 1.0;
-    sys.rideShare_growth = 1.0;
-    sys.totBelow = structures.totBelow / 100;
-    sys.totSurface = structures.totSurface / 100;
-    sys.totAbove = structures.totAbove / 100;
-    setSliders();
-    sys.update();
-    setParking();
-    //println("Parking System Initialized");
-    
-    initPhase++; delay(phaseDelay);
-    String status = "Populating Vehicles ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
   
   } else if (initPhase == 6) {
     
-    // Initialize Vehicle Agents
-    initPopulation();  
-    //println("Population Initialized");
-    
-    initPhase++; delay(phaseDelay);
-    String status = "Finishing Up ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
+    // Setup System Simulation
+    sys = new Parking_System(1001, 2010, 2030);
+    sys.av_growth = 1.0;
+    sys.rideShare_growth = 1.0;
+    sys.totBelow = structures.totBelow     / 100;
+    sys.totSurface = structures.totSurface / 100;
+    sys.totAbove = structures.totAbove     / 100;
+    setSliders();
+    sys.update();
+    setParking();
   
   } else if (initPhase == 7) {
+    
+    // Initialize Vehicle Agents
+    initPopulation();  
+  
+  } else if (initPhase == 8) {
     
     // Sample 3D objects to manipulate
     additions = new ArrayList<PVector>();
     
-    //println("Ready to Go!");
-    
     initialized = true;
     
-    initPhase++; delay(phaseDelay);
-    String status = "Ready to Go! ...";
-    loadScreen(loadingBG, initPhase, NUM_PHASES, status);
-    
   }
+  
+  loadScreen(loadingBG, initPhase, NUM_PHASES, status[initPhase]);
+  if (!initialized) initPhase++; 
+  delay(phaseDelay);
 }
 
-void initEnvironment() {
+void initRoads() {
   
   // Check for existance of JSON file
   //
@@ -230,10 +211,48 @@ void initEnvironment() {
     //
     network.saveJSON(fileName);
   }
+}
+
+void initParking() {
   
-  //  A list of parking structures
+  //  Init A list of parking structures
   //
-  structures = new Parking_Structures(int(B.x), int(B.y), latMin, latMax, lonMin, lonMax);
+  structures = new Parking_Structures(latMin, latMax, lonMin, lonMax);
+  Table parkingCSV = loadTable("data/parking.csv", "header");
+  
+  for (int i=0; i<parkingCSV.getRowCount(); i++) {
+    float x = parkingCSV.getFloat(i, "X");
+    float y = parkingCSV.getFloat(i, "Y");
+    float canvasX  = B.x * (x - lonMin) / abs(lonMax - lonMin);
+    float canvasY  = B.y - B.y * (y - latMin) / abs(latMax - latMin);
+    float area = parkingCSV.getFloat(i, "SHAPE_area");
+    String type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
+    int capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
+    Parking park = new Parking(canvasX, canvasY, area, type, capacity);
+    park.respondent = parkingCSV.getString(i, "20171127_Respondent (First+ Last)");
+    park.address    = parkingCSV.getString(i, "MAL");
+    park.name       = parkingCSV.getString(i, "Proj_nam");
+    park.devName    = parkingCSV.getString(i, "DevName");
+    park.devAddy    = parkingCSV.getString(i, "DevAddy");
+    park.parkMethod = parkingCSV.getString(i, "Park_type");
+    park.userGroup  = parkingCSV.getString(i, "User_Group");
+    
+    String sub = ""; if (park.type.length() >= 3) sub = park.type.substring(0,3);
+    if (sub.equals("Bel")) {
+      park.col = belowColor;
+      structures.totBelow += park.capacity;
+    } else if (sub.equals("Sur")) {
+      park.col = surfaceColor;
+      structures.totSurface += park.capacity;
+    } else if (sub.equals("Sta") || sub.equals("Abo")) {
+      park.col = aboveColor;
+      structures.totAbove += park.capacity;
+    } else {
+      park.col = reservedColor;
+    } 
+    
+    if (capacity > 0) structures.parking.add(park);
+  }
 }
 
 void initPaths() {
@@ -299,21 +318,6 @@ void loadScreen(PImage bg, int phase, int numPhases, String status) {
   text(status, 0, 0);
   
   popMatrix();
-}
-
-void updatePopulation() {
-  int yr = sys.year_now - sys.year_0;
-  
-  while (type1.size() > sys.numCar1[yr]) type1.remove(0);
-  while (type2.size() > sys.numCar2[yr]) type2.remove(0);
-  while (type3.size() > sys.numCar3[yr]) type3.remove(0);
-  while (type4.size() > sys.numCar4[yr]) type4.remove(0);
-  
-  while (type1.size() < sys.numCar1[yr]) addVehicle(type1, "1");
-  while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
-  while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
-  while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
-  
 }
 
 void addVehicle(ArrayList<Agent> array, String type) {

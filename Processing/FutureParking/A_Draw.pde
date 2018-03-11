@@ -32,7 +32,7 @@ boolean showReserved = true;
 boolean SHOW_INFO = true;
 
 // Car Colors
-int car1Color = #999999;
+int car1Color = #FFFFFF;
 int car2Color = #FF00FF;
 int car3Color = #00FFFF;
 int car4Color = #FFFF00;
@@ -52,13 +52,10 @@ void run() {
 
   background(20);
   
+  
+  
   // -------------------------
   // Begin Updating backend system components
-  
-  // Update camera position settings for a number of frames after key updates
-  if (cam.moveTimer > 0) {
-    cam.moved();
-  }
   
   // Synchronize Sliders to Systems Model
   //
@@ -67,9 +64,6 @@ void run() {
   // Synchronized Systems Model to Parking
   //
   setParking();
-  
-  // Draw and Calculate 3D Graphics 
-  cam.on();
   
   
   
@@ -81,6 +75,14 @@ void run() {
   // objects drawn afterward (despite alpha value!)
   // ****
   
+  // Draw and Calculate 3D Graphics 
+  cam.on();
+  
+  // Update camera position settings for a number of frames after key updates
+  if (cam.moveTimer > 0) {
+    cam.moved();
+  }
+  
   //  Displays the Graph in grayscale.
   //
   fill(roadColor); stroke(255); // Default Colors
@@ -88,8 +90,6 @@ void run() {
   image(network.img, 0, 0, B.x, B.y);
   tint(255, 175);
   image(routes.img, 0, 0, B.x, B.y);
-  //tint(255, 255);
-  //image(structures.img, 0, 0, B.x, B.y);
   
   //// Field: Draw Selection Field
   ////
@@ -105,18 +105,15 @@ void run() {
     boolean OVER_RIDE = false;
     if (p.capacity > 0 || OVER_RIDE) {
       
-      
       // Draw Fill / ID Dot
-      String sub = "";
-      if (p.type.length() >= 3) sub = p.type.substring(0,3);
       p.show = false;
-      if (sub.equals("Bel") && showBelow) {
+      if (p.col == belowColor && showBelow) {
         p.show = true;
-      } else if (sub.equals("Sur") && showSurface) {
+      } else if (p.col == surfaceColor && showSurface) {
         p.show = true;
-      } else if (sub.equals("Sta") && showAbove) {
+      } else if (p.col == aboveColor && showAbove) {
         p.show = true;
-      } else if (showReserved && !sub.equals("Bel") && !sub.equals("Sur") && !sub.equals("Sta")) {
+      } else if (showReserved && p.col != belowColor && p.col != surfaceColor && p.col != aboveColor) {
         p.show = true;
       } 
       
@@ -178,27 +175,33 @@ void run() {
   translate(0,0,1);
   boolean collisionDetection = false;
   float scaler = 2.0 * (1 + 2*cam.zoom);
+  ArrayList<PVector> otherLocations;
+  if (collisionDetection) {
+    otherLocations = vehicleLocations();
+  } else {
+    otherLocations = new ArrayList<PVector>();
+  }
   if (showCar1) {
     for (Agent p: type1) {
-      p.update(vehicleLocations(type1), collisionDetection);
+      p.update(otherLocations, collisionDetection);
       p.display(scaler, "BOX", car1Color, 200);
     }
   }
   if (showCar2) {
     for (Agent p: type2) {
-      p.update(vehicleLocations(type2), collisionDetection);
+      p.update(otherLocations, collisionDetection);
       p.display(scaler, "BOX", car2Color, 200);
     }
   }
   if (showCar3) {
     for (Agent p: type3) {
-      p.update(vehicleLocations(type3), collisionDetection);
+      p.update(otherLocations, collisionDetection);
       p.display(scaler, "BOX", car3Color, 200);
     }
   }
   if (showCar4) {
     for (Agent p: type4) {
-      p.update(vehicleLocations(type4), collisionDetection);
+      p.update(otherLocations, collisionDetection);
       p.display(scaler, "BOX", car4Color, 200);
     }
   }
@@ -355,10 +358,11 @@ float mouseDistance (PVector mouse, float s_x, float s_y) {
   return abs(mouse.x-s_x) + abs(mouse.y-s_y);
 }
 
-ArrayList<PVector> vehicleLocations(ArrayList<Agent> vehicles) {
+ArrayList<PVector> vehicleLocations() {
   ArrayList<PVector> l = new ArrayList<PVector>();
-  for (Agent a: vehicles) {
-    l.add(a.location);
-  }
+  for (Agent a: type1) l.add(a.location);
+  for (Agent a: type2) l.add(a.location);
+  for (Agent a: type3) l.add(a.location);
+  for (Agent a: type4) l.add(a.location);
   return l;
 }
