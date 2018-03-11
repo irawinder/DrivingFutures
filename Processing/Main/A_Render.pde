@@ -131,6 +131,23 @@ void render3D() {
           arc(p.location.x, p.location.y, -10 + pW, -10 + pW, 0, p.ratio*2*PI);
         }
         
+        //// Draw Potential Volume
+        ////
+        //if (p.capacity != p.utilization) {
+        //  pushMatrix(); translate(p.location.x, p.location.y, pW/2-4);
+        //  noFill(); stroke(255, 100); strokeWeight(1);
+        //  box(0.7*pW, 0.7*pW, pW);
+        //  popMatrix();
+        //}
+        
+        //// Draw Development Volume
+        ////
+        //float h = pW*(1 - p.ratio);
+        //pushMatrix(); translate(p.location.x, p.location.y, h/2-4);
+        //fill(p.col, 100); noStroke();
+        //box(0.7*pW, 0.7*pW, h);
+        //popMatrix();
+        
         // Draw Capacity Text
         //
         translate(0,0,1);
@@ -138,7 +155,9 @@ void render3D() {
         textAlign(CENTER, CENTER);
         if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, int(p.location.x), int(p.location.y));
         
-        if (!p.active) {
+        // Draw Development Volume
+        //
+        if (!p.active || p.utilization == 0) {
           pushMatrix(); translate(p.location.x, p.location.y, 1*pW-4);
           fill(p.col, 100); stroke(255, 100); strokeWeight(1);
           box(0.7*pW, 0.7*pW, 2*pW);
@@ -149,12 +168,8 @@ void render3D() {
     popMatrix();
   }
   
-  //  Update and Display the population of agents
+  //  Display the population of agents
   //
-  if (hoverType.equals("car1")) type1.get(hoverIndex).highlight = true;
-  if (hoverType.equals("car2")) type2.get(hoverIndex).highlight = true;
-  if (hoverType.equals("car3")) type3.get(hoverIndex).highlight = true;
-  if (hoverType.equals("car4")) type4.get(hoverIndex).highlight = true;
   float scaler = 2.0 * (1 + 2*cam.zoom);
   if (showCar1) for (Agent p: type1) p.display(scaler, "BOX", car1Color, 200);
   if (showCar2) for (Agent p: type2) p.display(scaler, "BOX", car2Color, 200);
@@ -198,11 +213,7 @@ void render2D() {
   
   // Draw Parking Info Box
   //
-  if (hoverType .equals("parking")) {
-    Parking p = structures.parking.get(hoverIndex);
-    p.highlight = true;
-    p.displayInfo();
-  }
+  if (hoverType .equals("parking")) structures.parking.get(hoverIndex).displayInfo();
   
 }
 

@@ -261,7 +261,7 @@ class Agent {
     
     if (highlight || showPath) {
       // Draw Bubble around car
-      fill(#00AA00, 100);
+      fill(#00AA00, 50);
       sphere(4*scaler*radius);
     }
     popMatrix();

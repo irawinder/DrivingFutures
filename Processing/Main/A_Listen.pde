@@ -78,6 +78,14 @@ void hoverListen() {
       }
     }
   }
+  
+  // Update Parking and Vehicle Hightlights
+  //
+  if (hoverType.equals("parking")) structures.parking.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car1")) type1.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car2")) type2.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car3")) type3.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car4")) type4.get(hoverIndex).highlight = true;
 }
 
 // Set System Parameters According to Slider Values
