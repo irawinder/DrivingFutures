@@ -235,13 +235,13 @@ class Agent {
         pathIndex += pathDirection;
       }
     }
-    
-    // Find Screen location of vehicle
-    setScreen();
   }
   
   void display(float scaler, String type, color col, int alpha) {
-
+    
+    // Find Screen location of vehicle
+    setScreen();
+    
     // Adjust vehicle's location and orientation
     pushMatrix(); translate(location.x, location.y);
     float orientation = velocity.heading(); 

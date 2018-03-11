@@ -46,33 +46,7 @@ int aboveColor    = #5555FF;
 // Road Color
 int roadColor = #FFAAAA;
 
-boolean initialized = false;
-
-// Begin Updating backend system components
-//
-void updateModel() {
-  
-  // Set Systems Model to Slider Values
-  //
-  syncSliders();
-  
-  // Set Parking and Vehicles to Systems Model
-  //
-  syncParking();
-  syncVehicles();
-  
-  // Update Vehicle Movement
-  //
-  boolean collisionDetection = false;
-  ArrayList<PVector> otherLocations = new ArrayList<PVector>();
-  if (collisionDetection) otherLocations = vehicleLocations();
-  if (showCar1) for (Agent p: type1) p.update(otherLocations, collisionDetection);
-  if (showCar2) for (Agent p: type2) p.update(otherLocations, collisionDetection);
-  if (showCar3) for (Agent p: type3) p.update(otherLocations, collisionDetection);
-  if (showCar4) for (Agent p: type4) p.update(otherLocations, collisionDetection);
-}
-
-void draw3D() {
+void render3D() {
 
   // -------------------------
   // Begin Drawing 3D Elements
@@ -94,7 +68,7 @@ void draw3D() {
   //
   background(20);
   
-  //  Displays the "Road" Graphe.
+  //  Displays the "Road" Graph.
   //
   fill(roadColor); stroke(255); // Default Colors
   tint(255, 25); // overlaid as an image
@@ -177,18 +151,25 @@ void draw3D() {
   
   //  Update and Display the population of agents
   //
-  translate(0,0,1);
+  if (hoverType.equals("car1")) type1.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car2")) type2.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car3")) type3.get(hoverIndex).highlight = true;
+  if (hoverType.equals("car4")) type4.get(hoverIndex).highlight = true;
   float scaler = 2.0 * (1 + 2*cam.zoom);
   if (showCar1) for (Agent p: type1) p.display(scaler, "BOX", car1Color, 200);
   if (showCar2) for (Agent p: type2) p.display(scaler, "BOX", car2Color, 200);
   if (showCar3) for (Agent p: type3) p.display(scaler, "BOX", car3Color, 200);
   if (showCar4) for (Agent p: type4) p.display(scaler, "BOX", car4Color, 200);
+}
+  
+void render2D() {  
   
   // -------------------------
   // Begin Drawing 2D Elements
   cam.off();
   
   if (SHOW_INFO) {
+    
     // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
     cam.drawControls();
     
@@ -215,75 +196,9 @@ void draw3D() {
     popMatrix();
   }
   
-  // Find Nearest Vehicle or Parking Entity when hovering
+  // Draw Parking Info Box
   //
-  hoverIndex = 0; hoverType = "";
-  PVector mouse = new PVector(mouseX, mouseY);
-  float shortestDistance = Float.POSITIVE_INFINITY;
-  float MIN_DIST = 100.0 / (1+10*cam.zoom);
-  if (showCar1) for (int i=0; i<type1.size(); i++) {
-    Agent p = type1.get(i);
-    p.highlight = false;
-    float dist = mouseDistance(mouse, p.s_x, p.s_y);
-    if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; hoverIndex = i; hoverType = "car1";
-    }
-  }
-  if (showCar2) for (int i=0; i<type2.size(); i++) {
-    Agent p = type2.get(i);
-    p.highlight = false;
-    float dist = mouseDistance(mouse, p.s_x, p.s_y);
-    if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; hoverIndex = i; hoverType = "car2";
-    }
-  }
-  if (showCar3) for (int i=0; i<type3.size(); i++) {
-    Agent p = type3.get(i);
-    p.highlight = false;
-    float dist = mouseDistance(mouse, p.s_x, p.s_y);
-    if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; hoverIndex = i; hoverType = "car3";
-    }
-  }
-  if (showCar4) for (int i=0; i<type4.size(); i++) {
-    Agent p = type4.get(i);
-    p.highlight = false;
-    float dist = mouseDistance(mouse, p.s_x, p.s_y);
-    if ( dist < shortestDistance && dist < MIN_DIST ) {
-      shortestDistance = dist; hoverIndex = i; hoverType = "car4";
-    }
-  }
-  for (int i=0; i<structures.parking.size(); i++) {
-    Parking p = structures.parking.get(i);
-    p.highlight = false;
-    if (p.show) {
-      float dist = mouseDistance(mouse, p.s_x, p.s_y);
-      if ( dist < shortestDistance && dist < MIN_DIST ) {
-        shortestDistance = dist; hoverIndex = i; hoverType = "parking";
-      }
-    }
-  }
-
-  // Set Diameter of Cursor
-  //
-  float diam = min(50, 5/pow(cam.zoom, 2));
-  
-  // Recall Nearest Object and draw cursor
-  //
-  noFill(); stroke(255);
-  if (hoverType .equals("car1")) {
-    Agent p = type1.get(hoverIndex);
-    p.highlight = true;
-  } else if (hoverType .equals("car2")) {
-    Agent p = type2.get(hoverIndex);
-    p.highlight = true;
-  } else if (hoverType .equals("car3")) {
-    Agent p = type3.get(hoverIndex);
-    p.highlight = true;
-  } else if (hoverType .equals("car4")) {
-    Agent p = type4.get(hoverIndex);
-    p.highlight = true;
-  } else if (hoverType .equals("parking")) {
+  if (hoverType .equals("parking")) {
     Parking p = structures.parking.get(hoverIndex);
     p.highlight = true;
     p.displayInfo();
@@ -314,17 +229,4 @@ void loadScreen(PImage bg, int phase, int numPhases, String status) {
   text(status, 0, 0);
   
   popMatrix();
-}
-
-float mouseDistance (PVector mouse, float s_x, float s_y) {
-  return abs(mouse.x-s_x) + abs(mouse.y-s_y);
-}
-
-ArrayList<PVector> vehicleLocations() {
-  ArrayList<PVector> l = new ArrayList<PVector>();
-  for (Agent a: type1) l.add(a.location);
-  for (Agent a: type2) l.add(a.location);
-  for (Agent a: type3) l.add(a.location);
-  for (Agent a: type4) l.add(a.location);
-  return l;
 }

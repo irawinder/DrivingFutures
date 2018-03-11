@@ -41,6 +41,9 @@ String status[] = {
 };
 int NUM_PHASES = status.length;
 
+// Object for initializing road network and paths
+Graph network;
+
 void initialize() {
   
   if (initPhase == 0) {
@@ -275,16 +278,78 @@ void initPaths() {
     println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
-  // loadFile = false;
+  //loadFile = false;
   
   // Collection of routes to and from home, work, and parking ammentities
   if (loadFile) {
-    routes = new Parking_Routes(int(B.x), int(B.y), fileName);
+    
+    // generate from file
+    //
+    routes = new Parking_Routes(fileName);
+    
   } else {
+    
     // generate randomly according to parking structures
-    routes = new Parking_Routes(int(B.x), int(B.y), network, structures);
+    //
+    routes = new Parking_Routes();
+    Path path, pathReturn;
+    PVector origin, destination;
+    
+    boolean debug = false;
+    
+    //  An example pathfinder object used to derive the shortest path
+    //  setting enableFinder to "false" will bypass the A* algorithm
+    //  and return a result akin to "as the bird flies"
+    //
+    Pathfinder finder = new Pathfinder(network);
+    
+    if (debug) {
+      
+      for (int i=0; i<5; i++) {
+        //  An example Origin and Desination between which we want to know the shortest path
+        //
+        int rand1 = int( random(network.nodes.size()));
+        int rand2 = int( random(structures.parking.size()));
+        boolean closedLoop = true;
+        origin      = network.nodes.get(rand1).loc;
+        destination = structures.parking.get(rand2).location;
+        path = new Path(origin, destination);
+        path.solve(finder);
+        
+        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+          path.waypoints.clear();
+        }
+        pathReturn = new Path(destination, origin); 
+        pathReturn.solve(finder);
+        path.joinPath(pathReturn, closedLoop);
+        
+        routes.paths.add(path);
+      }
+      
+    } else {
+  
+      for (Parking p: structures.parking) {
+        //  An example Origin and Desination between which we want to know the shortest path
+        //
+        int rand1 = int( random(network.nodes.size()));
+        boolean closedLoop = true;
+        origin      = network.nodes.get(rand1).loc;
+        destination = p.location;
+        path = new Path(origin, destination);
+        path.solve(finder);
+        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+          path.waypoints.clear();
+        }
+        pathReturn = new Path(destination, origin); 
+        pathReturn.solve(finder);
+        path.joinPath(pathReturn, closedLoop);
+        routes.paths.add(path);
+      }
+      
+    }
     routes.saveJSON(fileName);
   }
+  routes.render(int(B.x), int(B.y));
 }
 
 void initVehicles() {

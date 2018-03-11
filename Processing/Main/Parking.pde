@@ -8,7 +8,7 @@
  *
  *    Parking_System()     - Mathematically realated parameters to forcast vheicle and parking demand over time using logistic equations
  *    Parking_Structures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
- *    Parking_Routes()     - A list of travel routes to and from Parking Structures
+ *    Parking_Routes()     - A list of travel routes to and from Parking Structures - Depends on Pathfinder.pde
  *    Parking()            - A Parking Structure with attributes
  *
  *  MIT LICENSE:  Copyright 2018 Ira Winder
@@ -492,74 +492,13 @@ class Parking_Routes {
   PGraphics img;
   Pathfinder finder;
   
-  Parking_Routes(int w, int h, String fileName) {
+  Parking_Routes(String fileName) {
     paths = new ArrayList<Path>();
     loadJSON(fileName);
-    render(w, h);
   }
   
-  Parking_Routes(int w, int h, Graph n, Parking_Structures s) {
-    //  FORMAT 1: Path(float x, float y, float l, float w)
-    //  FORMAT 2: Path(PVector o, PVector d)
-    //
+  Parking_Routes() {
     paths = new ArrayList<Path>();
-    Path path, pathReturn;
-    PVector origin, destination;
-    
-    boolean debug = false;
-    
-    //  An example pathfinder object used to derive the shortest path
-    //  setting enableFinder to "false" will bypass the A* algorithm
-    //  and return a result akin to "as the bird flies"
-    //
-    finder = new Pathfinder(n);
-    
-    if (debug) {
-      
-      for (int i=0; i<5; i++) {
-        //  An example Origin and Desination between which we want to know the shortest path
-        //
-        int rand1 = int( random(n.nodes.size()));
-        int rand2 = int( random(s.parking.size()));
-        boolean closedLoop = true;
-        origin      = n.nodes.get(rand1).loc;
-        destination = s.parking.get(rand2).location;
-        path = new Path(origin, destination);
-        path.solve(finder);
-        
-        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
-          path.waypoints.clear();
-        }
-        pathReturn = new Path(destination, origin); 
-        pathReturn.solve(finder);
-        path.joinPath(pathReturn, closedLoop);
-        
-        paths.add(path);
-      }
-      
-    } else {
-  
-      for (Parking p: s.parking) {
-        //  An example Origin and Desination between which we want to know the shortest path
-        //
-        int rand1 = int( random(n.nodes.size()));
-        boolean closedLoop = true;
-        origin      = n.nodes.get(rand1).loc;
-        destination = p.location;
-        path = new Path(origin, destination);
-        path.solve(finder);
-        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
-          path.waypoints.clear();
-        }
-        pathReturn = new Path(destination, origin); 
-        pathReturn.solve(finder);
-        path.joinPath(pathReturn, closedLoop);
-        paths.add(path);
-      }
-      
-    }
-    
-    render(w, h);
   }
   
   // Paths are created by loading a compatible JSON file
