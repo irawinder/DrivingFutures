@@ -25,35 +25,50 @@
 // TODO - Reduce complexity/entanglements of Agent() class
 
 class Agent {
-  PVector location;
+  // What is the "friendly" name of your agent?
+  String type;
+  // What is it's radius?
+  float radius;
+  // Is this agent special or need to be highlighted?
+  boolean highlight;
+  boolean showPath;
+  
+  // What is the agent's instantaneous status?
+  PVector locationPath;       // location down center of path
+  PVector location;           // absolute location, accounting for right or left-hand lane offset
   PVector velocity;
-  PVector smoothVelocity;
   PVector acceleration;
-  float r;
+  
+  // Maximum velocity and acceleration
   float maxforce;
   float maxspeed;
-  float tolerance = 0;
+  
+  // imprecision of agent movement
+  float uncertainty = 0; 
+  
+  // PathFinding Attributes:
+  //
+  // Waypoints for an agent to follow
   ArrayList<PVector> path;
   int pathIndex, pathLength; // Index and Amount of Nodes in a Path
   int pathDirection; // -1 or +1 to specific directionality
-  boolean loop, teleport;
-  String laneSide;
-  String type;
-  boolean highlight;
+  // After reaching end of path, does the agent retrace its steps backwards or go directly back to beginning?
+  boolean loop;
+  // if loop, does agent teleport to beginning after reaching the end?
+  boolean teleport; 
+  // Does the agent have a preference for the right or for the left side of a path?
+  String laneSide; 
   
-  float s_x, s_y; // screen location (for mouse commnads)
+  // screen location (for mouse commnads)
+  //
+  float s_x, s_y; 
   void setScreen() {
     s_x = screenX(location.x, location.y, location.z);
     s_y = screenY(location.x, location.y, location.z);
   }
-  void setScreen(float x, float y) { // Ofset screen location by x, y
-    s_x = screenX(location.x+x, location.y+y, location.z);
-    s_y = screenY(location.x+x, location.y+y, location.z);
-  }
   
-  Agent(float x, float y, int rad, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide, String type) {
-    r = rad;
-    tolerance *= r;
+  Agent(float x, float y, int radius, float maxS, ArrayList<PVector> path, boolean loop, boolean teleport, String laneSide, String type) {
+    this.radius = radius;
     maxspeed = maxS;
     maxforce = 0.2;
     this.path = path;
@@ -82,19 +97,20 @@ class Agent {
       }
     }
     
-    float jitterX = random(-tolerance, tolerance);
-    float jitterY = random(-tolerance, tolerance);
-    location = new PVector(x + jitterX, y + jitterY);
-    acceleration = new PVector(0, 0);
-    velocity = new PVector(0, 0);
-    smoothVelocity = new PVector(0, 0);
-    pathIndex = getClosestWaypoint(location);
+    float jitterX = random(-uncertainty, uncertainty);
+    float jitterY = random(-uncertainty, uncertainty);
+    locationPath  = new PVector(x + jitterX, y + jitterY);
+    location      = new PVector(x + jitterX, y + jitterY);
+    acceleration  = new PVector(0, 0);
+    velocity      = new PVector(0, 0);
+    pathIndex     = getClosestWaypoint(locationPath);
     
     highlight = false;
+    showPath  = false;
   }
   
   PVector seek(PVector target){
-    PVector desired = PVector.sub(target,location);
+    PVector desired = PVector.sub(target,locationPath);
     desired.normalize();
     desired.mult(maxspeed);
     PVector steer = PVector.sub(desired,velocity);
@@ -103,16 +119,16 @@ class Agent {
   }
   
   PVector separate(ArrayList<PVector> others){
-    float desiredseparation = 0.5 * r;
+    float desiredseparation = radius;
     PVector sum = new PVector();
     int count = 0;
     
     for(PVector loc : others) {
-      float d = PVector.dist(loc, location);
+      float d = PVector.dist(loc, locationPath);
       
       if ((d > 0 ) && (d < desiredseparation)){
         
-        PVector diff = PVector.sub(loc, location);
+        PVector diff = PVector.sub(loc, locationPath);
         diff.normalize();
         diff.div(d);
         sum.add(diff);
@@ -160,8 +176,8 @@ class Agent {
     
     // Apply Seek Force
     PVector waypoint = path.get(pathIndex);
-    float jitterX = random(-tolerance, tolerance);
-    float jitterY = random(-tolerance, tolerance);
+    float jitterX = random(-uncertainty, uncertainty);
+    float jitterY = random(-uncertainty, uncertainty);
     PVector direction = new PVector(waypoint.x + jitterX, waypoint.y + jitterY);
     PVector seekForce = seek(direction);
     seekForce.mult(1);
@@ -169,10 +185,23 @@ class Agent {
     
     // Update velocity
     velocity.add(acceleration);
-    smoothVelocity.add(velocity);
     
-    // Update Location
-    location.add(new PVector(velocity.x, velocity.y));
+    // Update Location on Path
+    locationPath.add(new PVector(velocity.x, velocity.y));
+    
+    // Adjust location to left or right of centerline
+    //
+    float orientation = velocity.heading(); 
+    float xLane=0; float yLane=0;
+    if(laneSide.equals("RIGHT")) {
+      xLane = radius*cos(orientation+PI/2);
+      yLane = radius*sin(orientation+PI/2);
+    } else if(laneSide.equals("LEFT")) {
+      xLane = -radius*cos(orientation+PI/2);
+      yLane = -radius*sin(orientation+PI/2);
+    }
+    location.x = locationPath.x + xLane;
+    location.y = locationPath.y + yLane;
         
     // Limit speed
     velocity.limit(maxspeed);
@@ -183,7 +212,7 @@ class Agent {
     // Checks if Agents reached current waypoint
     // If reaches endpoint, reverses direction
     //
-    float prox = sqrt( sq(location.x - waypoint.x) + sq(location.y - waypoint.y) );
+    float prox = sqrt( sq(locationPath.x - waypoint.x) + sq(locationPath.y - waypoint.y) );
     if (prox < 3 && path.size() > 1 ) {
       
       // If return to origin
@@ -191,8 +220,8 @@ class Agent {
         if (pathDirection == 1 && pathIndex == pathLength-1) {
           pathIndex = 0;
           if (teleport) {
-            location.x = path.get(0).x;
-            location.y = path.get(0).y;
+            locationPath.x = path.get(0).x;
+            locationPath.y = path.get(0).y;
           }
         } else {
           pathIndex += pathDirection;
@@ -206,23 +235,17 @@ class Agent {
         pathIndex += pathDirection;
       }
     }
+    
+    // Find Screen location of vehicle
+    setScreen();
   }
   
-  void display(color col, int alpha) {
+  void display(float scaler, String type, color col, int alpha) {
+
+    // Adjust vehicle's location and orientation
     pushMatrix(); translate(location.x, location.y);
-    
-    // Adjust vehicle's orientation and lane (right or left)
-    float SCALER = 4.0;
     float orientation = velocity.heading(); 
-    float x=0; float y=0;
-    if(laneSide.equals("RIGHT")) {
-      x = 0.6*SCALER*r*cos(orientation+PI/2);
-      y = 0.6*SCALER*r*sin(orientation+PI/2);
-    } else if(laneSide.equals("LEFT")) {
-      x = -0.6*SCALER*r*cos(orientation+PI/2);
-      y = -0.6*SCALER*r*sin(orientation+PI/2);
-    }
-    translate(x, y); rotate(orientation);
+    rotate(orientation);
     
     noStroke();
     if (highlight) {
@@ -230,33 +253,33 @@ class Agent {
     } else {
       fill(col, alpha);
     }
-    box(2*SCALER*r, SCALER*r, 0.75*SCALER*r);
+    if (type.equals("BOX")) {
+      box(2*scaler*radius, scaler*radius, 0.75*scaler*radius);
+    } else {
+      ellipse(0, 0, scaler*radius, scaler*radius);
+    }
     
-    if (highlight) {
+    if (highlight || showPath) {
       // Draw Bubble around car
       fill(#00AA00, 100);
-      sphere(4*SCALER*r);
+      sphere(4*scaler*radius);
     }
     popMatrix();
     
-    if (highlight) {
+    if (highlight || showPath) {
       // Draw Bubble around destination
       pushMatrix(); translate(path.get(0).x, path.get(0).y);
       fill(#AA0000, 100);
-      sphere(4*SCALER*r);
+      sphere(4*scaler*radius);
       popMatrix();
     }
     
-    
     // Draw Path
-    if (highlight) {
+    if (showPath) {
       noFill(); stroke(#00AA00, 100); strokeWeight(3); strokeCap(ROUND);
       beginShape();
       for (PVector v: path) vertex(v.x, v.y);
       endShape();
     }
-    
-    // Find Screen location of vehicle
-    setScreen(x, y);
   }
 }

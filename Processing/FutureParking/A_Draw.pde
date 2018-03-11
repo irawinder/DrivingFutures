@@ -177,28 +177,29 @@ void run() {
   //
   translate(0,0,1);
   boolean collisionDetection = false;
+  float scaler = 2.0 * (1 + 2*cam.zoom);
   if (showCar1) {
     for (Agent p: type1) {
       p.update(vehicleLocations(type1), collisionDetection);
-      p.display(car1Color, 200);
+      p.display(scaler, "BOX", car1Color, 200);
     }
   }
   if (showCar2) {
     for (Agent p: type2) {
-      p.update(vehicleLocations(type1), collisionDetection);
-      p.display(car2Color, 200);
+      p.update(vehicleLocations(type2), collisionDetection);
+      p.display(scaler, "BOX", car2Color, 200);
     }
   }
   if (showCar3) {
     for (Agent p: type3) {
-      p.update(vehicleLocations(type1), collisionDetection);
-      p.display(car3Color, 200);
+      p.update(vehicleLocations(type3), collisionDetection);
+      p.display(scaler, "BOX", car3Color, 200);
     }
   }
   if (showCar4) {
     for (Agent p: type4) {
-      p.update(vehicleLocations(type1), collisionDetection);
-      p.display(car4Color, 200);
+      p.update(vehicleLocations(type4), collisionDetection);
+      p.display(scaler, "BOX", car4Color, 200);
     }
   }
   
@@ -271,7 +272,7 @@ void run() {
   hoverIndex = 0; hoverType = "";
   PVector mouse = new PVector(mouseX, mouseY);
   float shortestDistance = Float.POSITIVE_INFINITY;
-  int MIN_DIST = 50;
+  float MIN_DIST = 100.0 / (1+10*cam.zoom);
   if (showCar1) for (int i=0; i<type1.size(); i++) {
     Agent p = type1.get(i);
     p.highlight = false;
@@ -314,7 +315,7 @@ void run() {
       }
     }
   }
-  
+
   // Set Diameter of Cursor
   //
   float diam = min(50, 5/pow(cam.zoom, 2));
@@ -339,7 +340,6 @@ void run() {
     p.highlight = true;
     p.displayInfo();
   }
-  
   if (cam.enableChunks) {
     // Click-Object: Draw Cursor Text
     diam = min(100, 5/pow(cam.zoom, 2));

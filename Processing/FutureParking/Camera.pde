@@ -582,7 +582,7 @@ class Chunk {
 // Grid of Chunks for discretely continuous spatial selection
 //
 class ChunkGrid {
-  int resolution, tolerance;
+  int resolution;
   float chunkU, chunkV;
   ArrayList<Chunk> selectionGrid;
   Chunk closest;

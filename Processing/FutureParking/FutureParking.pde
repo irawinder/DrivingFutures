@@ -211,6 +211,7 @@ void keyPressed() {
         bar_left.restoreDefault();
         bar_right.restoreDefault();
         structures.reset();
+        initPopulation();
         additions.clear();
         break;
       //case 'h':
@@ -280,5 +281,9 @@ void mouseClicked() {
       structures.parking.get(hoverIndex).active = !structures.parking.get(hoverIndex).active;
       setParking();
     }
+    if (hoverType.equals("car1")) type1.get(hoverIndex).showPath = !type1.get(hoverIndex).showPath;
+    if (hoverType.equals("car2")) type2.get(hoverIndex).showPath = !type2.get(hoverIndex).showPath;
+    if (hoverType.equals("car3")) type3.get(hoverIndex).showPath = !type3.get(hoverIndex).showPath;
+    if (hoverType.equals("car4")) type4.get(hoverIndex).showPath = !type4.get(hoverIndex).showPath;
   }
 }
