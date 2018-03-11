@@ -159,7 +159,7 @@ void render3D() {
         //
         if (!p.active || p.utilization == 0) {
           pushMatrix(); translate(p.location.x, p.location.y, 0.5*pW-4);
-          fill(p.col, 100); stroke(255, 100); strokeWeight(1);
+          fill(p.col, 100); stroke(p.col, 150); strokeWeight(1);
           box(0.7*pW, 0.7*pW, pW);
           popMatrix();
         }
