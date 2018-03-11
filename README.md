@@ -1,7 +1,7 @@
 # Driving Futures
 Driving Futures is an application that simulates and visualizes parking utilization for passenger vehicles in hypothetical scenarios into the future.
 
-![Driving Futures by Ira Winder](screenshots/Screen%20Shot%202018-03-05%20at%202.50.33%20PM.png?raw=true "Future of Parking Simulation by Ira Winder")
+![Driving Futures by Ira Winder](screenshots/Screen%20Shot%202018-03-11%20at%205.18.52%20AM.png?raw=true "Future of Parking Simulation by Ira Winder")
 
 ## How to Use
 
