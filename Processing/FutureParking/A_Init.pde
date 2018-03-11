@@ -125,10 +125,10 @@ void initialize() {
     cam.eW = width - 2*(BAR_W + MARGIN);
     cam.X_DEFAULT    = -350;
     cam.Y_DEFAULT     =   50;
-    cam.ZOOM_DEFAULT = 0.45;
+    cam.ZOOM_DEFAULT = 0.40;
     cam.ZOOM_POW     = 2.00;
     cam.ZOOM_MAX     = 0.20;
-    cam.ZOOM_MIN     = 0.70;
+    cam.ZOOM_MIN     = 0.50;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
