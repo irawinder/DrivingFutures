@@ -21,10 +21,14 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 // Counter to track which phase of initialization
 int initPhase = 0;
 int phaseDelay = 0;
 String status[] = {
+  "Loading Background ...",
   "Loading Toolbars ...",
   "Importing Road Network ...",
   "Importing Parking Infrastructure ...",
@@ -41,17 +45,21 @@ void initialize() {
   
   if (initPhase == 0) {
     
+    loadingBG = loadImage("loading.png");
+    
+  } else if (initPhase == 1) {
+    
     //  Parameter Space for Geometric Area
     //
     latCtr = +42.350;
     lonCtr = -71.066;
-    tol    =  0.035;
-    latMin = latCtr - tol;
-    latMax = latCtr + tol;
-    lonMin = lonCtr - tol;
-    lonMax = lonCtr + tol;
+    bound    =  0.035;
+    latMin = latCtr - bound;
+    latMax = latCtr + bound;
+    lonMin = lonCtr - bound;
+    lonMax = lonCtr + bound;
     
-  } else if (initPhase == 1) {
+  } else if (initPhase == 2) {
     
     // Initialize Toolbar
     //
@@ -69,12 +77,12 @@ void initialize() {
     bar_left.explanation += "[r] <- Press 'r' to reset sliders\n";
     bar_left.explanation += "[f] <- Press 'f' to show framerate";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
-    bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w');
-    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W');
-    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   60, 'a', 's');
-    bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S');
-    bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x');
-    bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X');
+    bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w', false);
+    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W', false);
+    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   60, 'a', 's', false);
+    bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S', false);
+    bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x', false);
+    bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X', false);
     bar_left.addTriSlider("Parking\nVacancy\nPriority", "Below\nGround", belowColor, 
                                                         "Surface\nParking", surfaceColor, 
                                                         "Above\nGround", aboveColor);
@@ -100,19 +108,19 @@ void initialize() {
     bar_right.explanation = "";
     bar_right.controlY = BAR_Y + bar_right.margin + bar_left.CONTROL_H;
     
-  } else if (initPhase == 2) {
+  } else if (initPhase == 3) {
     
     initRoads();
     
-  } else if (initPhase == 3) {
+  } else if (initPhase == 4) {
     
     initParking();
     
-  } else if (initPhase == 4) {
+  } else if (initPhase == 5) {
     
     initPaths();
     
-  } else if (initPhase == 5) {
+  } else if (initPhase == 6) {
     
     // Initialize the Camera
     // cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
@@ -132,7 +140,7 @@ void initialize() {
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
     cam.off(); // turn cam off while still initializing
   
-  } else if (initPhase == 6) {
+  } else if (initPhase == 7) {
     
     // Setup System Simulation
     sys = new Parking_System(1001, 2010, 2030);
@@ -141,19 +149,16 @@ void initialize() {
     sys.totBelow = structures.totBelow     / 100;
     sys.totSurface = structures.totSurface / 100;
     sys.totAbove = structures.totAbove     / 100;
-    setSliders();
+    syncSliders();
     sys.update();
-    setParking();
-  
-  } else if (initPhase == 7) {
-    
-    // Initialize Vehicle Agents
-    initPopulation();  
+    syncParking();
   
   } else if (initPhase == 8) {
     
-    // Sample 3D objects to manipulate
-    additions = new ArrayList<PVector>();
+    // Initialize Vehicle Agents
+    initVehicles();  
+  
+  } else if (initPhase == 9) {
     
     initialized = true;
     
@@ -165,11 +170,11 @@ void initialize() {
 }
 
 void initRoads() {
-  
+
   // Check for existance of JSON file
   //
   String fileName = "local/boston_OSM.json";
-  graphJSON = new File(dataPath(fileName));
+  File graphJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(graphJSON.exists()) { 
     loadFile = true;
@@ -200,7 +205,7 @@ void initRoads() {
     // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
     //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax);
     //
-    rNetwork = new RoadNetwork("data/roads.csv");
+    RoadNetwork rNetwork = new RoadNetwork("data/roads.csv");
     
     //  An example gridded network of width x height (pixels) and node resolution (pixels)
     //
@@ -251,7 +256,8 @@ void initParking() {
       park.col = reservedColor;
     } 
     
-    if (capacity > 0) structures.parking.add(park);
+    //if (capacity > 0) structures.parking.add(park);
+    structures.parking.add(park);
   }
 }
 
@@ -260,7 +266,7 @@ void initPaths() {
   // Check for existance of JSON file
   //
   String fileName = "local/routes.json";
-  routesJSON = new File(dataPath(fileName));
+  File routesJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(routesJSON.exists()) { 
     loadFile = true;
@@ -281,7 +287,7 @@ void initPaths() {
   }
 }
 
-void initPopulation() {
+void initVehicles() {
   int yr = sys.year_now - sys.year_0;
   
   type1 = new ArrayList<Agent>();
@@ -293,31 +299,6 @@ void initPopulation() {
   for (int i=0; i<sys.numCar2[yr]; i++) addVehicle(type2, "2");
   for (int i=0; i<sys.numCar3[yr]; i++) addVehicle(type3, "3");
   for (int i=0; i<sys.numCar4[yr]; i++) addVehicle(type4, "4");
-}
-
-PImage loadingBG;
-void loadScreen(PImage bg, int phase, int numPhases, String status) {
-  image(bg, 0, 0, width, height);
-  pushMatrix(); translate(width/2, height/2);
-  int lW = 400;
-  int lH = 48;
-  int lB = 10;
-  
-  // Draw Loading Bar Outline
-  noStroke(); fill(255, 200);
-  rect(-lW/2, -lH/2, lW, lH, lH/2);
-  noStroke(); fill(0, 200);
-  rect(-lW/2+lB, -lH/2+lB, lW-2*lB, lH-2*lB, lH/2);
-  
-  // Draw Loading Bar Fill
-  float percent = float(phase)/numPhases;
-  noStroke(); fill(255, 150);
-  rect(-lW/2 + lH/4, -lH/4, percent*(lW - lH/2), lH/2, lH/4);
-  
-  textAlign(CENTER, CENTER); fill(255);
-  text(status, 0, 0);
-  
-  popMatrix();
 }
 
 void addVehicle(ArrayList<Agent> array, String type) {

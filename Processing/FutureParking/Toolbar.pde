@@ -1,15 +1,15 @@
 /*  TOOLBAR ALGORITHMS
  *  Ira Winder, ira@mit.edu, 2018
  *
- *  This class and associated sliders, radio buttons, and specialized 
- *  input are generalizable for parameterized models
+ *  input are generalizable for parameterized models. For a generic 
+ *  implementation check out the repo at: http://github.com/irawinder/GUI3D
  *  
  *  CLASSES CONTAINED:
  *
- *    Toolbar() - Toolbar that may implement ControlSlider(), Radio Button(), and TriSlider()
- *    -  ControlSlider() - A customizable horizontal slider ideal for generic parameritization of integers
- *    -  RadioButton()   - A customizable radio button ideal for generic parameritization of boolean
- *    -  TriSlider()     - A customizable triable slider that outputs three positive floats that add up to 1.0
+ *    Toolbar()       - Toolbar that may implement ControlSlider(), Radio Button(), and TriSlider()
+ *    ControlSlider() - A customizable horizontal slider ideal for generic parameritization of integers
+ *    RadioButton()   - A customizable radio button ideal for generic parameritization of boolean
+ *    TriSlider()     - A customizable triable slider that outputs three positive floats that add up to 1.0
  *
  *  MIT LICENSE:  Copyright 2018 Ira Winder
  *
@@ -55,7 +55,7 @@ class Toolbar {
     controlY = 8*CONTROL_H;
   }
   
-  void addSlider(String name, String unit, int valMin, int valMax, float DEFAULT_VALUE, char keyMinus, char keyPlus) {
+  void addSlider(String name, String unit, int valMin, int valMax, float DEFAULT_VALUE, char keyMinus, char keyPlus, boolean keyCommand) {
     float num = sliders.size() + buttons.size() + 6*tSliders.size();
     ControlSlider s;
     s = new ControlSlider();
@@ -63,6 +63,7 @@ class Toolbar {
     s.unit = unit;
     s.keyPlus = keyPlus;
     s.keyMinus = keyMinus;
+    s.keyCommand = keyCommand;
     s.xpos = barX + margin;
     s.ypos = controlY + int(num*CONTROL_H);
     s.len = contentW - margin;
@@ -194,6 +195,7 @@ class ControlSlider {
   int diameter;
   char keyMinus;
   char keyPlus;
+  boolean keyCommand;
   boolean isDragged;
   int valMin;
   int valMax;
@@ -207,6 +209,7 @@ class ControlSlider {
     diameter = 15;
     keyMinus = '-';
     keyPlus = '+';
+    keyCommand = true;
     isDragged = false;
     valMin = 0;
     valMax = 0;
@@ -224,9 +227,11 @@ class ControlSlider {
     }
     
     //Keyboard Controls
-    if ((keyPressed == true) && (key == keyMinus)) {value--;}
-    if ((keyPressed == true) && (key == keyPlus))  {value++;}
-    checkLimit();
+    if (keyCommand) {
+      if ((keyPressed == true) && (key == keyMinus)) {value--;}
+      if ((keyPressed == true) && (key == keyPlus))  {value++;}
+      checkLimit();
+    }
   }
   
   void checkLimit() {
@@ -249,7 +254,10 @@ class ControlSlider {
     strokeWeight(1);
     fill(255);
     textAlign(LEFT, BOTTOM);
-    text( "[" + keyMinus + "," + keyPlus + "] " + name,int(xpos), int(ypos-0.75*diameter) );
+    String txt = "";
+    if (keyCommand) txt += "[" + keyMinus + "," + keyPlus + "] ";
+    txt += name;
+    text(txt, int(xpos), int(ypos-0.75*diameter) );
     textAlign(LEFT, CENTER);
     text(int(value) + " " + unit,int(xpos+6+len), int(ypos-1) );
     

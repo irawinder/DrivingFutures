@@ -48,25 +48,22 @@ int roadColor = #FFAAAA;
 
 boolean initialized = false;
 
-void run() {
+// Begin Updating backend system components
+//
+void updateModel() {
+  
+  // Set Systems Model to Slider Values
+  //
+  syncSliders();
+  
+  // Set Parking and Vehicles to Systems Model
+  //
+  syncParking();
+  syncVehicles();
+}
 
-  background(20);
-  
-  
-  
-  // -------------------------
-  // Begin Updating backend system components
-  
-  // Synchronize Sliders to Systems Model
-  //
-  setSliders();
-  
-  // Synchronized Systems Model to Parking
-  //
-  setParking();
-  
-  
-  
+void draw3D() {
+
   // -------------------------
   // Begin Drawing 3D Elements
   //
@@ -82,6 +79,10 @@ void run() {
   if (cam.moveTimer > 0) {
     cam.moved();
   }
+  
+  //Background Color
+  //
+  background(20);
   
   //  Displays the Graph in grayscale.
   //
@@ -168,7 +169,6 @@ void run() {
     popMatrix();
   }
   
-  
   //  Update and Display the population of agents
   //  FORMAT: display(color, alpha)
   //
@@ -206,38 +206,7 @@ void run() {
     }
   }
   
-  if (cam.enableChunks) {
-    // Click-Object: Draw mouse-based object additions
-    if (additions.size() > 0) {
-      for (PVector v: additions) {
-        pushMatrix(); translate(v.x, v.y, v.z + 15);
-        fill(#00FF00, 200); noStroke();
-        sphere(15);
-        popMatrix();
-      }
-    }
-  }
   
-  // Click-Object: Draw Selection Cursor
-  float cursorX = 0;
-  float cursorY = 0;
-  if (cam.enableChunks) {
-    //cam.chunkField.drawCursor();
-    if (cam.chunkField.closestFound) {
-      Chunk c = cam.chunkField.closest;
-      PVector loc = c.location;
-      
-      // Place Ghost of Object to Place
-      pushMatrix(); translate(loc.x, loc.y, loc.z + 15);
-      fill(#00FF00, 100); noStroke();
-      sphere(15);
-      popMatrix();
-      
-      // Calculate Curson Screen Location
-      cursorX = screenX(loc.x, loc.y, loc.z + 30/2.0);
-      cursorY = screenY(loc.x, loc.y, loc.z + 30/2.0);
-    }
-  }
   
   // -------------------------
   // Begin Drawing 2D Elements
@@ -319,10 +288,6 @@ void run() {
     }
   }
 
-  // Set Diameter of Cursor
-  //
-  float diam = min(50, 5/pow(cam.zoom, 2));
-  
   // Recall Nearest Object and draw cursor
   //
   noFill(); stroke(255);
@@ -343,15 +308,32 @@ void run() {
     p.highlight = true;
     p.displayInfo();
   }
-  if (cam.enableChunks) {
-    // Click-Object: Draw Cursor Text
-    diam = min(100, 5/pow(cam.zoom, 2));
-    if (cam.chunkField.closestFound) {
-      fill(#00FF00, 200); textAlign(LEFT, CENTER);
-      text("Place Marker", cursorX + 0.3*diam, cursorY);
-    }
-  }
   
+}
+
+PImage loadingBG;
+void loadScreen(PImage bg, int phase, int numPhases, String status) {
+  image(bg, 0, 0, width, height);
+  pushMatrix(); translate(width/2, height/2);
+  int lW = 400;
+  int lH = 48;
+  int lB = 10;
+  
+  // Draw Loading Bar Outline
+  noStroke(); fill(255, 200);
+  rect(-lW/2, -lH/2, lW, lH, lH/2);
+  noStroke(); fill(0, 200);
+  rect(-lW/2+lB, -lH/2+lB, lW-2*lB, lH-2*lB, lH/2);
+  
+  // Draw Loading Bar Fill
+  float percent = float(phase)/numPhases;
+  noStroke(); fill(255, 150);
+  rect(-lW/2 + lH/4, -lH/4, percent*(lW - lH/2), lH/2, lH/4);
+  
+  textAlign(CENTER, CENTER); fill(255);
+  text(status, 0, 0);
+  
+  popMatrix();
 }
 
 float mouseDistance (PVector mouse, float s_x, float s_y) {

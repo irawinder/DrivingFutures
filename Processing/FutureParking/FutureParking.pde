@@ -66,31 +66,24 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 //  GeoLocation Parameters:
-float latCtr, lonCtr, tol, latMin, latMax, lonMin, lonMax;
+float latCtr, lonCtr, bound, latMin, latMax, lonMin, lonMax;
 
 // Object to define and capture paths to collection of origins, destinations:
 Parking_Routes routes;
-File routesJSON;
 //  Object to define parking facilities:
 Parking_Structures structures;
 //  Object to Define Systems Model
 Parking_System sys;
 
-//  Objects to define agents that navigate our environment:
-ArrayList<Agent> type1;
-ArrayList<Agent> type2;
-ArrayList<Agent> type3;
-ArrayList<Agent> type4;
-
-// Objects for importing road network
-//
-RoadNetwork rNetwork;
+// Object for importing road network and paths
 Graph network;
-File graphJSON;
+
+//  Objects to define agents that navigate our environment:
+ArrayList<Agent> type1; // Private non-AV
+ArrayList<Agent> type2; // Shared  non-AV
+ArrayList<Agent> type3; // Private AV
+ArrayList<Agent> type4; // Shared  AV
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -103,32 +96,27 @@ int MARGIN = 25; // Pixel margin allowed around edge of screen
 Toolbar bar_left, bar_right; 
 int BAR_X, BAR_Y, BAR_W, BAR_H;
 
-// Locations of objects user can place with mouse
-//
-ArrayList<PVector> additions; 
-
 // Index of Entity one is currently hovering over
 int hoverIndex = 0; String hoverType = "";
 
 void setup() {
   size(1280, 800, P3D);
   //fullScreen(P3D);
-  
-  loadingBG = loadImage("loading.png");
-  loadScreen(loadingBG, initPhase, NUM_PHASES, "");
 }
 
 void draw() {
   if (!initialized) {
     initialize();
   } else {
-    run();
+    updateModel();
+    draw3D();
+    //draw2D();
   }
 }
 
 // Set System Parameters According to Slider Values
 //
-void setSliders() {
+void syncSliders() {
   sys.year_now                  = int(bar_left.sliders.get(0).value);
   sys.demand_growth             = bar_left.sliders.get(1).value/100.0;
   sys.av_share                  = bar_left.sliders.get(2).value/100.0;
@@ -150,7 +138,7 @@ void setSliders() {
 
 // Calculate Parking Ratios for each structure for current year only
 //
-void setParking() {
+void syncParking() {
   
   // Account for unactive parking first ...
   sys.belowOff   = 0;
@@ -192,7 +180,7 @@ void setParking() {
   }
 }
 
-void updatePopulation() {
+void syncVehicles() {
   int yr = sys.year_now - sys.year_0;
   
   while (type1.size() > sys.numCar1[yr]) type1.remove(0);
@@ -204,7 +192,6 @@ void updatePopulation() {
   while (type2.size() < sys.numCar2[yr]) addVehicle(type2, "2");
   while (type3.size() < sys.numCar3[yr]) addVehicle(type3, "3");
   while (type4.size() < sys.numCar4[yr]) addVehicle(type4, "4");
-  
 }
 
 void keyPressed() {
@@ -214,7 +201,7 @@ void keyPressed() {
     switch(key) {
       //case 'g':
       //  initPaths();
-      //  initPopulation();
+      //  initVehicles();
       //  break;
       case 'f':
         cam.showFrameRate = !cam.showFrameRate;
@@ -226,8 +213,7 @@ void keyPressed() {
         bar_left.restoreDefault();
         bar_right.restoreDefault();
         structures.reset();
-        initPopulation();
-        additions.clear();
+        initVehicles();
         break;
       //case 'h':
       //  SHOW_INFO = !SHOW_INFO;
@@ -236,7 +222,7 @@ void keyPressed() {
       //  save("capture.png");
       //  break;
       //case 'p':
-      //  initPopulation();
+      //  initVehicles();
       //  break;
       //case 'p':
       //  println("cam.offset.x = " + cam.offset.x);
@@ -249,9 +235,9 @@ void keyPressed() {
     // Update Inputs and model
     bar_left.pressed();
     bar_right.pressed();
-    setSliders();
-    setParking();
-    updatePopulation();
+    syncSliders();
+    syncParking();
+    syncVehicles();
   }
 }
 
@@ -260,9 +246,9 @@ void mousePressed() {
     cam.pressed();
     bar_left.pressed();
     bar_right.pressed();
-    setSliders();
+    syncSliders();
     sys.update();
-    updatePopulation();
+    syncVehicles();
   }
 }
 
@@ -276,27 +262,24 @@ void mouseReleased() {
   if (initialized) {
     bar_left.released();
     bar_right.released();
-    setSliders();
+    syncSliders();
     sys.update();
-    updatePopulation();
+    syncVehicles();
   }
 }
 
 void mouseDragged() {
   if (initialized) {
     sys.update();
-    updatePopulation();
+    syncVehicles();
   }
 }
 
 void mouseClicked() {
   if (initialized) {
-    if (cam.chunkField.closestFound && cam.enableChunks) {
-      additions.add(cam.chunkField.closest.location);
-    }
     if (hoverType.equals("parking")) {
       structures.parking.get(hoverIndex).active = !structures.parking.get(hoverIndex).active;
-      setParking();
+      syncParking();
     }
     boolean newPath = false;
     if (hoverType.equals("car1")) newPath = true;
