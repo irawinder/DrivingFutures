@@ -1,7 +1,7 @@
 /*  DRIVING FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
- *  Init Functions (Superficially Isolated from FutureParking.pde)
+ *  Init Functions (Superficially Isolated from Main.pde)
  *
  *  MIT LICENSE:  Copyright 2018 Ira Winder
  *
@@ -24,6 +24,39 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 
+//  GeoLocation Parameters:
+float latCtr, lonCtr, bound, latMin, latMax, lonMin, lonMax;
+
+//  Object to Define Systems Model
+Parking_System sys;
+//  Object to define parking facilities:
+Parking_Structures structures;
+// Object to define and capture paths to collection of origins, destinations:
+Parking_Routes routes;
+
+// Object for initializing road network and paths
+Graph network;
+
+//  Objects to define agents that navigate our environment:
+ArrayList<Agent> type1; // Private non-AV
+ArrayList<Agent> type2; // Shared  non-AV
+ArrayList<Agent> type3; // Private AV
+ArrayList<Agent> type4; // Shared  AV
+
+// Camera Object with built-in GUI for navigation and selection
+//
+Camera cam;
+PVector B = new PVector(6000, 6000, 0); // Bounding Box for 3D Environment
+int MARGIN = 25; // Pixel margin allowed around edge of screen
+
+// Semi-transparent Toolbar for information and sliders
+//
+Toolbar bar_left, bar_right; 
+int BAR_X, BAR_Y, BAR_W, BAR_H;
+
+// Index of Entity one is currently hovering over
+int hoverIndex = 0; String hoverType = "";
+
 // Counter to track which phase of initialization
 int initPhase = 0;
 int phaseDelay = 0;
@@ -40,9 +73,6 @@ String status[] = {
   "Ready to go!"
 };
 int NUM_PHASES = status.length;
-
-// Object for initializing road network and paths
-Graph network;
 
 void initialize() {
   

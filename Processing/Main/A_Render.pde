@@ -1,7 +1,7 @@
 /*  DRIVING FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
- *  Draw Functions (Superficially Isolated from FutureParking.pde)
+ *  Draw Functions (Superficially Isolated from Main.pde)
  *
  *  MIT LICENSE:  Copyright 2018 Ira Winder
  *

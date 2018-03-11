@@ -1,23 +1,24 @@
 /*  DRIVING FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
- *  The Future of Parking is an application that simulates and visualizes 
+ *  Driving Futures is an application that simulates and visualizes 
  *  parking utilization for passenger vehicles in hypothetical scenarios.
  *
  *  TAB MAP:
  *
- *      "A_" denotes high layer of organization on par with FutureParking.pde
+ *      "A_" denotes high layer of organization on par with Main.pde
  *
- *      FutureParking.pde - highest level layer containing most interdependencies and complexity
- *      A_Init            - mostly void functions to initializing application and simulation
- *      A_Draw.pde        - mostly void functions for drawing application to screen
- *      A_Parking.pde     - Primary simulation environment
- *      Agent.pde, Camera.pde, Pathfinder.pde, Toolbar.pde - Primitive class modules with no interdependencies
+ *      Main.pde          - highest level layer containing most interdependencies and complexity
+ *      A_Init.pde        - mostly void functions to initializing application and simulation
+ *      A_Listen.pde      - mostly void functions for drawing application to screen
+ *      A_Render.pde      - Primary simulation environment
+ *      Parking.pde, Agent.pde, Camera.pde, Pathfinder.pde, Toolbar.pde - Primitive class modules with no interdependencies
  *
  *  PRIMARY CLASSES:
  *
  *      These are not necessarily inter-dependent
- *
+ *      
+        Parking_Routes()     - A list of travel routes to and from Parking Structures - Depends on Pathfinder.pde
  *      Parking_System()     - Mathematically realated parameters to forcast vheicle and parking demand over time using logistic equations   
  *      Parking_Structures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
  *      Agent()              - A force-based autonomous agent that can navigate along a series of waypoints that comprise a path
@@ -66,45 +67,19 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//  GeoLocation Parameters:
-float latCtr, lonCtr, bound, latMin, latMax, lonMin, lonMax;
-
-//  Object to Define Systems Model
-Parking_System sys;
-//  Object to define parking facilities:
-Parking_Structures structures;
-// Object to define and capture paths to collection of origins, destinations:
-Parking_Routes routes;
-
-//  Objects to define agents that navigate our environment:
-ArrayList<Agent> type1; // Private non-AV
-ArrayList<Agent> type2; // Shared  non-AV
-ArrayList<Agent> type3; // Private AV
-ArrayList<Agent> type4; // Shared  AV
-
-// Camera Object with built-in GUI for navigation and selection
-//
-Camera cam;
-PVector B = new PVector(6000, 6000, 0); // Bounding Box for 3D Environment
-int MARGIN = 25; // Pixel margin allowed around edge of screen
-
-// Semi-transparent Toolbar for information and sliders
-//
-Toolbar bar_left, bar_right; 
-int BAR_X, BAR_Y, BAR_W, BAR_H;
-
-// Index of Entity one is currently hovering over
-int hoverIndex = 0; String hoverType = "";
-
 boolean initialized;
 
+// Runs once when application begins
+//
 void setup() {
-  size(1280, 800, P3D);
-  //fullScreen(P3D);
+  //size(1280, 800, P3D);
+  fullScreen(P3D);
   
   initialized = false;
 }
 
+// Runs on a infinite loop after setup
+//
 void draw() {
   if (!initialized) {
     
@@ -119,6 +94,5 @@ void draw() {
     listen();
     render3D();
     render2D();
-    
   }
 }
