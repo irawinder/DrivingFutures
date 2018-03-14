@@ -59,6 +59,12 @@ class Agent {
   // Does the agent have a preference for the right or for the left side of a path?
   String laneSide; 
   
+  // Specify up to 4 passengers to draw in vehicle
+  int passengers;
+  // Specify if vehicle needs a human driver
+  boolean driver;
+  boolean showPassengers;
+  
   // screen location (for mouse commnads)
   //
   float s_x, s_y; 
@@ -107,6 +113,10 @@ class Agent {
     
     highlight = false;
     showPath  = false;
+    
+    passengers = 4;
+    driver = true;
+    showPassengers = true;
   }
   
   PVector seek(PVector target){
@@ -245,7 +255,7 @@ class Agent {
     // Adjust vehicle's location and orientation
     pushMatrix(); translate(location.x, location.y);
     float orientation = velocity.heading(); 
-    rotate(orientation);
+    rotate(orientation + PI/2);
     
     noStroke();
     if (highlight) {
@@ -254,14 +264,44 @@ class Agent {
       fill(col, alpha);
     }
     if (type.equals("BOX")) {
-      box(2*scaler*radius, scaler*radius, 0.75*scaler*radius);
+      
+      // Draw Vehicle
+      //
+      box(scaler*radius, 2*scaler*radius, 0.75*scaler*radius);
+      
+      // Draw Passengers
+      //
+      if (showPassengers) {
+        int i = 0;
+        int driverOffset = 0;
+        if (!driver && passengers < 4 || driver && passengers > 1) {
+          i = 1;
+          driverOffset = 1;
+        } 
+        while (i<passengers+driverOffset) {
+          if ( passengers != 0 && driver) stroke(50);
+          float x = (scaler * radius) * ( -0.25 + 0.5 * int( 0.5 * i ) );
+          float y = (scaler * radius) * ( -0.40 + 0.8 * (  1 - (i+1) % 2 ) );
+          
+          stroke(0); strokeWeight(0.5*scaler*radius);
+          pushMatrix(); translate(x, y, 0.5*scaler*radius); point(0, 0); popMatrix();
+          i++;
+        }
+        if (driver && passengers > 1) {
+          float x = (scaler * radius) * ( -0.25 );
+          float y = (scaler * radius) * ( -0.40 );
+          stroke(0); strokeWeight(1); noFill();
+          pushMatrix(); translate(x, y, 0.5*scaler*radius); ellipse(0, 0, 0.25*scaler*radius, 0.25*scaler*radius); popMatrix();
+        }
+      }
+      
     } else {
       ellipse(0, 0, scaler*radius, scaler*radius);
     }
     
     if (highlight || showPath) {
       // Draw Bubble around car
-      fill(#00AA00, 50);
+      fill(#00AA00, 50); noStroke();
       sphere(4*scaler*radius);
     }
     popMatrix();
@@ -269,7 +309,7 @@ class Agent {
     if (showPath) {
       // Draw Bubble around destination
       pushMatrix(); translate(path.get(0).x, path.get(0).y);
-      fill(#AA0000, 100);
+      fill(#AA0000, 100); noStroke();
       sphere(4*scaler*radius);
       popMatrix();
     }

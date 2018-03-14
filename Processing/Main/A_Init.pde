@@ -166,7 +166,7 @@ void initialize() {
     cam.Y_DEFAULT     =   50;
     cam.ZOOM_DEFAULT = 0.40;
     cam.ZOOM_POW     = 2.00;
-    cam.ZOOM_MAX     = 0.20;
+    cam.ZOOM_MAX     = 0.15;
     cam.ZOOM_MIN     = 0.50;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
@@ -419,5 +419,21 @@ void addVehicle(ArrayList<Agent> array, String type) {
   random_speed = 3.0*random(0.3, 0.4);
   loc = random.waypoints.get(random_waypoint);
   vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  if (vehicle.type.equals("1")) {
+    vehicle.passengers = 1; 
+    vehicle.driver = true;
+  }
+  if (vehicle.type.equals("2")) {
+    vehicle.passengers = 3; 
+    vehicle.driver = true;
+  }
+  if (vehicle.type.equals("3")) {
+    vehicle.passengers = 1; 
+    vehicle.driver = false;
+  }
+  if (vehicle.type.equals("4")) {
+    vehicle.passengers = 4; 
+    vehicle.driver = false;
+  }
   array.add(vehicle);
 }

@@ -44,6 +44,20 @@ void listen() {
   if (showCar3) for (Agent p: type3) p.update(otherLocations, collisionDetection);
   if (showCar4) for (Agent p: type4) p.update(otherLocations, collisionDetection);
   
+  // Update Vehicle Draw (Too slow so deactivated)
+  //
+  boolean show;
+  if (cam.zoom < 0.3) {
+    // show = true;
+    show = false;
+  } else {
+    show = false;
+  }
+  for (Agent p: type1) p.showPassengers = show;
+  for (Agent p: type2) p.showPassengers = show;
+  for (Agent p: type3) p.showPassengers = show;
+  for (Agent p: type4) p.showPassengers = show;
+  
   // Update Hover Index and Type Values
   //
   hoverListen();
