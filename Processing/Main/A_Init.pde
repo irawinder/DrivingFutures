@@ -117,7 +117,7 @@ void initialize() {
     //bar_left.explanation += "[f] <- Press 'f' to show framerate";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
     bar_left.addSlider("Year of Analysis",               "",  2010, 2030, 2017, 'q', 'w', false);
-    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      10,    3, 'Q', 'W', false);
+    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,       8,    3, 'Q', 'W', false);
     bar_left.addSlider("RideShare: Trip Equilibrium",   "%",  0,     100,   60, 'a', 's', false);
     bar_left.addSlider("RideShare: Peak Adoption Year",  "",  2010, 2030, 2018, 'A', 'S', false);
     bar_left.addSlider("AV: Trip Equilibrium",          "%",     0,  100,   90, 'z', 'x', false);
