@@ -21,9 +21,18 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
  
+int playTimer = 0;
+int PLAY_TIMER = 60;
+int playPause = 0;
+int PLAY_PAUSE = 120;
+
 // Begin Updating backend system components
 //
 void listen() {
+  
+  // Autoplay progress
+  //
+  if (autoPlay) autoPlay();
   
   // Set Systems Model to Slider Values
   //
@@ -44,15 +53,15 @@ void listen() {
   if (showCar3) for (Agent p: type3) p.update(otherLocations, collisionDetection);
   if (showCar4) for (Agent p: type4) p.update(otherLocations, collisionDetection);
   
-  // Update Vehicle Draw (Too slow so deactivated)
+  // Update Vehicle Draw
   //
   boolean show;
-  if (cam.zoom < 0.3) {
-    // show = true;
-    show = false;
+  if (cam.zoom < 0.2) {
+    show = true;
   } else {
     show = false;
   }
+  // show = false; // OVERRIDE
   for (Agent p: type1) p.showPassengers = show;
   for (Agent p: type2) p.showPassengers = show;
   for (Agent p: type3) p.showPassengers = show;
@@ -71,8 +80,13 @@ void hoverListen() {
   //
   hoverIndex = 0; hoverType = "";
   PVector mouse = new PVector(mouseX, mouseY);
+  
+  // Practically deactivate hover when mouse over toolbars
+  //
+  if (bar_left.hover() || bar_right.hover()) mouse = new PVector(-1000, -1000);
+  
   float shortestDistance = Float.POSITIVE_INFINITY;
-  float MIN_DIST = 100.0 / (1+10*cam.zoom);
+  float MIN_DIST = 200.0 / (1+10*cam.zoom);
   if (showCar1) for (int i=0; i<type1.size(); i++) {
     Agent p = type1.get(i);
     p.highlight = false;
@@ -206,6 +220,28 @@ void syncVehicles() {
   
 }
 
+//Automatically progress year of analysis
+//
+void autoPlay() {
+  
+  if (playTimer == PLAY_TIMER) {
+    if (sys.year_now == sys.year_f && playPause < PLAY_PAUSE) {
+      playPause++;
+    } else {
+      if (bar_left.sliders.get(0).value == bar_left.sliders.get(0).valMax) {
+        bar_left.sliders.get(0).value = bar_left.sliders.get(0).valMin;
+      } else {
+        bar_left.sliders.get(0).value++;
+      }
+      playTimer = 0;
+      playPause = 0;
+    }
+  } else {
+    playTimer ++;
+  }
+  
+}
+
 void keyPressed() {
   if (initialized) {
     cam.moved();
@@ -217,6 +253,11 @@ void keyPressed() {
       //  break;
       case 'f':
         cam.showFrameRate = !cam.showFrameRate;
+        break;
+      case 'a':
+        autoPlay = !autoPlay;
+        playTimer = PLAY_TIMER;
+        playPause = PLAY_PAUSE;
         break;
       case 'c':
         cam.reset();
@@ -261,6 +302,9 @@ void mousePressed() {
     syncSliders();
     sys.update();
     syncVehicles();
+    
+    // Stop autoplay
+    autoPlay = false;
   }
 }
 

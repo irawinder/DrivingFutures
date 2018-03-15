@@ -377,6 +377,7 @@ class Parking {
   int col;
   boolean highlight;
   boolean active;
+  float s_x, s_y; // screen location (for mouse commnads)
   
   Parking(float x, float y, float area, String type, int capacity) {
     this.location = new PVector(x, y);
@@ -397,9 +398,12 @@ class Parking {
     
     highlight = false;
     active = true;
+    
+    // Initialize off screen
+    s_x = -1000;
+    s_y = -1000;
   }
-  
-  float s_x, s_y; // screen location (for mouse commnads)
+
   void setScreen() {
     s_x = screenX(location.x, location.y, location.z);
     s_y = screenY(location.x, location.y, location.z);

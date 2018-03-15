@@ -252,74 +252,82 @@ class Agent {
     // Find Screen location of vehicle
     setScreen();
     
-    // Adjust vehicle's location and orientation
-    pushMatrix(); translate(location.x, location.y);
-    float orientation = velocity.heading(); 
-    rotate(orientation + PI/2);
+    if (s_x>0 && s_x<width && s_y>0 && s_y<height) {
     
-    noStroke();
-    if (highlight) {
-      fill(col, 255);
-    } else {
-      fill(col, alpha);
-    }
-    if (type.equals("BOX")) {
+      // Adjust vehicle's location and orientation
+      pushMatrix(); translate(location.x, location.y);
+      float orientation = velocity.heading(); 
+      rotate(orientation + PI/2);
       
-      // Draw Vehicle
-      //
-      box(scaler*radius, 2*scaler*radius, 0.75*scaler*radius);
-      
-      // Draw Passengers
-      //
-      if (showPassengers) {
-        int i = 0;
-        int driverOffset = 0;
-        if (!driver && passengers < 4 || driver && passengers > 1) {
-          i = 1;
-          driverOffset = 1;
-        } 
-        while (i<passengers+driverOffset) {
-          if ( passengers != 0 && driver) stroke(50);
-          float x = (scaler * radius) * ( -0.25 + 0.5 * int( 0.5 * i ) );
-          float y = (scaler * radius) * ( -0.40 + 0.8 * (  1 - (i+1) % 2 ) );
-          
-          stroke(0); strokeWeight(0.5*scaler*radius);
-          pushMatrix(); translate(x, y, 0.5*scaler*radius); point(0, 0); popMatrix();
-          i++;
-        }
-        if (driver && passengers > 1) {
+      noStroke();
+      if (highlight) {
+        fill(col, 255);
+      } else {
+        fill(col, alpha);
+      }
+      if (type.equals("BOX")) {
+        
+        // Draw Vehicle
+        //
+        box(scaler*radius, 2*scaler*radius, 0.75*scaler*radius);
+        
+        // Draw Passengers
+        //
+        if (showPassengers) {
+          int i = 1;
+          int driverOffset = 0;
+          if ((!driver && passengers < 4) || driver) {
+            driverOffset = 1;
+          } else if (passengers == 4) {
+            i = 0;
+          }
+            
+          while (i<passengers+driverOffset) {
+            float x = (scaler * radius) * ( -0.25 + 0.5 * int( 0.5 * i ) );
+            float y = (scaler * radius) * ( -0.40 + 0.8 * (  1 - (i+1) % 2 ) );
+            stroke(0, 200); strokeWeight(0.80*scaler*radius);
+            pushMatrix(); translate(x, y, 0.5*scaler*radius); point(0, 0); popMatrix();
+            i++;
+          }
           float x = (scaler * radius) * ( -0.25 );
-          float y = (scaler * radius) * ( -0.40 );
-          stroke(0); strokeWeight(1); noFill();
-          pushMatrix(); translate(x, y, 0.5*scaler*radius); ellipse(0, 0, 0.25*scaler*radius, 0.25*scaler*radius); popMatrix();
+            float y = (scaler * radius) * ( -0.40 );
+          if (this.type.equals("2") ) {
+            stroke(0, 150); strokeWeight(1); noFill();
+            pushMatrix(); translate(x, y, 0.5*scaler*radius); ellipse(0, 0, 0.40*scaler*radius, 0.40*scaler*radius); popMatrix();
+          } else if (this.type.equals("1") ) {
+            stroke(0, 150); strokeWeight(0.80*scaler*radius);
+            pushMatrix(); translate(x, y, 0.5*scaler*radius); point(0, 0); popMatrix();
+          }
+            
+            
         }
+        
+      } else {
+        ellipse(0, 0, scaler*radius, scaler*radius);
       }
       
-    } else {
-      ellipse(0, 0, scaler*radius, scaler*radius);
-    }
-    
-    if (highlight || showPath) {
-      // Draw Bubble around car
-      fill(#00AA00, 50); noStroke();
-      sphere(4*scaler*radius);
-    }
-    popMatrix();
-    
-    if (showPath) {
-      // Draw Bubble around destination
-      pushMatrix(); translate(path.get(0).x, path.get(0).y);
-      fill(#AA0000, 100); noStroke();
-      sphere(4*scaler*radius);
+      if (highlight || showPath) {
+        // Draw Bubble around car
+        fill(#00AA00, 50); noStroke();
+        sphere(4*scaler*radius);
+      }
       popMatrix();
-    }
-    
-    // Draw Path
-    if (showPath) {
-      noFill(); stroke(#00AA00, 100); strokeWeight(3); strokeCap(ROUND);
-      beginShape();
-      for (PVector v: path) vertex(v.x, v.y);
-      endShape();
+      
+      if (showPath) {
+        // Draw Bubble around destination
+        pushMatrix(); translate(path.get(0).x, path.get(0).y);
+        fill(#AA0000, 100); noStroke();
+        sphere(4*scaler*radius);
+        popMatrix();
+      }
+      
+      // Draw Path
+      if (showPath) {
+        noFill(); stroke(#00AA00, 100); strokeWeight(3); strokeCap(ROUND);
+        beginShape();
+        for (PVector v: path) vertex(v.x, v.y);
+        endShape();
+      }
     }
   }
 }

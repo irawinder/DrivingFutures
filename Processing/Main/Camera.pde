@@ -254,8 +254,8 @@ class Camera {
         offset.x = drag.getX(rotation);
         offset.y = drag.getY(rotation);
       }
-      hs.update();
-      rotation = hs.getPosPI();
+      //hs.update();
+      //rotation = hs.getPosPI();
       vs.update();
       zoom = vs.getPosZoom(ZOOM_MIN, ZOOM_MAX);
       
@@ -267,8 +267,8 @@ class Camera {
       
     // Update Horizontal Scroll Bar Only
     } else if (activeInput == 1) {
-      hs.update();
-      rotation = hs.getPosPI();
+      //hs.update();
+      //rotation = hs.getPosPI();
       
     // Update Vertical Scroll Bar Only
     } else if (activeInput == 2) {
@@ -283,7 +283,7 @@ class Camera {
     cam.off();
     
     // Draw Scroll Bars
-    hs.display(LINE_COLOR, BASE_ALPHA);
+    //hs.display(LINE_COLOR, BASE_ALPHA);
     vs.display(LINE_COLOR, BASE_ALPHA);
     
     // Draw Help Text
@@ -294,7 +294,8 @@ class Camera {
     if (showFrameRate) text("(F)ramerate: " + int(frameRate*10)/10.0, 0, 32);
     popMatrix();
     
-    pushMatrix(); translate(width/4 + eX/2 - 0.075*height, height - 1.5*margin);
+    //pushMatrix(); translate(width/4 + eX/2 - 0.075*height, height - 1.5*margin);
+    pushMatrix(); translate(width/2, height - 1.5*margin);
     textAlign(CENTER, CENTER);
     fill(LINE_COLOR, 255-2*BASE_ALPHA);
     text("Copyright 2018 Ira Winder", 0, 0);

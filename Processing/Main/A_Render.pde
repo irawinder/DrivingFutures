@@ -30,6 +30,7 @@ boolean showSurface = true;
 boolean showAbove = true;
 boolean showReserved = true;
 boolean SHOW_INFO = true;
+boolean autoPlay = false;
 
 // Car Colors
 int car1Color = #FFFFFF;
@@ -81,6 +82,7 @@ void render3D() {
   // Draw Parking Infrastructure
   //
   for (Parking p: structures.parking) {
+    
     pushMatrix();
     
     boolean OVER_RIDE = false;
@@ -101,73 +103,77 @@ void render3D() {
       if (p.show) {
         // Find Screen location of parking ammenity
         p.setScreen();
-    
-        // Draw Parking Button/Icon
-        translate(0,0,1);
-        if (p.capacity == p.utilization) {
-          stroke(#AA0000, 200); strokeWeight(3);
-        } else if (0 == p.utilization) {
-          stroke(#00AA00, 200); strokeWeight(3);
-        } else {
-          noStroke();
-        }
-        if (p.highlight) {
-          fill(p.col, 255);
-        } else {
-          fill(p.col, 200);
-        }
-        float pW = 2.0*sqrt( max(structures.minCap, p.capacity));
-        ellipse(p.location.x, p.location.y, pW, pW);
         
-        // Draw Parking Utilization
-        translate(0,0,3);
-        noStroke();  
-        if (p.highlight) {
-          fill(0, 150);
-        } else {
-          fill(0, 200);
-        }
-        if (p.utilization > 0 && p.capacity > 0) {
-          arc(p.location.x, p.location.y, -10 + pW, -10 + pW, 0, p.ratio*2*PI);
-        }
-        
-        //// Draw Potential Volume
-        ////
-        //if (p.capacity != p.utilization) {
-        //  pushMatrix(); translate(p.location.x, p.location.y, pW/2-4);
-        //  noFill(); stroke(255, 100); strokeWeight(1);
-        //  box(0.7*pW, 0.7*pW, pW);
-        //  popMatrix();
-        //}
-        
-        //// Draw Development Volume
-        ////
-        //float h = pW*(1 - p.ratio);
-        //pushMatrix(); translate(p.location.x, p.location.y, h/2-4);
-        //fill(p.col, 100); noStroke();
-        //box(0.7*pW, 0.7*pW, h);
-        //popMatrix();
-        
-        // Draw Capacity Text
-        //
-        translate(0,0,1);
-        fill(255, 255);
-        textAlign(CENTER, CENTER);
-        if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, int(p.location.x), int(p.location.y));
-        
-        // Draw Development Volume
-        //
-        if (!p.active || p.utilization == 0) {
-          pushMatrix(); translate(p.location.x, p.location.y, 0.5*pW-4);
-          fill(p.col, 100); stroke(p.col, 150); strokeWeight(1);
-          box(0.7*pW, 0.7*pW, pW);
-          popMatrix();
+        int buffer = 50;
+        if (p.s_x > -buffer && p.s_x < width + buffer && p.s_y > - buffer && p.s_y < height + buffer) {
+      
+          // Draw Parking Button/Icon
+          translate(0,0,1);
+          if (p.capacity == p.utilization) {
+            stroke(#AA0000, 200); strokeWeight(3);
+          } else if (0 == p.utilization) {
+            stroke(#00AA00, 200); strokeWeight(3);
+          } else {
+            noStroke();
+          }
+          if (p.highlight) {
+            fill(p.col, 255);
+          } else {
+            fill(p.col, 200);
+          }
+          float pW = 2.0*sqrt( max(structures.minCap, p.capacity));
+          ellipse(p.location.x, p.location.y, pW, pW);
+          
+          // Draw Parking Utilization
+          translate(0,0,3);
+          noStroke();  
+          if (p.highlight) {
+            fill(0, 150);
+          } else {
+            fill(0, 200);
+          }
+          if (p.utilization > 0 && p.capacity > 0) {
+            arc(p.location.x, p.location.y, -10 + pW, -10 + pW, 0, p.ratio*2*PI);
+          }
+          
+          //// Draw Potential Volume
+          ////
+          //if (p.capacity != p.utilization) {
+          //  pushMatrix(); translate(p.location.x, p.location.y, pW/2-4);
+          //  noFill(); stroke(255, 100); strokeWeight(1);
+          //  box(0.7*pW, 0.7*pW, pW);
+          //  popMatrix();
+          //}
+          
+          //// Draw Development Volume
+          ////
+          //float h = pW*(1 - p.ratio);
+          //pushMatrix(); translate(p.location.x, p.location.y, h/2-4);
+          //fill(p.col, 100); noStroke();
+          //box(0.7*pW, 0.7*pW, h);
+          //popMatrix();
+          
+          // Draw Capacity Text
+          //
+          translate(0,0,1);
+          fill(255, 255);
+          textAlign(CENTER, CENTER);
+          if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, int(p.location.x), int(p.location.y));
+          
+          // Draw Development Volume
+          //
+          if (!p.active || p.utilization == 0) {
+            pushMatrix(); translate(p.location.x, p.location.y, 0.5*pW-4);
+            fill(p.col, 100); stroke(p.col, 150); strokeWeight(1);
+            box(0.7*pW, 0.7*pW, pW);
+            popMatrix();
+          }
         }
       } 
     }
     popMatrix();
   }
-  
+    
   //  Display the population of agents
   //
   float scaler = 2.0 * (1 + 2*cam.zoom);
@@ -192,10 +198,35 @@ void render2D() {
     bar_left.draw();
     bar_right.draw();
     
+    // Draw Large Current Year and Parking Demand Reduction
+    //
+    pushMatrix(); translate(bar_left.barX + bar_left.barW + bar_left.margin, bar_left.barY);
+    textAlign(LEFT, TOP); textFont(font60);
+    text(sys.year_now, 0, 0);
+    textFont(font12); fill(255);
+    text("Parking Demand (since 2010):", 0, 70);
+    int yr = sys.year_now - sys.year_0;
+    float parking_demand  = sys.totalPark[yr];
+    float parking_total   = sys.totalPark[0];
+    String sign = "";
+    if (parking_demand < parking_total) {
+      fill(#00AA00, 200);
+    } else if (parking_demand > parking_total) {
+      fill(#AA0000, 200);
+      sign += "+";
+    } else if (parking_demand == parking_total) {
+      fill(150, 200);
+    }
+    textFont(font60);
+    text(sign + " " + int(1000*(parking_demand-parking_total)/parking_total)/10.0 + "%", 0, 86);
+    textFont(font12);
+    popMatrix();
+    
     // Radio Button Labels:
     //
-    textAlign(LEFT, BOTTOM);
+    
     pushMatrix(); translate(bar_left.barX + bar_left.margin, int(17.5*bar_left.CONTROL_H) );
+    textAlign(LEFT, BOTTOM); fill(255); 
     text("Parking", 0, 0);
     translate(bar_left.contentW/2, 0);
     text("Vehicles", 0, 0);

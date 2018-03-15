@@ -74,10 +74,15 @@ String status[] = {
 };
 int NUM_PHASES = status.length;
 
+// Fonts
+PFont font12, font60;
+
 void initialize() {
   
   if (initPhase == 0) {
-    
+    font12 = createFont("Helvetica", 12);
+    font60 = createFont("Helvetica", 60);
+    textFont(font12);
     loadingBG = loadImage("loading.png");
     
   } else if (initPhase == 1) {
@@ -103,20 +108,21 @@ void initialize() {
     
     // Initialize Left Toolbar
     bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
-    bar_left.title = "Driving Futures V1.1\n\n";
+    bar_left.title = "Driving Futures V1.1\n";
     //bar_left.credit = "I. Winder, D. Vasquez, K. Kusina,\nA. Starr, K. Silvester, JF Finn";
     bar_left.credit = "";
     bar_left.explanation = "Explore a hypothetical future of shared and autonomous vehicles.\n\n";
-    bar_left.explanation += "[r] <- Press 'r' to reset sliders\n";
-    bar_left.explanation += "[f] <- Press 'f' to show framerate";
+    bar_left.explanation += "Press ' r ' to reset sliders\n";
+    bar_left.explanation += "Press ' a ' to autoplay";
+    //bar_left.explanation += "[f] <- Press 'f' to show framerate";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
-    bar_left.addSlider("Year of Analysis",              "",  2010, 2030, 2018, 'q', 'w', false);
-    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      5,    3, 'Q', 'W', false);
-    bar_left.addSlider("RideShare: System Equilibrium", "%", 0,     100,   60, 'a', 's', false);
-    bar_left.addSlider("RideShare: Peak Hype",          "",  2010, 2030, 2018, 'A', 'S', false);
-    bar_left.addSlider("AV: System Equilibrium",        "%",    0,  100,   90, 'z', 'x', false);
-    bar_left.addSlider("AV: Peak Hype",                 "",  2010, 2030, 2024, 'Z', 'X', false);
-    bar_left.addTriSlider("Parking\nVacancy\nPriority", "Below\nGround", belowColor, 
+    bar_left.addSlider("Year of Analysis",               "",  2010, 2030, 2017, 'q', 'w', false);
+    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,      10,    3, 'Q', 'W', false);
+    bar_left.addSlider("RideShare: Trip Equilibrium",   "%",  0,     100,   60, 'a', 's', false);
+    bar_left.addSlider("RideShare: Peak Adoption Year",  "",  2010, 2030, 2018, 'A', 'S', false);
+    bar_left.addSlider("AV: Trip Equilibrium",          "%",     0,  100,   90, 'z', 'x', false);
+    bar_left.addSlider("AV: Peak Adoption Year",         "",  2010, 2030, 2024, 'Z', 'X', false);
+    bar_left.addTriSlider("Redevelop\nPriority",        "Below\nGround", belowColor, 
                                                         "Surface\nParking", surfaceColor, 
                                                         "Above\nGround", aboveColor);
     bar_left.addButton("BLANK", 0, true, ' '); // Spacer for Parking and Vehicle Button Lables
@@ -164,10 +170,10 @@ void initialize() {
     cam.eW = width - 2*(BAR_W + MARGIN);
     cam.X_DEFAULT    = -350;
     cam.Y_DEFAULT     =   50;
-    cam.ZOOM_DEFAULT = 0.40;
-    cam.ZOOM_POW     = 2.00;
-    cam.ZOOM_MAX     = 0.15;
-    cam.ZOOM_MIN     = 0.50;
+    cam.ZOOM_DEFAULT = 0.30;
+    cam.ZOOM_POW     = 1.50;
+    cam.ZOOM_MAX     = 0.10;
+    cam.ZOOM_MIN     = 0.40;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); //Must End with init() if any variables within Camera() are changed from default
@@ -419,20 +425,22 @@ void addVehicle(ArrayList<Agent> array, String type) {
   random_speed = 3.0*random(0.3, 0.4);
   loc = random.waypoints.get(random_waypoint);
   vehicle = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  
+  // Designame vehicle passengers
   if (vehicle.type.equals("1")) {
-    vehicle.passengers = 1; 
+    vehicle.passengers = int( random(0, 1.99) ); 
     vehicle.driver = true;
   }
   if (vehicle.type.equals("2")) {
-    vehicle.passengers = 3; 
+    vehicle.passengers = int( random(1, 3.99) ); 
     vehicle.driver = true;
   }
   if (vehicle.type.equals("3")) {
-    vehicle.passengers = 1; 
+    vehicle.passengers = int( random(1, 2.5) ); 
     vehicle.driver = false;
   }
   if (vehicle.type.equals("4")) {
-    vehicle.passengers = 4; 
+    vehicle.passengers = int( random(2, 4.99) );
     vehicle.driver = false;
   }
   array.add(vehicle);
