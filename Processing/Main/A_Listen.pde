@@ -303,8 +303,8 @@ void mousePressed() {
     sys.update();
     syncVehicles();
     
-    // Stop autoplay
-    autoPlay = false;
+    //// Stop autoplay
+    //autoPlay = false;
   }
 }
 
