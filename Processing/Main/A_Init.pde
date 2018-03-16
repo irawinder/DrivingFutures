@@ -171,7 +171,7 @@ void initialize() {
     cam.X_DEFAULT    = -350;
     cam.Y_DEFAULT     =   50;
     cam.ZOOM_DEFAULT = 0.30;
-    cam.ZOOM_POW     = 1.50;
+    cam.ZOOM_POW     = 1.75;
     cam.ZOOM_MAX     = 0.10;
     cam.ZOOM_MIN     = 0.40;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
