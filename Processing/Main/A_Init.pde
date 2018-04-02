@@ -116,28 +116,28 @@ void initialize() {
     bar_left.explanation += "Press ' a ' to autoplay";
     //bar_left.explanation += "[f] <- Press 'f' to show framerate";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
-    bar_left.addSlider("Year of Analysis",               "",  2010, 2030, 2017, 'q', 'w', false);
-    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,       8,    3, 'Q', 'W', false);
-    bar_left.addSlider("RideShare: Trip Equilibrium",   "%",  0,     100,   60, 'a', 's', false);
-    bar_left.addSlider("RideShare: Peak Adoption Year",  "",  2010, 2030, 2018, 'A', 'S', false);
-    bar_left.addSlider("AV: Trip Equilibrium",          "%",     0,  100,   90, 'z', 'x', false);
-    bar_left.addSlider("AV: Peak Adoption Year",         "",  2010, 2030, 2024, 'Z', 'X', false);
+    bar_left.addSlider("Year of Analysis",               "",  2010, 2030, 2017, 1, 'q', 'w', false);
+    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,       8,    3, 1, 'Q', 'W', false);
+    bar_left.addSlider("RideShare: Trip Equilibrium",   "%",  0,     100,   60, 1, 'a', 's', false);
+    bar_left.addSlider("RideShare: Peak Adoption Year",  "",  2010, 2030, 2018, 1, 'A', 'S', false);
+    bar_left.addSlider("AV: Trip Equilibrium",          "%",     0,  100,   90, 1, 'z', 'x', false);
+    bar_left.addSlider("AV: Peak Adoption Year",         "",  2010, 2030, 2024, 1, 'Z', 'X', false);
     bar_left.addTriSlider("Redevelop\nPriority",        "Below\nGround", belowColor, 
                                                         "Surface\nParking", surfaceColor, 
                                                         "Above\nGround", aboveColor);
-    bar_left.addButton("BLANK", 0, true, ' '); // Spacer for Parking and Vehicle Button Lables
-    bar_left.addButton("Below",               belowColor,    true, '1');
-    bar_left.addButton("Surface",             surfaceColor,  true, '2');
-    bar_left.addButton("Above",               aboveColor,    true, '3');
-    bar_left.addButton("RSVD",                reservedColor, true, '4');
-    bar_left.addButton("Private",             car1Color,     true, '5');
-    bar_left.addButton("Shared",              car2Color,     true, '6');
-    bar_left.addButton("AV Private",          car3Color,     true, '7');
-    bar_left.addButton("AV Shared",           car4Color,     true, '8');
-    bar_left.buttons.remove(0); // Remove blanks
-    for (int i=0; i<4; i++) {   // Shift last 4 buttons right
-      bar_left.buttons.get(i+4).xpos = bar_left.barX + bar_left.barW/2; 
-      bar_left.buttons.get(i+4).ypos = bar_left.buttons.get(i).ypos;
+    bar_left.addRadio("BLANK", 0, true, ' ', true); // Spacer for Parking and Vehicle Button Lables
+    bar_left.addRadio("Below",               belowColor,    true, '1', true);
+    bar_left.addRadio("Surface",             surfaceColor,  true, '2', true);
+    bar_left.addRadio("Above",               aboveColor,    true, '3', true);
+    bar_left.addRadio("RSVD",                reservedColor, true, '4', true);
+    bar_left.addRadio("Private",             car1Color,     true, '5', true);
+    bar_left.addRadio("Shared",              car2Color,     true, '6', true);
+    bar_left.addRadio("AV Private",          car3Color,     true, '7', true);
+    bar_left.addRadio("AV Shared",           car4Color,     true, '8', true);
+    bar_left.radios.remove(0); // Remove blanks
+    for (int i=0; i<4; i++) {   // Shift last 4 radios right
+      bar_left.radios.get(i+4).xpos = bar_left.barX + bar_left.barW/2; 
+      bar_left.radios.get(i+4).ypos = bar_left.radios.get(i).ypos;
     }
     
     // Initialize Right Toolbar
@@ -161,23 +161,29 @@ void initialize() {
     
   } else if (initPhase == 6) {
     
-    // Initialize the Camera
-    // cam = new Camera(toolbar_width, b, -350, 50, 0.7, 0.1, 2.0, 0.45);
     // Initialize 3D World Camera Defaults
+    //
     cam = new Camera (B, MARGIN);
-    // eX, eW (extentsX ...) prevents accidental dragging when interactiong with toolbar
-    cam.eX = MARGIN + BAR_W;
-    cam.eW = width - 2*(BAR_W + MARGIN);
     cam.X_DEFAULT    = -350;
-    cam.Y_DEFAULT     =   50;
+    cam.Y_DEFAULT     =  50;
     cam.ZOOM_DEFAULT = 0.30;
     cam.ZOOM_POW     = 1.75;
     cam.ZOOM_MAX     = 0.10;
     cam.ZOOM_MIN     = 0.40;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
-    cam.init(); //Must End with init() if any variables within Camera() are changed from default
-    cam.off(); // turn cam off while still initializing
+    cam.init(); // Must End with init() if any BASIC variables within Camera() are changed from default 
+    
+    // Add non-camera UI blockers and edit camera UI characteristics AFTER cam.init()
+    //
+    cam.vs.xpos = width - 3*MARGIN - BAR_W;
+    //cam.hs.enable = false; //disable rotation
+    cam.drag.addBlocker(MARGIN, MARGIN, BAR_W, BAR_H);
+    cam.drag.addBlocker(width - MARGIN - BAR_W, MARGIN, BAR_W, BAR_H);
+    
+    // Turn cam off while still initializing
+    //
+    cam.off();
   
   } else if (initPhase == 7) {
     

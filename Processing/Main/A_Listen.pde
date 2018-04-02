@@ -151,14 +151,14 @@ void syncSliders() {
   sys.priorityBelow             = bar_left.tSliders.get(0).value1;
   sys.prioritySurface           = bar_left.tSliders.get(0).value2;
   sys.priorityAbove             = bar_left.tSliders.get(0).value3;
-  showBelow                     = bar_left.buttons.get(0).value;
-  showSurface                   = bar_left.buttons.get(1).value;
-  showAbove                     = bar_left.buttons.get(2).value;
-  showReserved                  = bar_left.buttons.get(3).value;
-  showCar1                      = bar_left.buttons.get(4).value;
-  showCar2                      = bar_left.buttons.get(5).value;
-  showCar3                      = bar_left.buttons.get(6).value;
-  showCar4                      = bar_left.buttons.get(7).value;
+  showBelow                     = bar_left.radios.get(0).value;
+  showSurface                   = bar_left.radios.get(1).value;
+  showAbove                     = bar_left.radios.get(2).value;
+  showReserved                  = bar_left.radios.get(3).value;
+  showCar1                      = bar_left.radios.get(4).value;
+  showCar2                      = bar_left.radios.get(5).value;
+  showCar3                      = bar_left.radios.get(6).value;
+  showCar4                      = bar_left.radios.get(7).value;
 }
 
 // Calculate Parking Ratios for each structure for current year only

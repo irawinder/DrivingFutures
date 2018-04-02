@@ -14,7 +14,7 @@
  *    Chunk()      - A known, fixed volume of space
  *    ChunkGrid()  - A grid of Chunks in 3D space that are accessible via the mouse cursor
  *
- *  MIT LICENSE:  Copyright 2018 Ira Winder
+ *  MIT LICENSE: Copyright 2018 Ira Winder
  *
  *               Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  *               and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -218,11 +218,11 @@ class Camera {
   
   void pressed() {
     // Determine which output is active
-    if (cam.hs.overEvent()) {
+    if (hs.overEvent()) {
       activeInput = 1;
-    } else if (cam.vs.overEvent()) {
+    } else if (vs.overEvent()) {
       activeInput = 2;
-    } else if (cam.drag.inExtents()) {
+    } else if (drag.inExtents() && !drag.inBlocker()) {
       activeInput = 0;
       drag.init(offset.x, offset.y);
     } else {
@@ -254,8 +254,8 @@ class Camera {
         offset.x = drag.getX(rotation);
         offset.y = drag.getY(rotation);
       }
-      //hs.update();
-      //rotation = hs.getPosPI();
+      hs.update();
+      rotation = hs.getPosPI();
       vs.update();
       zoom = vs.getPosZoom(ZOOM_MIN, ZOOM_MAX);
       
@@ -267,8 +267,8 @@ class Camera {
       
     // Update Horizontal Scroll Bar Only
     } else if (activeInput == 1) {
-      //hs.update();
-      //rotation = hs.getPosPI();
+      hs.update();
+      rotation = hs.getPosPI();
       
     // Update Vertical Scroll Bar Only
     } else if (activeInput == 2) {
@@ -283,7 +283,7 @@ class Camera {
     cam.off();
     
     // Draw Scroll Bars
-    //hs.display(LINE_COLOR, BASE_ALPHA);
+    hs.display(LINE_COLOR, BASE_ALPHA);
     vs.display(LINE_COLOR, BASE_ALPHA);
     
     // Draw Help Text
@@ -291,15 +291,26 @@ class Camera {
     fill(LINE_COLOR, 255-BASE_ALPHA);
     textAlign(CENTER, TOP);
     text("Press 'c' for default camera position", 0, 0);
-    if (showFrameRate) text("(F)ramerate: " + int(frameRate*10)/10.0, 0, 32);
+    if (showFrameRate) text("(f)ramerate: " + int(frameRate*10)/10.0, 0, 32);
     popMatrix();
     
-    //pushMatrix(); translate(width/4 + eX/2 - 0.075*height, height - 1.5*margin);
-    pushMatrix(); translate(width/2, height - 1.5*margin);
-    textAlign(CENTER, CENTER);
-    fill(LINE_COLOR, 255-2*BASE_ALPHA);
-    text("Copyright 2018 Ira Winder", 0, 0);
-    popMatrix();
+    if (!hs.enable) {
+      pushMatrix(); translate(width/2, height - margin);
+      textAlign(CENTER, BOTTOM);
+      fill(LINE_COLOR, 255-2*BASE_ALPHA);
+      text("Copyright 2018 Ira Winder", 0, 0);
+      popMatrix();
+    }
+  }
+  
+  // Check if mouse is hovering over any of the camera GUI components
+  //
+  boolean hoverGUI() {
+    if (cam.drag.inExtents() && !cam.drag.inBlocker() && !(cam.hs.overEvent() && cam.hs.enable) && !(cam.vs.overEvent() && cam.vs.enable) ) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }
 
@@ -314,6 +325,7 @@ class HScrollbar {
   boolean over;           // is the mouse over the slider?
   boolean locked;
   float ratio;
+  boolean enable;
 
   HScrollbar (float xp, float yp, float sw, float sh, int l) {
     swidth = sw;
@@ -327,10 +339,11 @@ class HScrollbar {
     sposMin = xpos;
     sposMax = xpos + swidth - sheight;
     loose = l;
+    enable = true;
   }
 
   void update() {
-    if (overEvent()) {
+    if (overEvent() && enable) {
       over = true;
     } else {
       over = false;
@@ -355,7 +368,7 @@ class HScrollbar {
 
   boolean overEvent() {
     if (mouseX > xpos && mouseX < xpos+swidth &&
-       mouseY > ypos && mouseY < ypos+sheight) {
+       mouseY > ypos && mouseY < ypos+sheight && enable) {
       return true;
     } else {
       return false;
@@ -363,16 +376,18 @@ class HScrollbar {
   }
 
   void display(int lineColor, int baseAlpha) {
-    noStroke(); fill(0.6*lineColor, baseAlpha);
-    rect(xpos, ypos, swidth, sheight, sheight);
-    if (over || locked) {
-      fill(lineColor, baseAlpha);
-    } else {
-      fill(0.4*lineColor, baseAlpha);
+    if (enable) {
+      noStroke(); fill(0.6*lineColor, baseAlpha);
+      rect(xpos, ypos, swidth, sheight, sheight);
+      if (over || locked) {
+        fill(lineColor, baseAlpha);
+      } else {
+        fill(0.4*lineColor, baseAlpha);
+      }
+      ellipse(spos + sheight/2, ypos + sheight/2, sheight, sheight);
+      fill(lineColor, 255); textAlign(CENTER, BOTTOM);
+      text("ROTATION", xpos + swidth/2, ypos - 14);
     }
-    ellipse(spos + sheight/2, ypos + sheight/2, sheight, sheight);
-    fill(lineColor, 255); textAlign(CENTER, BOTTOM);
-    text("ROTATION", int(xpos + swidth/2), int(ypos) - 14);
   }
 
   float getPos() {
@@ -399,6 +414,7 @@ class VScrollbar {
   boolean over;           // is the mouse over the slider?
   boolean locked;
   float ratio;
+  boolean enable;
 
   VScrollbar (float xp, float yp, float sw, float sh, int l) {
     swidth = sw;
@@ -412,10 +428,11 @@ class VScrollbar {
     sposMin = ypos;
     sposMax = ypos + sheight - swidth;
     loose = l;
+    enable = true;
   }
 
   void update() {
-    if (overEvent()) {
+    if (overEvent() && enable) {
       over = true;
     } else {
       over = false;
@@ -440,7 +457,7 @@ class VScrollbar {
 
   boolean overEvent() {
     if (mouseX > xpos && mouseX < xpos+swidth &&
-       mouseY > ypos && mouseY < ypos+sheight) {
+       mouseY > ypos && mouseY < ypos+sheight && enable) {
       return true;
     } else {
       return false;
@@ -448,16 +465,18 @@ class VScrollbar {
   }
 
   void display(int lineColor, int baseAlpha) {
-    noStroke(); fill(0.6*lineColor, 2*baseAlpha);
-    rect(xpos, ypos, swidth, sheight, swidth);
-    if (over || locked) {
-      fill(lineColor, 2*baseAlpha);
-    } else {
-      fill(0.4*lineColor, 4*baseAlpha);
+    if (enable) {
+      noStroke(); fill(0.6*lineColor, 2*baseAlpha);
+      rect(xpos, ypos, swidth, sheight, swidth);
+      if (over || locked) {
+        fill(lineColor, 2*baseAlpha);
+      } else {
+        fill(0.4*lineColor, 4*baseAlpha);
+      }
+      ellipse(xpos + swidth/2, spos + swidth/2, swidth, swidth);
+      fill(lineColor, 255); textAlign(CENTER, TOP);
+      text("ZOOM", xpos + swidth/2, ypos + sheight + 21);
     }
-    ellipse(xpos + swidth/2, spos + swidth/2, swidth, swidth);
-    fill(lineColor, 255); textAlign(CENTER, TOP);
-    text("ZOOM", int(xpos + swidth/2), int(ypos + sheight) + 21);
   }
 
   float getPos() {
@@ -497,6 +516,12 @@ class XYDrag {
   int extentW;
   int extentH;
   
+  // Areas Blocked From Clicking (Such as a Toolbar)
+  //
+  ArrayList<Integer[]> blocker;
+  
+  boolean enable;
+  
   XYDrag(float s, float l, int eX, int eY, int eW, int eH ) {
     scaler = s;
     loose = l;
@@ -505,14 +530,35 @@ class XYDrag {
     extentY = eY;
     extentW = eW;
     extentH = eH;
+    
+    blocker = new ArrayList<Integer[]>();
+    
+    enable = true;
+  }
+  
+  void addBlocker(int x, int y, int w, int h) {
+    Integer[] b = new Integer[4];
+    b[0] = x;
+    b[1] = y;
+    b[2] = w;
+    b[3] = h;
+    blocker.add(b);
   }
   
   boolean inExtents() {
-    if (mouseX > extentX && mouseX < extentX+extentW && mouseY > extentY && mouseY < extentY+extentH) {
+    if (mouseX >= extentX && mouseX < extentX+extentW && mouseY > extentY && mouseY < extentY+extentH && enable) {
       return true; 
     } else {
       return false;
     }
+  }
+  
+  boolean inBlocker() {
+    boolean inside = false;
+    for (Integer[] b: blocker) 
+      if (mouseX >= b[0] && mouseX < b[0]+b[2] && mouseY > b[1] && mouseY < b[1]+b[3]) 
+        inside = true;
+    return inside;
   }
   
   void init(float offsetX, float offsetY) {
@@ -583,7 +629,7 @@ class Chunk {
 // Grid of Chunks for discretely continuous spatial selection
 //
 class ChunkGrid {
-  int resolution;
+  int resolution, tolerance;
   float chunkU, chunkV;
   ArrayList<Chunk> selectionGrid;
   Chunk closest;
