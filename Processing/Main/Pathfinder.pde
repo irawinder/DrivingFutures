@@ -471,7 +471,7 @@ class Graph {
     //
     img.noFill();
     img.stroke(col, alpha);
-    img.strokeWeight(10);
+    img.strokeWeight(8);
     
     // Draws Tangent Circles Centered at pathfinding nodes
     //
@@ -496,6 +496,7 @@ class Graph {
     }
     img.endDraw();
   }
+  
 }
 
 
@@ -1375,7 +1376,7 @@ class RoadNetwork {
   
   float getSpeed(String roadType) {
     
-    float speed = 0.0;
+    float speed = 20.0;
 
     for (int i=0; i<speedCategories.length; i++) {
       for (String t: classNames.get(i)) {

@@ -7,7 +7,7 @@
  *
  *    Parking_System()     - Mathematically realated parameters to forcast vheicle and parking demand over time using logistic equations
  *    Parking_Structures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
- *    Parking_Routes()     - A list of travel routes to and from Parking Structures - Depends on Pathfinder.pde
+ *    Trip_Routes()     - A list of travel routes to and from Parking Structures - Depends on Pathfinder.pde
  *    Parking()            - A Parking Structure with attributes
  *
  *  MIT LICENSE:  Copyright 2018 Ira Winder
@@ -490,17 +490,17 @@ class Parking_Structures {
   }
 }
 
-class Parking_Routes {
+class Trip_Routes {
   ArrayList<Path> paths;
   PGraphics img;
   Pathfinder finder;
   
-  Parking_Routes(String fileName) {
+  Trip_Routes(String fileName) {
     paths = new ArrayList<Path>();
     loadJSON(fileName);
   }
   
-  Parking_Routes() {
+  Trip_Routes() {
     paths = new ArrayList<Path>();
   }
   
@@ -581,12 +581,12 @@ class Parking_Routes {
       
     }
     for (Path p: paths) {
-      // Draw Origin (Red) and Destination (Blue)
+      // Draw Origin and Destination
       //
-      img.fill(0, 255);     // Black
-      img.stroke(255, 255); // White
-      img.strokeWeight(4);
-      img.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
+      //img.fill(0, 255);     // Black
+      //img.stroke(255, 255); // White
+      //img.strokeWeight(4);
+      //img.ellipse(p.origin.x, p.origin.y, p.diameter, p.diameter);
       
     }
     img.endDraw();

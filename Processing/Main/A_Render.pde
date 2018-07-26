@@ -79,6 +79,8 @@ void render3D() {
   tint(255, 175);
   image(routes.img, 0, 0, B.x, B.y);
   
+  /*
+  
   // Draw Parking Infrastructure
   //
   for (Parking p: structures.parking) {
@@ -173,6 +175,8 @@ void render3D() {
     }
     popMatrix();
   }
+  
+  */
     
   //  Display the population of agents
   //

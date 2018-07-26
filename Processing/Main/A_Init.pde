@@ -32,7 +32,7 @@ Parking_System sys;
 //  Object to define parking facilities:
 Parking_Structures structures;
 // Object to define and capture paths to collection of origins, destinations:
-Parking_Routes routes;
+Trip_Routes routes;
 
 // Object for initializing road network and paths
 Graph network;
@@ -87,10 +87,17 @@ void initialize() {
     
   } else if (initPhase == 1) {
     
+    // Union Point Hanger Coordinates
+    // 42.156622, -70.942516
+    
+    // Boston Coordinates
+    //latCtr = +42.350;
+    //lonCtr = -71.066;
+    
     //  Parameter Space for Geometric Area
     //
-    latCtr = +42.350;
-    lonCtr = -71.066;
+    latCtr = +42.156622;
+    lonCtr = -70.942516;
     bound    =  0.035;
     latMin = latCtr - bound;
     latMax = latCtr + bound;
@@ -164,12 +171,14 @@ void initialize() {
     // Initialize 3D World Camera Defaults
     //
     cam = new Camera (B, MARGIN);
-    cam.X_DEFAULT    = -350;
-    cam.Y_DEFAULT     =  50;
+    //cam.X_DEFAULT    = -350;
+    //cam.Y_DEFAULT     =  50;
+    cam.X_DEFAULT     = 350;
+    cam.Y_DEFAULT     =  30;
     cam.ZOOM_DEFAULT = 0.30;
     cam.ZOOM_POW     = 1.75;
     cam.ZOOM_MAX     = 0.10;
-    cam.ZOOM_MIN     = 0.40;
+    cam.ZOOM_MIN     = 1.40;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); // Must End with init() if any BASIC variables within Camera() are changed from default 
@@ -218,7 +227,7 @@ void initRoads() {
 
   // Check for existance of JSON file
   //
-  String fileName = "local/boston_OSM.json";
+  String fileName = "local/mass_OSM.json";
   File graphJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(graphJSON.exists()) { 
@@ -228,7 +237,7 @@ void initRoads() {
     println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
-  // loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
+  //loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
   
   // Graph pixel dimensions
   //
@@ -250,7 +259,7 @@ void initRoads() {
     // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
     //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax);
     //
-    RoadNetwork rNetwork = new RoadNetwork("data/roads.csv");
+    RoadNetwork rNetwork = new RoadNetwork("data/roads2.csv");
     
     //  An example gridded network of width x height (pixels) and node resolution (pixels)
     //
@@ -327,17 +336,17 @@ void initPaths() {
     
     // generate from file
     //
-    routes = new Parking_Routes(fileName);
+    routes = new Trip_Routes(fileName);
     
   } else {
     
-    // generate randomly according to parking structures
+    // generate randomly
     //
-    routes = new Parking_Routes();
+    routes = new Trip_Routes();
     Path path, pathReturn;
-    PVector origin, destination;
+    PVector origin, destination, hanger;
     
-    boolean debug = false;
+    boolean debug = true;
     
     //  An example pathfinder object used to derive the shortest path
     //  setting enableFinder to "false" will bypass the A* algorithm
@@ -347,14 +356,22 @@ void initPaths() {
     
     if (debug) {
       
-      for (int i=0; i<5; i++) {
+      hanger = new PVector(0.5*B.x, 0.5*B.y);
+      
+      for (int i=0; i<1000; i++) {
         //  An example Origin and Desination between which we want to know the shortest path
         //
         int rand1 = int( random(network.nodes.size()));
-        int rand2 = int( random(structures.parking.size()));
+        origin    = network.nodes.get(rand1).loc;
+        while (origin.dist(hanger) > 1000) {
+          rand1 = int( random(network.nodes.size()));
+          origin    = network.nodes.get(rand1).loc;
+        }
+        int rand2 = int( random(network.nodes.size()));
+        destination = network.nodes.get(rand2).loc;
+        
         boolean closedLoop = true;
-        origin      = network.nodes.get(rand1).loc;
-        destination = structures.parking.get(rand2).location;
+        
         path = new Path(origin, destination);
         path.solve(finder);
         

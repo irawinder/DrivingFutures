@@ -18,7 +18,7 @@
  *
  *      These are not necessarily inter-dependent
  *      
-        Parking_Routes()     - A list of travel routes to and from Parking Structures - Depends on Pathfinder.pde
+        Trip_Routes()     - A list of travel routes to and from Parking Structures - Depends on Pathfinder.pde
  *      Parking_System()     - Mathematically realated parameters to forcast vheicle and parking demand over time using logistic equations   
  *      Parking_Structures() - A portfolio of Parking Structures (Surface, Below Ground, and Above Ground)
  *      Agent()              - A force-based autonomous agent that can navigate along a series of waypoints that comprise a path
@@ -72,8 +72,8 @@ boolean initialized;
 // Runs once when application begins
 //
 void setup() {
-  //size(1280, 800, P3D);
-  fullScreen(P3D);
+  size(1280, 800, P3D);
+  //fullScreen(P3D);
   
   initialized = false;
 }

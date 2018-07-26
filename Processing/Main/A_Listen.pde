@@ -279,7 +279,7 @@ void keyPressed() {
       //  break;
       //case 'p':
       //  println("cam.offset.x = " + cam.offset.x);
-      //  println("cam.offset.x = " + cam.offset.x);
+      //  println("cam.offset.y = " + cam.offset.y);
       //  println("cam.zoom = "     + cam.zoom);
       //  println("cam.rotation = " + cam.rotation);
       //  break;
