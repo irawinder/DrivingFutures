@@ -32,6 +32,12 @@ MercatorMap mercatorMap;
 PImage[] map;
 int mapIndex;
 
+// Projection Mapping Test
+Keystone ks;
+CornerPinSurface surface;
+PGraphics offscreen;
+PImage screen;
+
 //  Object to Define Systems Model
 Parking_System sys;
 //  Object to define parking facilities:
@@ -53,6 +59,7 @@ ArrayList<Agent> type4; // Shared  AV
 Camera cam;
 PVector B = new PVector(6000, 6000, 0); // Bounding Box for 3D Environment
 int MARGIN = 25; // Pixel margin allowed around edge of screen
+boolean is3D = true;
 
 // Semi-transparent Toolbar for information and sliders
 //
@@ -123,6 +130,8 @@ void initialize() {
     // rectangular projection environment to convert latitude and longitude into pixel locations on the canvas
     //
     mercatorMap = new MercatorMap(B.x, B.y, latMin, latMax, lonMin, lonMax, 0); // rotation = 0
+    
+    initKeystone();
     
   } else if (initPhase == 2) {
     

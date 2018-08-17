@@ -272,6 +272,9 @@ void keyPressed() {
         structures.reset();
         initVehicles();
         break;
+      case '`':
+        is3D = !is3D;
+        break;
       //case 'h':
       //  SHOW_INFO = !SHOW_INFO;
       //  break;
@@ -296,6 +299,26 @@ void keyPressed() {
       case '3':
         mapIndex = 2;
         break;
+    }
+    
+    if (!is3D) {
+      switch(key) {
+        case 'C':
+          // enter/leave calibration mode, where surfaces can be warped 
+          // and moved
+          ks.toggleCalibration();
+          break;
+      
+        case 'L':
+          // loads the saved layout
+          ks.load();
+          break;
+      
+        case 'S':
+          // saves the layout
+          ks.save();
+          break;
+      }
     }
     
     // Update Inputs and model

@@ -58,13 +58,22 @@ void render3D() {
   // ****
   
   // Draw and Calculate 3D Graphics 
-  cam.on();
+  if(is3D) {
+    
+    cam.on(); 
+    
+    // Update camera position settings for a number of frames after key updates
+    if (cam.moveTimer > 0) {
+      cam.moved();
+    }
   
-  // Update camera position settings for a number of frames after key updates
-  if (cam.moveTimer > 0) {
-    cam.moved();
+  } else {
+    
+    cam.off();
+    translate(-200, -2900);
+    
   }
-  
+    
   //Background Color
   //
   background(20);
@@ -80,7 +89,7 @@ void render3D() {
   image(map[mapIndex], -0.5025*w, -0.5*h, w, h);
   popMatrix();
   
-  //  Displays the "Road" Graph.
+  //  Displays the "Road" Graph
   //
   fill(roadColor); stroke(255); // Default Colors
   tint(255, 25); // overlaid as an image
@@ -196,6 +205,10 @@ void render3D() {
   if (showCar2) for (Agent p: type2) p.display(scaler, "BOX", car2Color, 200);
   if (showCar3) for (Agent p: type3) p.display(scaler, "BOX", car3Color, 200);
   if (showCar4) for (Agent p: type4) p.display(scaler, "BOX", car4Color, 200);
+  
+  if (!is3D) {
+    translate(200, 2900);
+  }
 }
   
 void render2D() {  

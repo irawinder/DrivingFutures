@@ -93,6 +93,10 @@ void draw() {
     //
     listen();
     render3D();
-    render2D();
+    if (is3D) {
+      render2D();
+    } else {
+      drawProjection();
+    }
   }
 }
