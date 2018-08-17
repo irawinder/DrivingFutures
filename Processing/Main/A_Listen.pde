@@ -30,6 +30,10 @@ int PLAY_PAUSE = 120;
 //
 void listen() {
   
+  // Update Mouse Wheel Input
+  //
+  updateWheel();
+  
   // Autoplay progress
   //
   if (autoPlay) autoPlay();
@@ -355,6 +359,31 @@ void mouseClicked() {
       } catch (RuntimeException e) { println("Oops! Something went wrong"); }
     }
   }
+}
+
+// Scroll Wheel or Bluetooth Dial Input
+float scroll, position, max_pos, min_pos;
+float drag;
+
+void initWheel() {
+  position = bar_left.sliders.get(0).value;
+  max_pos  = bar_left.sliders.get(0).valMax;
+  min_pos  = bar_left.sliders.get(0).valMin;
+  scroll = 0;
+  drag   = 10;
+}
+
+void updateWheel() {
+  scroll = max(min_pos, scroll);
+  scroll = min(max_pos, scroll);
+  position = position + (scroll - position) / drag;
+  
+  bar_left.sliders.get(0).value = int(position + 0.5);
+}
+
+void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  scroll += e;
 }
 
 float mouseDistance (PVector mouse, float s_x, float s_y) {
