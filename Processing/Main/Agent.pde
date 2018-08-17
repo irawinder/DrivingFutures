@@ -203,12 +203,14 @@ class Agent {
     //
     float orientation = velocity.heading(); 
     float xLane=0; float yLane=0;
+    float mult = 1;
+    if (type.equals("PED")) mult = 3;
     if(laneSide.equals("RIGHT")) {
-      xLane = radius*cos(orientation+PI/2);
-      yLane = radius*sin(orientation+PI/2);
+      xLane = mult*radius*cos(orientation+PI/2);
+      yLane = mult*radius*sin(orientation+PI/2);
     } else if(laneSide.equals("LEFT")) {
-      xLane = -radius*cos(orientation+PI/2);
-      yLane = -radius*sin(orientation+PI/2);
+      xLane = -mult*radius*cos(orientation+PI/2);
+      yLane = -mult*radius*sin(orientation+PI/2);
     }
     location.x = locationPath.x + xLane;
     location.y = locationPath.y + yLane;
@@ -265,7 +267,15 @@ class Agent {
       } else {
         fill(col, alpha);
       }
-      if (type.equals("BOX")) {
+      
+      if (type.equals("PED")) {
+      
+        // Draw Pedstrian
+        //
+        fill(#800080, 255);
+        box(0.5*scaler*radius, 0.5*scaler*radius, 1.5*scaler*radius);
+     
+      } else if (type.equals("BOX")) {
         
         // Draw Vehicle
         //

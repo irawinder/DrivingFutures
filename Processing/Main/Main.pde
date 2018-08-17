@@ -1,8 +1,8 @@
-/*  DRIVING FUTURES
+/*  MOBILITY FUTURES
  *  Ira Winder, ira@mit.edu, 2018
  *
  *  Driving Futures is an application that simulates and visualizes 
- *  parking utilization for passenger vehicles in hypothetical scenarios.
+ *  Mobility Information in Hypotehtical Scenarios
  *
  *  TAB MAP:
  *

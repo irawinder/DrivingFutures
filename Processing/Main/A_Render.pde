@@ -25,12 +25,14 @@ boolean showCar1 = true;
 boolean showCar2 = true;
 boolean showCar3 = true;
 boolean showCar4 = true;
+boolean showPed = true;
 boolean showBelow = true;
 boolean showSurface = true;
 boolean showAbove = true;
 boolean showReserved = true;
 boolean SHOW_INFO = true;
 boolean autoPlay = false;
+boolean showMap = true;
 
 // Car Colors
 int car1Color = #FFFFFF;
@@ -79,15 +81,17 @@ void render3D() {
   background(20);
   
   // Draw Map
-  pushMatrix();
-  translate(0.5*cam.boundary.x, 0.5*cam.boundary.y, -1);
-  // Draw Ground Map
-  float w = B.x/(bound*2)*133.24/sq(60);
-  float h = B.y/(bound*2)* 86.73/sq(60);
-  float rot = -0.40509092;
-  rotate(rot);
-  image(map[mapIndex], -0.5025*w, -0.5*h, w, h);
-  popMatrix();
+  if (showMap) {
+    pushMatrix();
+    translate(0.5*cam.boundary.x, 0.5*cam.boundary.y, -1);
+    // Draw Ground Map
+    float w = B.x/(bound*2)*133.24/sq(60);
+    float h = B.y/(bound*2)* 86.73/sq(60);
+    float rot = -0.40509092;
+    rotate(rot);
+    image(map[mapIndex], -0.5025*w, -0.5*h, w, h);
+    popMatrix();
+  }
   
   //  Displays the "Road" Graph
   //
@@ -205,6 +209,7 @@ void render3D() {
   if (showCar2) for (Agent p: type2) p.display(scaler, "BOX", car2Color, 200);
   if (showCar3) for (Agent p: type3) p.display(scaler, "BOX", car3Color, 200);
   if (showCar4) for (Agent p: type4) p.display(scaler, "BOX", car4Color, 200);
+  if (showPed)  for (Agent p: ped)   p.display(scaler, "PED", car4Color, 200);
   
   if (!is3D) {
     translate(200, 2900);

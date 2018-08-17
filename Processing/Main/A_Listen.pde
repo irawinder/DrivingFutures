@@ -56,6 +56,7 @@ void listen() {
   if (showCar2) for (Agent p: type2) p.update(otherLocations, collisionDetection);
   if (showCar3) for (Agent p: type3) p.update(otherLocations, collisionDetection);
   if (showCar4) for (Agent p: type4) p.update(otherLocations, collisionDetection);
+  if (showPed)  for (Agent p: ped)   p.update(otherLocations, collisionDetection);
   
   // Update Vehicle Draw
   //
@@ -123,6 +124,14 @@ void hoverListen() {
       shortestDistance = dist; hoverIndex = i; hoverType = "car4";
     }
   }
+  if (showPed) for (int i=0; i<ped.size(); i++) {
+    Agent p = ped.get(i);
+    p.highlight = false;
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; hoverIndex = i; hoverType = "ped";
+    }
+  }
   for (int i=0; i<structures.parking.size(); i++) {
     Parking p = structures.parking.get(i);
     p.highlight = false;
@@ -141,6 +150,7 @@ void hoverListen() {
   if (hoverType.equals("car2")) type2.get(hoverIndex).highlight = true;
   if (hoverType.equals("car3")) type3.get(hoverIndex).highlight = true;
   if (hoverType.equals("car4")) type4.get(hoverIndex).highlight = true;
+  if (hoverType.equals("ped"))  ped.get(hoverIndex).highlight = true;
 }
 
 // Set System Parameters According to Slider Values
@@ -272,6 +282,9 @@ void keyPressed() {
         structures.reset();
         initVehicles();
         break;
+      case 'm':
+        showMap = !showMap;
+        break;
       case '`':
         is3D = !is3D;
         break;
@@ -378,16 +391,19 @@ void mouseClicked() {
     if (hoverType.equals("car2")) newPath = true;
     if (hoverType.equals("car3")) newPath = true;
     if (hoverType.equals("car4")) newPath = true;
+    if (hoverType.equals("ped")) newPath = true;
     if (newPath) {
       for (Agent p: type1) p.showPath = false;
       for (Agent p: type2) p.showPath = false;
       for (Agent p: type3) p.showPath = false;
       for (Agent p: type4) p.showPath = false;
+      for (Agent p: ped)   p.showPath = false;
       try {
         if (hoverType.equals("car1")) type1.get(hoverIndex).showPath = !type1.get(hoverIndex).showPath;
         if (hoverType.equals("car2")) type2.get(hoverIndex).showPath = !type2.get(hoverIndex).showPath;
         if (hoverType.equals("car3")) type3.get(hoverIndex).showPath = !type3.get(hoverIndex).showPath;
         if (hoverType.equals("car4")) type4.get(hoverIndex).showPath = !type4.get(hoverIndex).showPath;
+        if (hoverType.equals("ped"))  ped.get(hoverIndex).showPath = !ped.get(hoverIndex).showPath;
       } catch (RuntimeException e) { println("Oops! Something went wrong"); }
     }
   }

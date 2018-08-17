@@ -58,7 +58,7 @@ void drawProjection() {
 
   // most likely, you'll want a black background to minimize
   // bleeding around your projection area
-  background(255);
+  background(0);
   lights();
  
   // render the scene, transformed using the corner pin surface

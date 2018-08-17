@@ -43,7 +43,7 @@ Parking_System sys;
 //  Object to define parking facilities:
 Parking_Structures structures;
 // Object to define and capture paths to collection of origins, destinations:
-Trip_Routes routes;
+Trip_Routes routes, ped_routes;
 
 // Object for initializing road network and paths
 Graph network;
@@ -53,6 +53,8 @@ ArrayList<Agent> type1; // Private non-AV
 ArrayList<Agent> type2; // Shared  non-AV
 ArrayList<Agent> type3; // Private AV
 ArrayList<Agent> type4; // Shared  AV
+
+ArrayList<Agent> ped;   // Pedestrian
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -195,6 +197,7 @@ void initialize() {
   } else if (initPhase == 5) {
     
     initPaths();
+    initPedPaths();
     
   } else if (initPhase == 6) {
     
@@ -241,6 +244,9 @@ void initialize() {
     
     // Initialize Vehicle Agents
     initVehicles();  
+    
+    // Initial Pedestrians
+    initPeds();
   
   } else if (initPhase == 9) {
     
@@ -501,4 +507,141 @@ void addVehicle(ArrayList<Agent> array, String type) {
     vehicle.driver = false;
   }
   array.add(vehicle);
+}
+
+void initPedPaths() {
+  
+  // Check for existance of JSON file
+  //
+  String fileName = "local/ped_routes.json";
+  File routesJSON = new File(dataPath(fileName));
+  boolean loadFile;
+  if(routesJSON.exists()) { 
+    loadFile = true;
+  } else {
+    loadFile = false;
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
+  }
+  
+  // Override!
+  //loadFile = false; 
+  
+  // Collection of routes to and from home, work, and parking ammentities
+  if (loadFile) {
+    
+    // generate from file
+    //
+    ped_routes = new Trip_Routes(fileName);
+    
+  } else {
+    
+    // generate randomly
+    //
+    ped_routes = new Trip_Routes();
+    Path path, pathReturn;
+    PVector origin, destination, hanger;
+    
+    boolean debug = true;
+    
+    //  An example pathfinder object used to derive the shortest path
+    //  setting enableFinder to "false" will bypass the A* algorithm
+    //  and return a result akin to "as the bird flies"
+    //
+    Pathfinder finder = new Pathfinder(network);
+    
+    if (debug) {
+      
+      // Hanger Location
+      hanger = mercatorMap.getScreenLocation(new PVector(42.156622, -70.942516));
+      hanger.y = B.y - hanger.y;
+      
+      for (int i=0; i<1000; i++) {
+        //  An example Origin and Desination between which we want to know the shortest path
+        //
+        int rand1 = int( random(network.nodes.size()));
+        origin    = network.nodes.get(rand1).loc;
+        while (origin.dist(hanger) > 1000) {
+          rand1 = int( random(network.nodes.size()));
+          origin    = network.nodes.get(rand1).loc;
+        }
+        int rand2 = int( random(network.nodes.size()));
+        destination = network.nodes.get(rand2).loc;
+        while (destination.dist(hanger) > 1000) {
+          rand2 = int( random(network.nodes.size()));
+          destination = network.nodes.get(rand2).loc;
+        }
+        
+        boolean closedLoop = true;
+        
+        path = new Path(origin, destination);
+        path.solve(finder);
+        
+        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+          path.waypoints.clear();
+        }
+        pathReturn = new Path(destination, origin); 
+        pathReturn.solve(finder);
+        path.joinPath(pathReturn, closedLoop);
+        
+        ped_routes.paths.add(path);
+      }
+      
+    } else {
+  
+      for (Parking p: structures.parking) {
+        //  An example Origin and Desination between which we want to know the shortest path
+        //
+        int rand1 = int( random(network.nodes.size()));
+        boolean closedLoop = true;
+        origin      = network.nodes.get(rand1).loc;
+        destination = p.location;
+        path = new Path(origin, destination);
+        path.solve(finder);
+        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+          path.waypoints.clear();
+        }
+        pathReturn = new Path(destination, origin); 
+        pathReturn.solve(finder);
+        path.joinPath(pathReturn, closedLoop);
+        ped_routes.paths.add(path);
+      }
+      
+    }
+    ped_routes.saveJSON(fileName);
+  }
+  ped_routes.render(int(B.x), int(B.y));
+}
+
+void initPeds() {
+  ped = new ArrayList<Agent>();
+  for (int i=0; i<200; i++) addPed(ped, "PED");
+}
+
+void addPed(ArrayList<Agent> array, String type) {
+  //  An example population that traverses along shortest path calculation
+  //  FORMAT: Agent(x, y, radius, speed, path);
+  //
+  Agent pedestrian;
+  PVector loc;
+  int random_waypoint;
+  float random_speed;
+  
+  Path random;
+  boolean loop = true;
+  boolean teleport = true;
+  
+  random = ped_routes.paths.get( int(random(ped_routes.paths.size())) );
+  int wpts = random.waypoints.size();
+  while (wpts < 2) {
+    random = ped_routes.paths.get( int(random(ped_routes.paths.size())) );
+    wpts = random.waypoints.size();
+  }
+  random_waypoint = int(random(random.waypoints.size()));
+  random_speed = 0.5*random(0.3, 0.4);
+  loc = random.waypoints.get(random_waypoint);
+  pedestrian = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  
+  pedestrian.passengers = int( random(0, 1.99) ); 
+  pedestrian.driver = true;
+  array.add(pedestrian);
 }
