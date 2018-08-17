@@ -98,7 +98,8 @@ void initialize() {
     //
     latCtr = +42.156622;
     lonCtr = -70.942516;
-    bound    =  0.035;
+    //bound    =  0.035;
+    bound    =  0.5*0.035;
     latMin = latCtr - bound;
     latMax = latCtr + bound;
     lonMin = lonCtr - bound;
