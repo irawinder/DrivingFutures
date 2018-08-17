@@ -281,12 +281,21 @@ void keyPressed() {
       //case 'p':
       //  initVehicles();
       //  break;
-      //case 'p':
-      //  println("cam.offset.x = " + cam.offset.x);
-      //  println("cam.offset.y = " + cam.offset.y);
-      //  println("cam.zoom = "     + cam.zoom);
-      //  println("cam.rotation = " + cam.rotation);
-      //  break;
+      case 'p':
+        println("cam.offset.x = " + cam.offset.x);
+        println("cam.offset.y = " + cam.offset.y);
+        println("cam.zoom = "     + cam.zoom);
+        println("cam.rotation = " + cam.rotation);
+        break;
+      case '1':
+        mapIndex = 0;
+        break;
+      case '2':
+        mapIndex = 1;
+        break;
+      case '3':
+        mapIndex = 2;
+        break;
     }
     
     // Update Inputs and model

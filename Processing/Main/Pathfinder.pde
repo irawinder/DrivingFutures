@@ -134,18 +134,19 @@ class Graph {
     drawEdges = true;
     nodes = new ArrayList<Node>();
     
-    float x, y;
+    float lat, lon;
     int numNodes = r.networkT.getRowCount();
     Node n;
     float canvasX, canvasY;
     for (int i=0; i<numNodes; i++) {
       // Status Output
       if (i%10000 == 0 || i == numNodes-1) println("Loading Nodes: " + int(100*float(i+1)/numNodes) + "% complete");
-      x        = r.networkT.getFloat(i, 0);
-      y        = r.networkT.getFloat(i, 1);
-      canvasX  = w * (x - lonMin) / abs(lonMax - lonMin);
-      canvasY  = h - h * (y - latMin) / abs(latMax - latMin);
-      n = new Node(canvasX, canvasY, SCALE);
+      lat        = r.networkT.getFloat(i, 1);
+      lon        = r.networkT.getFloat(i, 0);
+      //canvasX  = w * (x - lonMin) / abs(lonMax - lonMin);
+      //canvasY  = h - h * (y - latMin) / abs(latMax - latMin);
+      PVector coord = mercatorMap.getScreenLocation(new PVector(lat, lon));
+      n = new Node(coord.x, h-coord.y, SCALE);
       n.clearNeighbors();
       nodes.add(n);
     }

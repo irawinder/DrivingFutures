@@ -69,6 +69,17 @@ void render3D() {
   //
   background(20);
   
+  // Draw Map
+  pushMatrix();
+  translate(0.5*cam.boundary.x, 0.5*cam.boundary.y, -1);
+  // Draw Ground Map
+  float w = B.x/(bound*2)*133.24/sq(60);
+  float h = B.y/(bound*2)* 86.73/sq(60);
+  float rot = -0.40509092;
+  rotate(rot);
+  image(map[mapIndex], -0.5025*w, -0.5*h, w, h);
+  popMatrix();
+  
   //  Displays the "Road" Graph.
   //
   fill(roadColor); stroke(255); // Default Colors

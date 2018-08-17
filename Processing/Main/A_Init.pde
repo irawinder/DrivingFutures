@@ -26,6 +26,11 @@ import java.io.FileNotFoundException;
 
 //  GeoLocation Parameters:
 float latCtr, lonCtr, bound, latMin, latMax, lonMin, lonMax;
+MercatorMap mercatorMap;
+
+// Raster Map File
+PImage[] map;
+int mapIndex;
 
 //  Object to Define Systems Model
 Parking_System sys;
@@ -90,20 +95,34 @@ void initialize() {
     // Union Point Hanger Coordinates
     // 42.156622, -70.942516
     
+    // Union Point Elkus Center Coordinates:
+    //
+    // 42.159982, -70.933664
+    
     // Boston Coordinates
     //latCtr = +42.350;
     //lonCtr = -71.066;
     
     //  Parameter Space for Geometric Area
     //
-    latCtr = +42.156622;
-    lonCtr = -70.942516;
+    latCtr = +42.159982;
+    lonCtr = -70.933664;
     //bound    =  0.035;
     bound    =  0.5*0.035;
     latMin = latCtr - bound;
     latMax = latCtr + bound;
-    lonMin = lonCtr - bound;
-    lonMax = lonCtr + bound;
+    lonMin = lonCtr - bound/cos(PI*42.159982/180.0);
+    lonMax = lonCtr + bound/cos(PI*42.159982/180.0);
+    
+    map = new PImage[3];
+    map[0] = loadImage("basemap/18_0725_Phase1_exist_sm.jpg");
+    map[1] = loadImage("basemap/18_0725_Phase1_Ground_sm.jpg");
+    map[2] = loadImage("basemap/18_0612_Full-build_Ground_sm.jpg");
+    mapIndex = 1;
+    
+    // rectangular projection environment to convert latitude and longitude into pixel locations on the canvas
+    //
+    mercatorMap = new MercatorMap(B.x, B.y, latMin, latMax, lonMin, lonMax, 0); // rotation = 0
     
   } else if (initPhase == 2) {
     
@@ -175,8 +194,8 @@ void initialize() {
     cam = new Camera (B, MARGIN);
     //cam.X_DEFAULT    = -350;
     //cam.Y_DEFAULT     =  50;
-    cam.X_DEFAULT     = 350;
-    cam.Y_DEFAULT     =  30;
+    cam.X_DEFAULT     = 1300;
+    cam.Y_DEFAULT     =  -500;
     cam.ZOOM_DEFAULT = 0.30;
     cam.ZOOM_POW     = 1.75;
     cam.ZOOM_MAX     = 0.10;
@@ -239,6 +258,7 @@ void initRoads() {
     println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
+  // Override!
   //loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
   
   // Graph pixel dimensions
@@ -331,7 +351,8 @@ void initPaths() {
     println("The specified file '" + fileName + "' is not present. Creating new one ... ");
   }
   
-  //loadFile = false;
+  // Override!
+  //loadFile = false; 
   
   // Collection of routes to and from home, work, and parking ammentities
   if (loadFile) {
@@ -358,7 +379,9 @@ void initPaths() {
     
     if (debug) {
       
-      hanger = new PVector(0.5*B.x, 0.5*B.y);
+      // Hanger Location
+      hanger = mercatorMap.getScreenLocation(new PVector(42.156622, -70.942516));
+      hanger.y = B.y - hanger.y;
       
       for (int i=0; i<1000; i++) {
         //  An example Origin and Desination between which we want to know the shortest path
