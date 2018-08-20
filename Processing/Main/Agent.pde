@@ -268,7 +268,14 @@ class Agent {
         fill(col, alpha);
       }
       
-      if (type.equals("PED")) {
+      if (type.equals("RAIL")) {
+      
+        // Draw TRAIN
+        //
+        fill(#FF0000, 255);
+        box(1*scaler*radius, 10*scaler*radius, 2*scaler*radius);
+     
+      } else if (type.equals("PED")) {
       
         // Draw Pedstrian
         //

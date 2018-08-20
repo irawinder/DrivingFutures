@@ -57,6 +57,7 @@ void listen() {
   if (showCar3) for (Agent p: type3) p.update(otherLocations, collisionDetection);
   if (showCar4) for (Agent p: type4) p.update(otherLocations, collisionDetection);
   if (showPed)  for (Agent p: ped)   p.update(otherLocations, collisionDetection);
+  if (showTrain)for (Agent p: train) p.update(otherLocations, collisionDetection);
   
   // Update Vehicle Draw
   //
@@ -132,6 +133,14 @@ void hoverListen() {
       shortestDistance = dist; hoverIndex = i; hoverType = "ped";
     }
   }
+  if (showTrain) for (int i=0; i<train.size(); i++) {
+    Agent p = train.get(i);
+    p.highlight = false;
+    float dist = mouseDistance(mouse, p.s_x, p.s_y);
+    if ( dist < shortestDistance && dist < MIN_DIST ) {
+      shortestDistance = dist; hoverIndex = i; hoverType = "train";
+    }
+  }
   for (int i=0; i<structures.parking.size(); i++) {
     Parking p = structures.parking.get(i);
     p.highlight = false;
@@ -151,6 +160,7 @@ void hoverListen() {
   if (hoverType.equals("car3")) type3.get(hoverIndex).highlight = true;
   if (hoverType.equals("car4")) type4.get(hoverIndex).highlight = true;
   if (hoverType.equals("ped"))  ped.get(hoverIndex).highlight = true;
+  if (hoverType.equals("train"))train.get(hoverIndex).highlight = true;
 }
 
 // Set System Parameters According to Slider Values

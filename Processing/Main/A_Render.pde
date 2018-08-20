@@ -26,6 +26,7 @@ boolean showCar2 = true;
 boolean showCar3 = true;
 boolean showCar4 = true;
 boolean showPed = true;
+boolean showTrain = true;
 boolean showBelow = true;
 boolean showSurface = true;
 boolean showAbove = true;
@@ -98,10 +99,12 @@ void render3D() {
   fill(roadColor); stroke(255); // Default Colors
   tint(255, 25); // overlaid as an image
   image(network.img, 0, 0, B.x, B.y);
+  image(rail_network.img, 0, 0, B.x, B.y);
   
   // Draw Routes overlaid on streets
   tint(255, 175);
   image(routes.img, 0, 0, B.x, B.y);
+  image(rail_routes.img, 0, 0, B.x, B.y);
   
   /*
   
@@ -210,6 +213,7 @@ void render3D() {
   if (showCar3) for (Agent p: type3) p.display(scaler, "BOX", car3Color, 200);
   if (showCar4) for (Agent p: type4) p.display(scaler, "BOX", car4Color, 200);
   if (showPed)  for (Agent p: ped)   p.display(scaler, "PED", car4Color, 200);
+  if (showTrain)for (Agent p: train) p.display(scaler, "RAIL",car4Color, 200);
   
   if (!is3D) {
     translate(200, 2900);

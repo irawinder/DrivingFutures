@@ -163,7 +163,11 @@ class Graph {
       }
       objectID = r.networkT.getInt(i, 2);
       if (lastID == objectID) {
-        oneway = r.networkT.getString(i, 7);
+        try {
+          oneway = r.networkT.getString(i, 7);
+        } catch(RuntimeException e){
+          oneway = "B";
+        }
         type = r.networkT.getString(i, 4);
         speed = r.getSpeed(type); // need to eventually map speed to node type
         dist = sqrt(sq(nodes.get(i).loc.x - nodes.get(i-1).loc.x) + sq(nodes.get(i).loc.y - nodes.get(i-1).loc.y));

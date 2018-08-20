@@ -43,10 +43,11 @@ Parking_System sys;
 //  Object to define parking facilities:
 Parking_Structures structures;
 // Object to define and capture paths to collection of origins, destinations:
-Trip_Routes routes, ped_routes;
+Trip_Routes routes, ped_routes, rail_routes;
 
 // Object for initializing road network and paths
 Graph network;
+Graph rail_network;
 
 //  Objects to define agents that navigate our environment:
 ArrayList<Agent> type1; // Private non-AV
@@ -55,6 +56,8 @@ ArrayList<Agent> type3; // Private AV
 ArrayList<Agent> type4; // Shared  AV
 
 ArrayList<Agent> ped;   // Pedestrian
+
+ArrayList<Agent> train;   // Train
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -189,6 +192,7 @@ void initialize() {
   } else if (initPhase == 3) {
     
     initRoads();
+    initRails();
     
   } else if (initPhase == 4) {
     
@@ -198,6 +202,7 @@ void initialize() {
     
     initPaths();
     initPedPaths();
+    initRailPaths();
     
   } else if (initPhase == 6) {
     
@@ -247,6 +252,9 @@ void initialize() {
     
     // Initial Pedestrians
     initPeds();
+    
+    // Initial Trains
+    initTrains();
   
   } else if (initPhase == 9) {
     
@@ -306,6 +314,56 @@ void initRoads() {
     // Save network to JSON file
     //
     network.saveJSON(fileName);
+  }
+}
+
+void initRails() {
+
+  // Check for existance of JSON file
+  //
+  String fileName = "local/rail_OSM.json";
+  File graphJSON = new File(dataPath(fileName));
+  boolean loadFile;
+  if(graphJSON.exists()) { 
+    loadFile = true;
+  } else {
+    loadFile = false;
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
+  }
+  
+  // Override!
+  //loadFile = false; // override! Turns out this doesn't really save much computational speed anyway ...
+  
+  // Graph pixel dimensions
+  //
+  int graphWidth  = int(B.x); // pixels
+  int graphHeight = int(B.y); // pixels
+    
+  if (loadFile) {
+    
+    //  A Road Network Created from a JSON File compatible with Graph.loadJSON()
+    //
+    boolean drawNodes = false;
+    boolean drawEdges = true;
+    rail_network = new Graph(graphWidth, graphHeight, fileName, drawNodes, drawEdges);
+    
+  } else {
+    
+    //  A Road Network Created from a QGIS OSM File
+    //
+    // Use this function rarely when you need to clean a csv file. It saves a new file to the data folder
+    //rNetwork = new RoadNetwork("data/roads.csv", latMin, latMax, lonMin, lonMax);
+    //
+    RoadNetwork rNetwork = new RoadNetwork("data/rails.csv");
+    
+    //  An example gridded network of width x height (pixels) and node resolution (pixels)
+    //
+    int nodeResolution = 5;     // pixels
+    rail_network = new Graph(graphWidth, graphHeight, latMin, latMax, lonMin, lonMax, nodeResolution, rNetwork);
+    
+    // Save network to JSON file
+    //
+    rail_network.saveJSON(fileName);
   }
 }
 
@@ -644,4 +702,133 @@ void addPed(ArrayList<Agent> array, String type) {
   pedestrian.passengers = int( random(0, 1.99) ); 
   pedestrian.driver = true;
   array.add(pedestrian);
+}
+
+void initRailPaths() {
+  
+  // Check for existance of JSON file
+  //
+  String fileName = "local/rail_routes.json";
+  File routesJSON = new File(dataPath(fileName));
+  boolean loadFile;
+  if(routesJSON.exists()) { 
+    loadFile = true;
+  } else {
+    loadFile = false;
+    println("The specified file '" + fileName + "' is not present. Creating new one ... ");
+  }
+  
+  // Override!
+  //loadFile = false; 
+  
+  // Collection of routes to and from home, work, and parking ammentities
+  if (loadFile) {
+    
+    // generate from file
+    //
+    rail_routes = new Trip_Routes(fileName);
+    
+  } else {
+    
+    // generate randomly
+    //
+    rail_routes = new Trip_Routes();
+    Path path, pathReturn;
+    PVector origin, destination, hanger;
+    
+    boolean debug = true;
+    
+    //  An example pathfinder object used to derive the shortest path
+    //  setting enableFinder to "false" will bypass the A* algorithm
+    //  and return a result akin to "as the bird flies"
+    //
+    Pathfinder finder = new Pathfinder(rail_network);
+    
+    if (debug) {
+      
+      // Hanger Location
+      hanger = mercatorMap.getScreenLocation(new PVector(42.156622, -70.942516));
+      hanger.y = B.y - hanger.y;
+      
+      for (int i=0; i<50; i++) {
+        //  An example Origin and Desination between which we want to know the shortest path
+        //
+        int rand1 = int( random(rail_network.nodes.size()));
+        origin    = rail_network.nodes.get(rand1).loc;
+        int rand2 = int( random(rail_network.nodes.size()));
+        destination = rail_network.nodes.get(rand2).loc;
+        
+        boolean closedLoop = true;
+        
+        path = new Path(origin, destination);
+        path.solve(finder);
+        
+        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+          path.waypoints.clear();
+        }
+        pathReturn = new Path(destination, origin); 
+        pathReturn.solve(finder);
+        path.joinPath(pathReturn, closedLoop);
+        
+        rail_routes.paths.add(path);
+      }
+      
+    } else {
+  
+      for (Parking p: structures.parking) {
+        //  An example Origin and Desination between which we want to know the shortest path
+        //
+        int rand1 = int( random(network.nodes.size()));
+        boolean closedLoop = true;
+        origin      = network.nodes.get(rand1).loc;
+        destination = p.location;
+        path = new Path(origin, destination);
+        path.solve(finder);
+        if (path.waypoints.size() <= 1) { // Prevents erroneous origin point from being added when only return path found
+          path.waypoints.clear();
+        }
+        pathReturn = new Path(destination, origin); 
+        pathReturn.solve(finder);
+        path.joinPath(pathReturn, closedLoop);
+        rail_routes.paths.add(path);
+      }
+      
+    }
+    rail_routes.saveJSON(fileName);
+  }
+  rail_routes.render(int(B.x), int(B.y));
+}
+
+void initTrains() {
+  train = new ArrayList<Agent>();
+  for (int i=0; i<40; i++) addTrain(train, "RAIL");
+}
+
+void addTrain(ArrayList<Agent> array, String type) {
+  //  An example population that traverses along shortest path calculation
+  //  FORMAT: Agent(x, y, radius, speed, path);
+  //
+  Agent train;
+  PVector loc;
+  int random_waypoint;
+  float random_speed;
+  
+  Path random;
+  boolean loop = true;
+  boolean teleport = true;
+  
+  random = rail_routes.paths.get( int(random(rail_routes.paths.size())) );
+  int wpts = random.waypoints.size();
+  while (wpts < 2) {
+    random = rail_routes.paths.get( int(random(rail_routes.paths.size())) );
+    wpts = random.waypoints.size();
+  }
+  random_waypoint = int(random(random.waypoints.size()));
+  random_speed = 6*0.3;
+  loc = random.waypoints.get(random_waypoint);
+  train = new Agent(loc.x, loc.y, 2, random_speed, random.waypoints, loop, teleport, "RIGHT", type);
+  
+  train.passengers = int( random(0, 1.99) ); 
+  train.driver = true;
+  array.add(train);
 }

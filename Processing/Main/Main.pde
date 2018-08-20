@@ -72,8 +72,8 @@ boolean initialized;
 // Runs once when application begins
 //
 void setup() {
-  size(1280, 800, P3D);
-  //fullScreen(P3D);
+  //size(1280, 800, P3D);
+  fullScreen(P3D);
   
   initialized = false;
 }
