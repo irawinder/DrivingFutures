@@ -201,7 +201,9 @@ void syncParking() {
     } else if (p.col == reservedColor && p.active) {
       p.ratio = 1.0;
     }
-    p.utilization = int(p.ratio*p.capacity);
+    //p.utilization = int(p.ratio*p.capacity);
+    p.utilization = int((1-p.ratio)*p.capacity);
+    
   }
 }
 
@@ -277,12 +279,12 @@ void keyPressed() {
       //case 'p':
       //  initVehicles();
       //  break;
-      //case 'p':
-      //  println("cam.offset.x = " + cam.offset.x);
-      //  println("cam.offset.x = " + cam.offset.x);
-      //  println("cam.zoom = "     + cam.zoom);
-      //  println("cam.rotation = " + cam.rotation);
-      //  break;
+      case 'p':
+        println("cam.offset.x = " + cam.offset.x);
+        println("cam.offset.y = " + cam.offset.y);
+        println("cam.zoom = "     + cam.zoom);
+        println("cam.rotation = " + cam.rotation);
+        break;
     }
     
     // Update Inputs and model

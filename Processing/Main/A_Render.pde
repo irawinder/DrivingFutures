@@ -109,6 +109,8 @@ void render3D() {
       
           // Draw Parking Button/Icon
           translate(0,0,1);
+          
+          /*
           if (p.capacity == p.utilization) {
             stroke(#AA0000, 200); strokeWeight(3);
           } else if (0 == p.utilization) {
@@ -116,14 +118,22 @@ void render3D() {
           } else {
             noStroke();
           }
+          */ // Replace with:
+              if (p.capacity == p.utilization) {
+                stroke(#00AA00, 200); strokeWeight(3);
+              } else {
+                noStroke();
+              }
+          
           if (p.highlight) {
             fill(p.col, 255);
           } else {
             fill(p.col, 200);
           }
-          float pW = 2.0*sqrt( max(structures.minCap, p.capacity));
+          float pW = 2.0*sqrt( max(structures.minCap, 5*p.capacity));
           ellipse(p.location.x, p.location.y, pW, pW);
           
+          /*
           // Draw Parking Utilization
           translate(0,0,3);
           noStroke();  
@@ -135,6 +145,7 @@ void render3D() {
           if (p.utilization > 0 && p.capacity > 0) {
             arc(p.location.x, p.location.y, -10 + pW, -10 + pW, 0, p.ratio*2*PI);
           }
+          */
           
           //// Draw Potential Volume
           ////
@@ -158,14 +169,14 @@ void render3D() {
           translate(0,0,1);
           fill(255, 255);
           textAlign(CENTER, CENTER);
-          if (p.capacity - p.utilization > 0) text(p.capacity - p.utilization, int(p.location.x), int(p.location.y));
+          text(p.capacity+"K", int(p.location.x), int(p.location.y));
           
           // Draw Development Volume
           //
-          if (!p.active || p.utilization == 0) {
+          if (!p.active || p.utilization > 10 || p.utilization == p.capacity) {
             pushMatrix(); translate(p.location.x, p.location.y, 0.5*pW-4);
-            fill(p.col, 100); stroke(p.col, 150); strokeWeight(1);
-            box(0.7*pW, 0.7*pW, pW);
+            fill(255, 100); stroke(p.col, 150); strokeWeight(1);
+            box(0.7*pW, 0.7*pW, p.rando*pW);
             popMatrix();
           }
         }
@@ -204,7 +215,7 @@ void render2D() {
     textAlign(LEFT, TOP); textFont(font60);
     text(sys.year_now, 0, 0);
     textFont(font12); fill(255);
-    text("Parking Demand (since 2010):", 0, 70);
+    text("Market Rent (since 2018):", 0, 70);
     int yr = sys.year_now - sys.year_0;
     float parking_demand  = sys.totalPark[yr];
     float parking_total   = sys.totalPark[0];
@@ -227,7 +238,7 @@ void render2D() {
     
     pushMatrix(); translate(bar_left.barX + bar_left.margin, int(17.5*bar_left.CONTROL_H) );
     textAlign(LEFT, BOTTOM); fill(255); 
-    text("Parking", 0, 0);
+    text("Parcels", 0, 0);
     translate(bar_left.contentW/2, 0);
     text("Vehicles", 0, 0);
     popMatrix();
@@ -237,8 +248,8 @@ void render2D() {
     pushMatrix(); translate(bar_right.barX + bar_right.margin, bar_right.controlY);
     sys.plot4("Vehicle Counts", "[100's]",       sys.numCar1,   sys.numCar2,   sys.numCar3,     sys.numCar4,   car1Color,  car2Color,  car3Color,    car4Color,  0,   0, bar_right.contentW, 125, 0.020);
     sys.plot4("Trips by Vehicle Type", "[100's]",sys.numTrip1,  sys.numTrip2,  sys.numTrip3,    sys.numTrip4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 165, bar_right.contentW, 125, 0.015);
-    sys.plot4("Parking Space Demand", "[100's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.040);
-    sys.plot4("Parking Space Vacancy", "[100's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.080);
+    sys.plot4("Parking Demand", "[1000's]", sys.numPark1,  sys.numPark2,  sys.numPark3,    sys.numPark4,  car1Color,  car2Color,  car3Color,    car4Color,  0, 330, bar_right.contentW, 125, 0.050);
+    //sys.plot4("Housing Demand", "[1000's]",sys.otherFree, sys.belowFree, sys.surfaceFree, sys.aboveFree, #990000,    belowColor, surfaceColor, aboveColor, 0, 495, bar_right.contentW, 125, 0.050);
     popMatrix();
   }
   

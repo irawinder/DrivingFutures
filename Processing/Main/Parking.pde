@@ -151,6 +151,11 @@ class Parking_System {
         otherFree[i] = 0;
       }
       
+      totalFree[i] = int(driver(1000.0, 1.00 + bar_left.sliders.get(1).value/100.0, int(bar_left.sliders.get(0).value - bar_left.sliders.get(0).valMin)));
+      belowFree[i]   = 0;
+      surfaceFree[i] = 0;
+      aboveFree[i]   = 0;
+      
       // Allocation of Parking Vacancy Based Upon Priority triangle
       //
       int pB = int( 0.5 + 100 * priorityBelow   ); // 0-100
@@ -378,6 +383,7 @@ class Parking {
   boolean highlight;
   boolean active;
   float s_x, s_y; // screen location (for mouse commnads)
+  float rando;
   
   Parking(float x, float y, float area, String type, int capacity) {
     this.location = new PVector(x, y);
@@ -402,6 +408,8 @@ class Parking {
     // Initialize off screen
     s_x = -1000;
     s_y = -1000;
+    
+    rando = random(0.5, 1.5);
   }
 
   void setScreen() {
@@ -433,10 +441,10 @@ class Parking {
     typeInfo += "\n" + type;
     
     String spaceInfo = "";
-    spaceInfo += "\n\n\n\n" + (capacity-utilization) + " / " + capacity + " spaces";
+    spaceInfo += "\n\n\n\n" + utilization + "K / " + capacity + "K sqft";
     
     String info = "";
-    info += "Parking Typology:\n\n\nUnutilized Parking:";
+    info += "Parcel Type:\n\n\nUtilized Land:";
     info += "\n\nParcel Area: " + int(area) + " sqft\n";
     if (!name.equals(""))
       info += "\nName: " + name;
@@ -447,7 +455,7 @@ class Parking {
     if (!devAddy.equals(""))
       info += "\nDev. Addy: " + devAddy;
     if (!parkMethod.equals(""))
-      info += "\nParking Method: " + parkMethod;
+      info += "\nDescription: " + parkMethod;
     if (!userGroup.equals(""))
       info += "\nUser Group: " + userGroup;
     if (!respondent.equals(""))
@@ -457,10 +465,10 @@ class Parking {
     text(typeInfo, int(x+25), int(y+25), infoW - 50, infoH-50);
     
     if (capacity == utilization) {
-      fill(#FF0000);
-      spaceInfo += " - AT CAPACITY";
+      fill(#00FF00);
+      spaceInfo += " - DEVELOPED";
     } else if (utilization == 0) {
-      fill(#00FF00); 
+      fill(#FF0000);
       spaceInfo += " - VACANT";
     } else {
       fill(255);
@@ -476,7 +484,7 @@ class Parking {
 class Parking_Structures {
   ArrayList<Parking> parking;
   int totBelow, totSurface, totAbove;
-  int minCap = 200;
+  int minCap = 150;
   
   Parking_Structures(float latMin, float latMax, float lonMin, float lonMax) {
     parking = new ArrayList<Parking>();

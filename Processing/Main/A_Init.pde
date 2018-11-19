@@ -91,7 +91,7 @@ void initialize() {
     //
     latCtr =  +47.611140;
     lonCtr = -122.292338;
-    bound    =  0.12;
+    bound    =  0.1;
     latMin = latCtr - bound;
     latMax = latCtr + bound;
     lonMin = lonCtr - bound;
@@ -116,20 +116,20 @@ void initialize() {
     bar_left.explanation += "Press ' a ' to autoplay";
     //bar_left.explanation += "[f] <- Press 'f' to show framerate";
     bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
-    bar_left.addSlider("Year of Analysis",               "",  2010, 2030, 2017, 1, 'q', 'w', false);
-    bar_left.addSlider("Annual Vehicle Trip Growth",    "%", -2,       8,    3, 1, 'Q', 'W', false);
-    bar_left.addSlider("RideShare: Trip Equilibrium",   "%",  0,     100,   60, 1, 'a', 's', false);
-    bar_left.addSlider("RideShare: Peak Adoption Year",  "",  2010, 2030, 2018, 1, 'A', 'S', false);
-    bar_left.addSlider("AV: Trip Equilibrium",          "%",     0,  100,   90, 1, 'z', 'x', false);
-    bar_left.addSlider("AV: Peak Adoption Year",         "",  2010, 2030, 2024, 1, 'Z', 'X', false);
-    bar_left.addTriSlider("Redevelop\nPriority",        "Below\nGround", belowColor, 
-                                                        "Surface\nParking", surfaceColor, 
-                                                        "Above\nGround", aboveColor);
+    bar_left.addSlider("Year of Analysis",               "",  2018, 2038, 2018, 1, 'q', 'w', false);
+    bar_left.addSlider("Population Growth",    "%", -2,       8,    5, 1, 'Q', 'W', false);
+    bar_left.addSlider("RideShare: Trip Equilibrium",   "%",  0,     100,   70, 1, 'a', 's', false);
+    bar_left.addSlider("RideShare: Peak Adoption Year",  "",  2018, 2038, 2016, 1, 'A', 'S', false);
+    bar_left.addSlider("AV: Trip Equilibrium",          "%",     0,  100,   70, 1, 'z', 'x', false);
+    bar_left.addSlider("AV: Peak Adoption Year",         "",  2018, 2038, 2032, 1, 'Z', 'X', false);
+    bar_left.addTriSlider("Vacant\nRedevelop\nPriority","Public\nLand", belowColor, 
+                                                        "Single\nFamily\nRes.", surfaceColor, 
+                                                        "General\nMixed", aboveColor);
     bar_left.addRadio("BLANK", 0, true, ' ', true); // Spacer for Parking and Vehicle Button Lables
-    bar_left.addRadio("Below",               belowColor,    true, '1', true);
-    bar_left.addRadio("Surface",             surfaceColor,  true, '2', true);
-    bar_left.addRadio("Above",               aboveColor,    true, '3', true);
-    bar_left.addRadio("RSVD",                reservedColor, true, '4', true);
+    bar_left.addRadio("Public",              belowColor,    true, '1', true);
+    bar_left.addRadio("Resid.",            surfaceColor,  true, '2', true);
+    bar_left.addRadio("Mixed",               aboveColor,    true, '3', true);
+    bar_left.addRadio("Other",                reservedColor, true, '4', true);
     bar_left.addRadio("Private",             car1Color,     true, '5', true);
     bar_left.addRadio("Shared",              car2Color,     true, '6', true);
     bar_left.addRadio("AV Private",          car3Color,     true, '7', true);
@@ -164,9 +164,9 @@ void initialize() {
     // Initialize 3D World Camera Defaults
     //
     cam = new Camera (B, MARGIN);
-    cam.X_DEFAULT    = -350;
-    cam.Y_DEFAULT     =  50;
-    cam.ZOOM_DEFAULT = 0.30;
+    cam.X_DEFAULT    = 1300;
+    cam.Y_DEFAULT    = 550;
+    cam.ZOOM_DEFAULT = 0.24;
     cam.ZOOM_POW     = 1.75;
     cam.ZOOM_MAX     = 0.10;
     cam.ZOOM_MIN     = 0.60;
@@ -188,7 +188,7 @@ void initialize() {
   } else if (initPhase == 7) {
     
     // Setup System Simulation
-    sys = new Parking_System(1001, 2010, 2030);
+    sys = new Parking_System(1001, 2018, 2038);
     sys.av_growth = 1.0;
     sys.rideShare_growth = 1.0;
     sys.totBelow = structures.totBelow     / 100;
@@ -279,7 +279,7 @@ void initParking() {
     float canvasY  = B.y - B.y * (y - latMin) / abs(latMax - latMin);
     float area = parcelsCSV.getFloat(i, "Shape_area");
     String type = parcelsCSV.getString(i, "MapTable_5");
-    int capacity = parcelsCSV.getInt(i, "Shape_area")/10000;
+    int capacity = parcelsCSV.getInt(i, "Shape_area")/1000;
     Parking park = new Parking(canvasX, canvasY, area, type, capacity);
     park.respondent = "Enterprise";
     park.address    = parcelsCSV.getString(i, "MapTable_d");
@@ -298,7 +298,7 @@ void initParking() {
       park.col = surfaceColor;
       structures.totSurface += park.capacity;
     // General Mixed
-    } else if (park.type.equals("General Mixed Use")) {
+    } else if (park.type.equals("General Mixed Use") || park.type.equals("Mixed Use Commercial/Residential")) {
       park.col = aboveColor;
       structures.totAbove += park.capacity;
     } else {
@@ -413,9 +413,9 @@ void initPaths() {
       }
       
     } else {
-  
+      
       for (Parking p: structures.parking) {
-        //  An example Origin and Desination between which we want to know the shortest path
+        //  An Origin and Desination between which we want to know the shortest path
         //
         int rand1 = int( random(network.nodes.size()));
         boolean closedLoop = true;

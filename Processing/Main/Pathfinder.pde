@@ -271,7 +271,6 @@ class Graph {
       for (int i=0; i<n.adj_ID.size(); i++) {
         JSONObject neighborJSON = new JSONObject();
         neighborJSON.setInt("adj_ID", n.adj_ID.get(i) );
-        println(n.adj_Dist.get(i));
         neighborJSON.setFloat("adj_Dist", n.adj_Dist.get(i) );
         neighborsJSON.append(neighborJSON);
       }

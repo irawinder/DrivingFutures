@@ -181,8 +181,10 @@ class Toolbar {
     
     // Sliders
     for (ControlSlider s: sliders) {
-      s.update();
-      s.drawMe();
+      if (s.name.equals("Year of Analysis") || s.name.equals("Population Growth")) {
+        s.update();
+        s.drawMe();
+      }
     }
     
     // Buttons
