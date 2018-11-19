@@ -570,7 +570,7 @@ class Parking_Routes {
       PVector pt;
       img.noFill();
       img.stroke(255, 20);
-      img.strokeWeight(10);
+      img.strokeWeight(5);
       img.strokeCap(ROUND);
       img.beginShape();
       for (int i=0; i<p.waypoints.size(); i++) {

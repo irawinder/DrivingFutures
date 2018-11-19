@@ -89,9 +89,9 @@ void initialize() {
     
     //  Parameter Space for Geometric Area
     //
-    latCtr = +42.350;
-    lonCtr = -71.066;
-    bound    =  0.035;
+    latCtr =  +47.611140;
+    lonCtr = -122.292338;
+    bound    =  0.12;
     latMin = latCtr - bound;
     latMax = latCtr + bound;
     lonMin = lonCtr - bound;
@@ -169,7 +169,7 @@ void initialize() {
     cam.ZOOM_DEFAULT = 0.30;
     cam.ZOOM_POW     = 1.75;
     cam.ZOOM_MAX     = 0.10;
-    cam.ZOOM_MIN     = 0.40;
+    cam.ZOOM_MIN     = 0.60;
     cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
     cam.enableChunks = false;  // Enable/Disable 3D mouse cursor field for continuous object placement
     cam.init(); // Must End with init() if any BASIC variables within Camera() are changed from default 
@@ -218,7 +218,7 @@ void initRoads() {
 
   // Check for existance of JSON file
   //
-  String fileName = "local/boston_OSM.json";
+  String fileName = "local/seattle_OSM.json";
   File graphJSON = new File(dataPath(fileName));
   boolean loadFile;
   if(graphJSON.exists()) { 
@@ -268,6 +268,49 @@ void initParking() {
   //  Init A list of parking structures
   //
   structures = new Parking_Structures(latMin, latMax, lonMin, lonMax);
+  
+  
+  Table parcelsCSV = loadTable("data/enterprise.csv", "header");
+  
+  for (int i=0; i<parcelsCSV.getRowCount(); i++) {
+    float x = parcelsCSV.getFloat(i, "X");
+    float y = parcelsCSV.getFloat(i, "Y");
+    float canvasX  = B.x * (x - lonMin) / abs(lonMax - lonMin);
+    float canvasY  = B.y - B.y * (y - latMin) / abs(latMax - latMin);
+    float area = parcelsCSV.getFloat(i, "Shape_area");
+    String type = parcelsCSV.getString(i, "MapTable_5");
+    int capacity = parcelsCSV.getInt(i, "Shape_area")/10000;
+    Parking park = new Parking(canvasX, canvasY, area, type, capacity);
+    park.respondent = "Enterprise";
+    park.address    = parcelsCSV.getString(i, "MapTable_d");
+    park.name       = parcelsCSV.getString(i, "PIN");
+    park.devName    = parcelsCSV.getString(i, "MapTable_5");
+    park.devAddy    = parcelsCSV.getString(i, "MapTable_d");
+    park.parkMethod = parcelsCSV.getString(i, "MapTable_4");
+    park.userGroup  = "Enterprise";
+    
+    // Public
+    if (park.type.equals("Public Use/Institutional")) {
+      park.col = belowColor;
+      structures.totBelow += park.capacity;
+    // Single Fam
+    } else if (park.type.equals("Single-Family Residential")) {
+      park.col = surfaceColor;
+      structures.totSurface += park.capacity;
+    // General Mixed
+    } else if (park.type.equals("General Mixed Use")) {
+      park.col = aboveColor;
+      structures.totAbove += park.capacity;
+    } else {
+      park.col = reservedColor;
+    } 
+    
+    if (x > lonMin && x < lonMax && y > latMin && y < latMax) {
+      structures.parking.add(park);
+    }
+  }
+  
+  /*
   Table parkingCSV = loadTable("data/parking.csv", "header");
   
   for (int i=0; i<parkingCSV.getRowCount(); i++) {
@@ -304,6 +347,7 @@ void initParking() {
     //if (capacity > 0) structures.parking.add(park);
     structures.parking.add(park);
   }
+  */
 }
 
 void initPaths() {
@@ -347,14 +391,14 @@ void initPaths() {
     
     if (debug) {
       
-      for (int i=0; i<5; i++) {
+      for (int i=0; i<15; i++) {
         //  An example Origin and Desination between which we want to know the shortest path
         //
         int rand1 = int( random(network.nodes.size()));
-        int rand2 = int( random(structures.parking.size()));
+        int rand2 = int( random(network.nodes.size()));
         boolean closedLoop = true;
         origin      = network.nodes.get(rand1).loc;
-        destination = structures.parking.get(rand2).location;
+        destination = network.nodes.get(rand2).loc;
         path = new Path(origin, destination);
         path.solve(finder);
         

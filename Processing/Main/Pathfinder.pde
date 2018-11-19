@@ -271,6 +271,7 @@ class Graph {
       for (int i=0; i<n.adj_ID.size(); i++) {
         JSONObject neighborJSON = new JSONObject();
         neighborJSON.setInt("adj_ID", n.adj_ID.get(i) );
+        println(n.adj_Dist.get(i));
         neighborJSON.setFloat("adj_Dist", n.adj_Dist.get(i) );
         neighborsJSON.append(neighborJSON);
       }
@@ -471,7 +472,7 @@ class Graph {
     //
     img.noFill();
     img.stroke(col, alpha);
-    img.strokeWeight(10);
+    img.strokeWeight(5);
     
     // Draws Tangent Circles Centered at pathfinding nodes
     //
@@ -1376,14 +1377,19 @@ class RoadNetwork {
   float getSpeed(String roadType) {
     
     float speed = 0.0;
-
+    boolean found = false;
     for (int i=0; i<speedCategories.length; i++) {
       for (String t: classNames.get(i)) {
         if (roadType.equals(t)) {
           speed = speedCategories[i];
+          found = true;
           break;
         }
       }
+    }
+    if (!found) {
+      println(roadType);
+      speed = 20;
     }
     return speed;
     
