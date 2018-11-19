@@ -276,7 +276,7 @@ void initParking() {
     float canvasX  = B.x * (x - lonMin) / abs(lonMax - lonMin);
     float canvasY  = B.y - B.y * (y - latMin) / abs(latMax - latMin);
     float area = parkingCSV.getFloat(i, "SHAPE_area");
-    String type = parkingCSV.getString(i, "20171127_Parking Typology (use dropdown)");
+    String type = parkingCSV.getString(i, "20171127_Parking");
     int capacity = parkingCSV.getInt(i, "20171127_Gensler Revised Parking Spots");
     Parking park = new Parking(canvasX, canvasY, area, type, capacity);
     park.respondent = parkingCSV.getString(i, "20171127_Respondent (First+ Last)");
