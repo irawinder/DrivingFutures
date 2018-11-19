@@ -215,15 +215,22 @@ void render2D() {
     textAlign(LEFT, TOP); textFont(font60);
     text(sys.year_now, 0, 0);
     textFont(font12); fill(255);
-    text("Market Rent (since 2018):", 0, 70);
     int yr = sys.year_now - sys.year_0;
-    float parking_demand  = sys.totalPark[yr];
-    float parking_total   = sys.totalPark[0];
+    //text("Market Rent (since 2018):", 0, 70);
+    
+    /////
+    text("Affordable Supply Needed (since 2018):", 0, 70);
+    float parking_demand  = int(driver(500.0, 1.00 + bar_left.sliders.get(1).value/100.0, int(bar_left.sliders.get(0).value - bar_left.sliders.get(0).valMin)));
+    float parking_total   = 500.0;
+    /////
+    
     String sign = "";
+    
+    
     if (parking_demand < parking_total) {
-      fill(#00AA00, 200);
-    } else if (parking_demand > parking_total) {
       fill(#AA0000, 200);
+    } else if (parking_demand > parking_total) {
+      fill(#00AA00, 200);
       sign += "+";
     } else if (parking_demand == parking_total) {
       fill(150, 200);

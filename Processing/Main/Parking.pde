@@ -151,7 +151,7 @@ class Parking_System {
         otherFree[i] = 0;
       }
       
-      totalFree[i] = int(driver(1000.0, 1.00 + bar_left.sliders.get(1).value/100.0, int(bar_left.sliders.get(0).value - bar_left.sliders.get(0).valMin)));
+      totalFree[i] = int(driver(500.0, 1.00 + bar_left.sliders.get(1).value/100.0, int(bar_left.sliders.get(0).value - bar_left.sliders.get(0).valMin)));
       belowFree[i]   = 0;
       surfaceFree[i] = 0;
       aboveFree[i]   = 0;
